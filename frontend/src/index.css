@@ -33,6 +33,140 @@
     @apply bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors;
   }
   
+  .btn-danger {
+    @apply bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-md transition-colors;
+  }
+  
+  .btn-outline {
+    @apply border border-gray-300 hover:border-gray-400 text-gray-700 font-medium py-2 px-4 rounded-md transition-colors hover:bg-gray-50;
+  }
+  
+  /* Page Preview animations */
+  .preview-enter {
+    @apply transform translate-x-full;
+  }
+  
+  .preview-enter-active {
+    @apply transform translate-x-0 transition-transform duration-300 ease-out;
+  }
+  
+  .preview-exit {
+    @apply transform translate-x-0;
+  }
+  
+  .preview-exit-active {
+    @apply transform translate-x-full transition-transform duration-300 ease-in;
+  }
+  
+  /* Content fade in */
+  .content-fade-in {
+    @apply fade-in duration-300;
+  }
+  
+  /* Smooth transitions */
+  .preview-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+  
+  /* Custom fade in animation */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .fade-in {
+    animation: fadeIn 0.3s ease-out forwards;
+  }
+  
+  /* Slide in animation */
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+    }
+    to {
+      transform: translateX(0);
+    }
+  }
+  
+  .slide-in-right {
+    animation: slideInRight 0.3s ease-out forwards;
+  }
+  
+  /* Slide out animation */
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+  
+  .slide-out-right {
+    animation: slideOutRight 0.3s ease-in forwards;
+  }
+  
+  /* Overlay fade in */
+  @keyframes overlayFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  .overlay-fade-in {
+    animation: overlayFadeIn 0.3s ease-out forwards;
+  }
+  
+  /* Responsive preview */
+  @media (max-width: 640px) {
+    .preview-mobile {
+      width: 100vw;
+      right: 0;
+    }
+  }
+  
+  /* Smooth scrollbar for preview */
+  .preview-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #d1d5db #f9fafb;
+  }
+  
+  .preview-scrollbar::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .preview-scrollbar::-webkit-scrollbar-track {
+    background: #f9fafb;
+  }
+  
+  .preview-scrollbar::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 3px;
+  }
+  
+  .preview-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+  
+  /* Focus styles for accessibility */
+  .preview-focus:focus {
+    @apply outline-none ring-2 ring-blue-500 ring-offset-2;
+  }
+  
+  /* Hover effects */
+  .preview-hover:hover {
+    @apply transition-all duration-200;
+  }
+  
   .input {
     @apply border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent;
   }

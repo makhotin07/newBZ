@@ -8,7 +8,8 @@ import {
   EllipsisVerticalIcon,
   ArchiveBoxIcon,
   DocumentDuplicateIcon,
-  TrashIcon
+  TrashIcon,
+  PencilIcon
 } from '@heroicons/react/24/outline';
 import { Menu, Transition } from '@headlessui/react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
@@ -20,6 +21,7 @@ import LoadingSpinner from '../ui/LoadingSpinner';
 import EmptyState from '../ui/EmptyState';
 import { notesApi } from '../../services/notesApi';
 import ConfirmModal from '../ui/ConfirmModal';
+import PagePreview from './PagePreview';
 
 interface PageListProps {
   workspaceId: string;
@@ -38,6 +40,8 @@ const PageList: React.FC<PageListProps> = ({
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newPageTitle, setNewPageTitle] = useState('');
   const [confirm, setConfirm] = useState<{ open: boolean; id?: string }>({ open: false });
+  const [previewPage, setPreviewPage] = useState<Page | null>(null);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const { data: pages, isLoading } = usePages({
     workspace: workspaceId,
@@ -127,6 +131,27 @@ const PageList: React.FC<PageListProps> = ({
     reorderMutation.mutate({ id: moved.id, position: newPosition });
   };
 
+  const handlePageClick = (page: Page) => {
+    setPreviewPage(page);
+    setIsPreviewOpen(true);
+  };
+
+  const handleClosePreview = () => {
+    setIsPreviewOpen(false);
+    setPreviewPage(null);
+  };
+
+  const handleEditPage = (pageId: string) => {
+    // Закрываем превью и переходим к редактированию
+    handleClosePreview();
+    // Здесь можно добавить логику для перехода к редактированию
+  };
+
+  const handleDeletePage = (pageId: string) => {
+    setConfirm({ open: true, id: pageId });
+    handleClosePreview();
+  };
+
   const PageItem: React.FC<{ 
     page: Page; 
     index: number;
@@ -141,27 +166,27 @@ const PageList: React.FC<PageListProps> = ({
             ref={provided.innerRef}
             {...provided.draggableProps}
             {...provided.dragHandleProps}
-            className={`group flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 transition-colors ${
+            className={`group flex items-center space-x-3 p-3 rounded-lg hover:bg-gray-50 hover:shadow-md transition-all duration-200 ${
               snapshot.isDragging ? 'shadow-lg bg-white' : ''
             }`}
           >
             {/* Icon */}
             <div className="flex-shrink-0">
               {page.icon ? (
-                <span className="text-lg">{page.icon}</span>
+                <span className="text-lg hover:scale-110 transition-transform">{page.icon}</span>
               ) : (
-                <DocumentIcon className="w-5 h-5 text-gray-400" />
+                <DocumentIcon className="w-5 h-5 text-gray-400 hover:text-gray-600 transition-colors" />
               )}
             </div>
 
             {/* Content */}
-            <Link
-              to={`/workspace/${workspaceId}/page/${page.id}`}
-              className="flex-1 min-w-0"
+            <div
+              className="flex-1 min-w-0 cursor-pointer"
+              onClick={() => handlePageClick(page)}
             >
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600">
+                  <h3 className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
                     {page.title}
                   </h3>
                   <div className="flex items-center space-x-2 text-xs text-gray-500 mt-1">
@@ -179,17 +204,17 @@ const PageList: React.FC<PageListProps> = ({
                           {page.tags.slice(0, 2).map(tag => (
                             <span
                               key={tag.id}
-                              className="px-1.5 py-0.5 rounded text-xs"
+                              className="px-1.5 py-0.5 rounded text-xs hover:opacity-80 transition-opacity"
                               style={{ backgroundColor: tag.color + '20', color: tag.color }}
                             >
                               {tag.name}
                             </span>
                           ))}
-                          {page.tags.length > 2 && (
-                            <span className="px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-600">
-                              +{page.tags.length - 2}
-                            </span>
-                          )}
+                                                  {page.tags.length > 2 && (
+                          <span className="px-1.5 py-0.5 rounded text-xs bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors">
+                            +{page.tags.length - 2}
+                          </span>
+                        )}
                         </div>
                       </>
                     )}
@@ -200,10 +225,19 @@ const PageList: React.FC<PageListProps> = ({
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); setExpanded(v => !v); }}
-                  className="ml-3 text-xs text-gray-500 hover:text-gray-700"
+                  className="ml-3 text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-2 py-1 rounded transition-colors"
                 >
                   {expanded ? 'Свернуть' : 'Показать дочерние'}
                 </button>
+
+                {/* Edit button */}
+                <Link
+                  to={`/workspace/${workspaceId}/page/${page.id}`}
+                  className="ml-2 p-1 text-gray-400 hover:text-blue-600 rounded transition-colors"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <PencilIcon className="w-4 h-4" />
+                </Link>
 
                 {/* Actions Menu */}
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity">
@@ -242,7 +276,7 @@ const PageList: React.FC<PageListProps> = ({
                                     parent: page.id,
                                   });
                                 }}
-                                className={`${active ? 'bg-gray-100' : ''} flex items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                className={`${active ? 'bg-gray-100' : ''} flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors`}
                               >
                                 <PlusIcon className="w-4 h-4 mr-2" />
                                 Создать подстраницу
@@ -259,7 +293,7 @@ const PageList: React.FC<PageListProps> = ({
                                 }}
                                 className={`${
                                   active ? 'bg-gray-100' : ''
-                                } flex items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                } flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors`}
                               >
                                 <DocumentDuplicateIcon className="w-4 h-4 mr-2" />
                                 Duplicate
@@ -275,7 +309,7 @@ const PageList: React.FC<PageListProps> = ({
                                 }}
                                 className={`${
                                   active ? 'bg-gray-100' : ''
-                                } flex items-center w-full px-4 py-2 text-sm text-gray-700`}
+                                } flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors`}
                               >
                                 <ArchiveBoxIcon className="w-4 h-4 mr-2" />
                                 {page.is_archived ? 'Unarchive' : 'Archive'}
@@ -291,7 +325,7 @@ const PageList: React.FC<PageListProps> = ({
                                 }}
                                 className={`${
                                   active ? 'bg-red-50' : ''
-                                } flex items-center w-full px-4 py-2 text-sm text-red-700`}
+                                } flex items-center w-full px-4 py-2 text-sm text-red-700 hover:bg-red-100 transition-colors`}
                               >
                                 <TrashIcon className="w-4 h-4 mr-2" />
                                 Удалить
@@ -304,12 +338,12 @@ const PageList: React.FC<PageListProps> = ({
                   </Menu>
                 </div>
               </div>
-            </Link>
+            </div>
           </div>
         )}
       </Draggable>
       {expanded && (
-        <div className="ml-8 mt-1">
+        <div className="ml-8 mt-1 hover:ml-10 transition-all duration-200">
           <ChildPages parentId={page.id} workspaceId={workspaceId} />
         </div>
       )}
@@ -322,27 +356,27 @@ const PageList: React.FC<PageListProps> = ({
     const createPageMutation = useCreatePage();
     if (isLoading) return null;
     if (!children || children.length === 0) return (
-      <div className="pl-6 py-2 text-xs text-gray-500">Нет дочерних страниц</div>
+      <div className="pl-6 py-2 text-xs text-gray-500 hover:text-gray-600 transition-colors">Нет дочерних страниц</div>
     );
     const ChildRow: React.FC<{ node: Page }> = ({ node }) => {
       const [open, setOpen] = useState(false);
       return (
-        <div className="pl-4">
+        <div className="pl-4 hover:pl-6 transition-all duration-200">
           <div className="flex items-center space-x-2">
-            <DocumentIcon className="w-4 h-4 text-gray-400" />
-            <Link to={`/workspace/${workspaceId}/page/${node.id}`} className="text-sm text-gray-700 hover:text-blue-600 truncate flex-1">
+            <DocumentIcon className="w-4 h-4 text-gray-400 hover:text-gray-600 transition-colors" />
+            <Link to={`/workspace/${workspaceId}/page/${node.id}`} className="text-sm text-gray-700 hover:text-blue-600 truncate flex-1 transition-colors">
               {node.title}
             </Link>
             <button
               type="button"
-              className="text-xs text-gray-500 hover:text-gray-700"
+              className="text-xs text-gray-500 hover:text-gray-700 hover:bg-gray-100 px-2 py-1 rounded transition-colors"
               onClick={() => setOpen(v => !v)}
             >
               {open ? 'Свернуть' : 'Дочерние'}
             </button>
             <button
               type="button"
-              className="text-xs text-blue-600 hover:text-blue-700"
+              className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 px-2 py-1 rounded transition-colors"
               onClick={() => createPageMutation.mutate({ title: 'Новая страница', workspace: workspaceId, parent: node.id })}
             >
               + Подстраница
@@ -356,7 +390,7 @@ const PageList: React.FC<PageListProps> = ({
     };
 
     return (
-      <div className="space-y-1">
+      <div className="space-y-1 hover:space-y-2 transition-all duration-200">
         {children.map((child) => (
           <ChildRow key={child.id} node={child} />
         ))}
@@ -373,16 +407,16 @@ const PageList: React.FC<PageListProps> = ({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 hover:space-y-5 transition-all duration-200">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-900">
+        <h2 className="text-lg font-semibold text-gray-900 hover:text-gray-700 transition-colors">
           {showArchived ? 'Архивированные страницы' : showTemplates ? 'Шаблоны' : 'Страницы'}
         </h2>
         
         <button
           onClick={() => setShowCreateForm(true)}
-          className="btn-primary flex items-center space-x-2"
+          className="btn-primary flex items-center space-x-2 hover:shadow-md transition-shadow"
         >
           <PlusIcon className="w-4 h-4" />
           <span>Новая страница</span>
@@ -390,33 +424,33 @@ const PageList: React.FC<PageListProps> = ({
       </div>
 
       {/* Search */}
-      <div className="relative">
-        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <div className="relative group">
+        <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-hover:text-gray-600 transition-colors" />
         <input
           type="text"
           placeholder="Поиск страниц..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors"
         />
       </div>
 
       {/* Create Form */}
       {showCreateForm && (
-        <form onSubmit={handleCreatePage} className="bg-gray-50 p-4 rounded-lg border">
+        <form onSubmit={handleCreatePage} className="bg-gray-50 p-4 rounded-lg border hover:bg-gray-100 transition-colors">
           <div className="flex items-center space-x-2">
             <input
               type="text"
               placeholder="Заголовок страницы..."
               value={newPageTitle}
               onChange={(e) => setNewPageTitle(e.target.value)}
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent hover:border-gray-400 transition-colors"
               autoFocus
             />
             <button
               type="submit"
               disabled={!newPageTitle.trim() || createPageMutation.isPending}
-              className="btn-primary"
+              className="btn-primary hover:shadow-md transition-shadow"
             >
               Создать
             </button>
@@ -426,7 +460,7 @@ const PageList: React.FC<PageListProps> = ({
                 setShowCreateForm(false);
                 setNewPageTitle('');
               }}
-              className="btn-secondary"
+              className="btn-secondary hover:shadow-sm transition-shadow"
             >
               Отмена
             </button>
@@ -446,12 +480,12 @@ const PageList: React.FC<PageListProps> = ({
           }
           action={
             !showArchived ? (
-              <button
-                onClick={() => setShowCreateForm(true)}
-                className="btn-primary"
-              >
-                Создать страницу
-              </button>
+                          <button
+              onClick={() => setShowCreateForm(true)}
+              className="btn-primary hover:shadow-md transition-shadow"
+            >
+              Создать страницу
+            </button>
             ) : undefined
           }
         />
@@ -462,7 +496,7 @@ const PageList: React.FC<PageListProps> = ({
               <div
                 ref={provided.innerRef}
                 {...provided.droppableProps}
-                className="space-y-2"
+                className="space-y-2 hover:space-y-3 transition-all duration-200"
               >
                 {filteredPages.map((page, index) => (
                   <PageItem
@@ -489,6 +523,16 @@ const PageList: React.FC<PageListProps> = ({
           if (confirm.id) deletePageMutation.mutate(confirm.id);
           setConfirm({ open: false });
         }}
+      />
+
+      {/* Page Preview */}
+      <PagePreview
+        page={previewPage}
+        isOpen={isPreviewOpen}
+        onClose={handleClosePreview}
+        workspaceId={workspaceId}
+        onEdit={handleEditPage}
+        onDelete={handleDeletePage}
       />
     </div>
   );
