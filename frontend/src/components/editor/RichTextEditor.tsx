@@ -1,4 +1,4 @@
-import React, { useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
 import { useEditor, EditorContent, BubbleMenu, FloatingMenu } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -16,10 +16,14 @@ import TextAlign from '@tiptap/extension-text-align';
 import Underline from '@tiptap/extension-underline';
 import { Color } from '@tiptap/extension-color';
 import TextStyle from '@tiptap/extension-text-style';
+import HorizontalRule from '@tiptap/extension-horizontal-rule';
+import CodeBlock from '@tiptap/extension-code-block';
+import Blockquote from '@tiptap/extension-blockquote';
 
 import EditorToolbar from './EditorToolbar';
 import EditorBubbleMenu from './EditorBubbleMenu';
 import EditorFloatingMenu from './EditorFloatingMenu';
+import SlashCommands from './SlashCommands';
 
 interface RichTextEditorProps {
   content?: string;
@@ -52,6 +56,10 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
   onSelectionUpdate,
   onTransaction,
 }, ref) => {
+  const [slashCommandsOpen, setSlashCommandsOpen] = useState(false);
+  const [slashCommandsPosition, setSlashCommandsPosition] = useState({ x: 0, y: 0 });
+  // const [lastSlashPosition, setLastSlashPosition] = useState(0); // Убираю неиспользуемую переменную
+  const [isMouseClick, setIsMouseClick] = useState(false);
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
@@ -98,14 +106,56 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
       Underline,
       TextStyle,
       Color,
+      HorizontalRule,
+      CodeBlock.configure({
+        HTMLAttributes: {
+          class: 'bg-gray-900 text-white p-4 rounded-lg font-mono text-sm overflow-x-auto',
+        },
+      }),
+      Blockquote.configure({
+        HTMLAttributes: {
+          class: 'border-l-4 border-blue-500 pl-4 italic text-gray-700 bg-blue-50 py-2 rounded-r',
+        },
+      }),
     ],
     content,
     editable,
-    onUpdate: ({ editor }) => {
-      if (onChange) {
-        onChange(editor.getHTML());
-      }
-    },
+          onUpdate: ({ editor }) => {
+        if (onChange) {
+          onChange(editor.getHTML());
+        }
+        
+        // Проверяем slash-команды
+        const { selection } = editor.state;
+        const { from } = selection;
+        const textBefore = editor.state.doc.textBetween(Math.max(0, from - 10), from);
+        
+        if (textBefore.endsWith('/')) {
+          const coords = editor.view.coordsAtPos(from);
+          setSlashCommandsPosition({ 
+            x: coords.left, 
+            y: coords.bottom + 5 
+          });
+          setSlashCommandsOpen(true);
+          // setLastSlashPosition(from); // Убираю неиспользуемый вызов
+        } else if (textBefore.includes('/') && slashCommandsOpen) {
+          // Если пользователь продолжает печатать после "/", обновляем поиск
+          // const searchText = textBefore.substring(textBefore.lastIndexOf('/') + 1); // Убираю неиспользуемую переменную
+          // Здесь можно добавить логику поиска команд
+        } else if (!textBefore.includes('/') && slashCommandsOpen) {
+          setSlashCommandsOpen(false);
+        }
+      },
+      onFocus: ({ editor, event }) => {
+        // Отмечаем, что это клик мыши
+        if (event && event.type === 'mousedown') {
+          setIsMouseClick(true);
+          // Сбрасываем через небольшую задержку
+          setTimeout(() => setIsMouseClick(false), 100);
+        }
+      },
+      
+
     onSelectionUpdate: ({ editor, transaction }) => {
       if (onSelectionUpdate) {
         onSelectionUpdate({
@@ -170,7 +220,33 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
             
             <FloatingMenu
               editor={editor}
-              tippyOptions={{ duration: 100 }}
+              tippyOptions={{ 
+                duration: 100,
+                delay: [500, 0], // Увеличиваю задержку до 500ms
+                placement: 'top-start',
+                interactive: true,
+              }}
+              shouldShow={({ editor, view, state, oldState }) => {
+                // Показываем ТОЛЬКО при клике мыши, а не при навигации клавиатурой
+                const { selection } = state;
+                const { from } = selection;
+                
+                if (!from) return false;
+                
+                // Проверяем, что это пустая строка
+                const lineStart = editor.state.doc.resolve(from).start();
+                const lineEnd = editor.state.doc.resolve(from).end();
+                const lineContent = editor.state.doc.textBetween(lineStart, lineEnd);
+                
+                // Показываем только если строка действительно пустая
+                const isEmptyLine = lineContent.trim().length === 0;
+                
+                // И курсор находится в начале строки
+                const isAtLineStart = from === lineStart;
+                
+                // Показываем только при клике мыши
+                return isEmptyLine && isAtLineStart && selection.empty && !editor.isDestroyed && isMouseClick;
+              }}
               className="floating-menu"
             >
               <EditorFloatingMenu editor={editor} />
@@ -204,6 +280,14 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
           `}
         />
       </div>
+      
+      {/* Slash Commands */}
+      <SlashCommands
+        editor={editor}
+        isOpen={slashCommandsOpen}
+        onClose={() => setSlashCommandsOpen(false)}
+        position={slashCommandsPosition}
+      />
     </div>
   );
 });

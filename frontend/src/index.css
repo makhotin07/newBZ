@@ -179,6 +179,94 @@
 /* Rich text editor styles */
 .ProseMirror {
   @apply focus:outline-none;
+  min-height: 400px;
+  padding: 1rem;
+  cursor: text;
+}
+
+/* HTML content display styles */
+.content-display {
+  max-width: none;
+}
+
+.content-display h1 {
+  @apply text-3xl font-bold mb-4 text-gray-900;
+}
+
+.content-display h2 {
+  @apply text-2xl font-bold mb-3 text-gray-900;
+}
+
+.content-display h3 {
+  @apply text-xl font-bold mb-2 text-gray-900;
+}
+
+.content-display p {
+  @apply mb-3 text-gray-700 leading-7;
+}
+
+.content-display strong {
+  @apply font-semibold text-gray-900;
+}
+
+.content-display em {
+  @apply italic text-gray-800;
+}
+
+.content-display code {
+  @apply bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-800;
+}
+
+.content-display pre {
+  @apply bg-gray-900 text-white p-4 rounded-lg mb-4 overflow-x-auto;
+}
+
+.content-display pre code {
+  @apply bg-transparent p-0 text-white;
+}
+
+.content-display blockquote {
+  @apply border-l-4 border-blue-500 pl-4 italic text-gray-700 bg-blue-50 py-2 rounded-r mb-4;
+}
+
+.content-display ul {
+  @apply list-disc list-inside mb-4 text-gray-700;
+}
+
+.content-display ol {
+  @apply list-decimal list-inside mb-4 text-gray-700;
+}
+
+.content-display li {
+  @apply mb-1;
+}
+
+.content-display img {
+  @apply rounded-lg shadow-sm max-w-full h-auto mb-4;
+}
+
+.content-display table {
+  @apply border-collapse w-full mb-4;
+}
+
+.content-display th {
+  @apply border border-gray-300 bg-gray-50 px-3 py-2 text-left font-semibold text-gray-900;
+}
+
+.content-display td {
+  @apply border border-gray-300 px-3 py-2 text-gray-700;
+}
+
+.ProseMirror p {
+  @apply mb-2;
+  min-height: 1.5em;
+}
+
+.ProseMirror p:empty::before {
+  content: attr(data-placeholder);
+  color: #9ca3af;
+  pointer-events: none;
+  position: absolute;
 }
 
 .ProseMirror h1 {
@@ -236,4 +324,83 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-gray-500;
+}
+
+/* Slash Commands Styles */
+.slash-command-menu {
+  position: fixed;
+  z-index: 9999;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  min-width: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.slash-command-item {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.slash-command-item:hover {
+  background-color: #f3f4f6;
+}
+
+.slash-command-item.selected {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+.slash-command-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  border-radius: 6px;
+  background-color: #f3f4f6;
+  color: #6b7280;
+}
+
+.slash-command-content {
+  flex: 1;
+}
+
+.slash-command-title {
+  font-weight: 500;
+  font-size: 14px;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.slash-command-description {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* Floating Menu Styles */
+.floating-menu {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+  min-width: 200px;
+}
+
+/* Bubble Menu Styles */
+.bubble-menu {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+  padding: 4px;
+  display: flex;
+  gap: 2px;
 }

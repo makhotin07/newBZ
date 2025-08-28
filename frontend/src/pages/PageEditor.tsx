@@ -11,6 +11,8 @@ import { usePage, useUpdatePage } from '../hooks/useNotes';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import SharePageModal from '../components/pages/SharePageModal';
 import PageComments from '../components/pages/PageComments';
+import RichTextEditor from '../components/editor/RichTextEditor';
+import AutoSaveIndicator from '../components/editor/AutoSaveIndicator';
 import toast from 'react-hot-toast';
 
 const PageEditor: React.FC = () => {
@@ -21,28 +23,134 @@ const PageEditor: React.FC = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
   const [showComments, setShowComments] = useState(true);
+  const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | 'idle'>('idle');
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [lastSavedContent, setLastSavedContent] = useState<string>('');
+  const [lastSavedTitle, setLastSavedTitle] = useState<string>('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [typingTimeout, setTypingTimeout] = useState<NodeJS.Timeout | null>(null);
 
   const { data: page, isLoading, error } = usePage(pageId || '');
   const updatePageMutation = useUpdatePage(pageId || '');
 
   useEffect(() => {
     if (page) {
-      setTitle(typeof page.title === 'string' ? page.title : '');
-      setContent(typeof page.content === 'string' ? page.content : '');
+      const pageTitle = typeof page.title === 'string' ? page.title : '';
+      const pageContent = typeof page.content === 'string' ? page.content : '';
+      
+      setTitle(pageTitle);
+      setContent(pageContent);
+      
+      // Инициализируем последнее сохраненное состояние
+      setLastSavedContent(pageContent);
+      setLastSavedTitle(pageTitle);
     }
   }, [page]);
+
+  // Очистка таймеров при размонтировании
+  useEffect(() => {
+    return () => {
+      if (autoSaveTimeout) {
+        clearTimeout(autoSaveTimeout);
+      }
+      if (typingTimeout) {
+        clearTimeout(typingTimeout);
+      }
+    };
+  }, [autoSaveTimeout, typingTimeout]);
+
+  const handleTyping = () => {
+    setIsTyping(true);
+    
+    // Очищаем предыдущий таймер печати
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+    
+    // Устанавливаем новый таймер - считаем, что пользователь закончил печатать через 1.5 секунды
+    const timeout = setTimeout(() => {
+      setIsTyping(false);
+    }, 1500);
+    
+    setTypingTimeout(timeout);
+  };
+
+  const scheduleAutoSave = () => {
+    if (autoSaveTimeout) {
+      clearTimeout(autoSaveTimeout);
+    }
+    
+    // НЕ сохраняем, если пользователь активно печатает
+    if (isTyping) {
+      return;
+    }
+    
+    // Проверяем, что контент действительно изменился с момента последнего сохранения
+    if (content === lastSavedContent && title === lastSavedTitle) {
+      return; // Не сохраняем, если ничего не изменилось
+    }
+    
+    // Дополнительная проверка - не сохраняем пустой контент, если он был удален
+    if (content.trim() === '' && lastSavedContent.trim() !== '') {
+      // Если пользователь удалил весь контент, даем ему время подумать
+      const timeout = setTimeout(() => {
+        // Проверяем еще раз - может быть пользователь передумал
+        if (content.trim() === '') {
+          scheduleAutoSave(); // Повторяем попытку
+        }
+      }, 5000); // Даем 5 секунд на размышление
+      
+      setAutoSaveTimeout(timeout);
+      return;
+    }
+    
+    setSaveStatus('saving');
+    const timeout = setTimeout(async () => {
+      try {
+        // Сохраняем текущее состояние, а не восстанавливаем старое
+        const currentContent = content;
+        const currentTitle = title.trim() || 'Без названия';
+        
+        await updatePageMutation.mutateAsync({
+          title: currentTitle,
+          content: currentContent,
+        });
+        
+        setSaveStatus('saved');
+        setLastSaved(new Date());
+        setLastSavedContent(currentContent);
+        setLastSavedTitle(currentTitle);
+        
+        // Сбрасываем статус через 3 секунды
+        setTimeout(() => setSaveStatus('idle'), 3000);
+      } catch (error: any) {
+        setSaveStatus('error');
+        toast.error('Ошибка автосохранения');
+      }
+    }, 3000); // Увеличиваю задержку до 3 секунд для завершения печати
+    
+    setAutoSaveTimeout(timeout);
+  };
 
   const handleSave = async () => {
     if (!pageId) return;
 
     try {
+      setSaveStatus('saving');
       await updatePageMutation.mutateAsync({
         title: title.trim() || 'Без названия',
         content,
       });
+      setSaveStatus('saved');
+      setLastSaved(new Date());
+      // НЕ закрываем окно редактирования - setIsEditing(false);
       toast.success('Страница сохранена!');
-      setIsEditing(false);
+      
+      // Сбрасываем статус через 3 секунды
+      setTimeout(() => setSaveStatus('idle'), 3000);
     } catch (error: any) {
+      setSaveStatus('error');
       toast.error('Ошибка сохранения страницы');
     }
   };
@@ -156,14 +264,21 @@ const PageEditor: React.FC = () => {
             <button className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
               <EllipsisHorizontalIcon className="w-5 h-5" />
             </button>
+            
+            {/* Индикатор автосохранения */}
+            <AutoSaveIndicator
+              status={saveStatus}
+              lastSaved={lastSaved}
+              onRetry={handleSave}
+            />
           </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="flex-1 p-6 bg-gray-50 flex">
-        <div className={`flex-1 max-w-4xl mx-auto bg-white rounded-lg shadow-sm border border-gray-200 ${showComments ? 'mr-4' : ''}`}>
-          <div className="p-8">
+                   {/* Content */}
+             <div className="flex-1 p-6 bg-gray-50">
+               <div className="max-w-4xl mx-auto">
+                 <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
             {isEditing ? (
               <div className="space-y-6">
                 <div>
@@ -173,7 +288,12 @@ const PageEditor: React.FC = () => {
                   <input
                     type="text"
                     value={title}
-                    onChange={(e) => setTitle(e.target.value)}
+                    onChange={(e) => { 
+                      setTitle(e.target.value); 
+                      setIsEditing(true); 
+                      handleTyping(); // Отмечаем активность печати
+                      scheduleAutoSave(); // Запускаем автосохранение
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     placeholder="Введите название страницы..."
                   />
@@ -182,14 +302,20 @@ const PageEditor: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     Содержимое
                   </label>
-                  <textarea
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    rows={20}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm"
+                  <RichTextEditor
+                    content={content}
+                    onChange={(html: string) => { 
+                      setContent(html); 
+                      setIsEditing(true); 
+                      handleTyping(); // Отмечаем активность печати
+                      scheduleAutoSave(); // Запускаем автосохранение
+                    }}
                     placeholder="Начните писать..."
+                    className="min-h-[400px]"
                   />
                 </div>
+                
+
               </div>
             ) : (
               <div className="space-y-6">
@@ -198,11 +324,12 @@ const PageEditor: React.FC = () => {
                     {typeof page.title === 'string' ? page.title : 'Без названия'}
                   </h1>
                 </div>
-                <div className="prose max-w-none">
+                <div className="content-display">
                   {page.content && typeof page.content === 'string' ? (
-                    <div className="whitespace-pre-wrap text-gray-700 leading-7">
-                      {page.content}
-                    </div>
+                    <div 
+                      className="content-display"
+                      dangerouslySetInnerHTML={{ __html: page.content }}
+                    />
                   ) : (
                     <div className="text-gray-400 italic text-center py-12">
                       Эта страница пуста. Нажмите "Редактировать", чтобы добавить содержимое.
@@ -213,11 +340,12 @@ const PageEditor: React.FC = () => {
             )}
           </div>
         </div>
-        {showComments && (
-          <div className="w-80 border border-gray-200 bg-white rounded-lg h-fit self-start">
-            <PageComments pageId={pageId || ''} onClose={() => setShowComments(false)} />
-          </div>
-        )}
+             {/* Comments Sidebar - Fixed Position */}
+             {showComments && (
+               <div className="fixed right-6 top-24 w-80 border border-gray-200 bg-white rounded-lg shadow-lg max-h-[calc(100vh-8rem)] overflow-y-auto z-50">
+                 <PageComments pageId={pageId || ''} onClose={() => setShowComments(false)} />
+               </div>
+             )}
       </div>
 
       {/* Share Modal */}
