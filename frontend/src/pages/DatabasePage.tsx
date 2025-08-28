@@ -17,11 +17,28 @@ import toast from 'react-hot-toast';
 const DatabasePage: React.FC = () => {
   const { workspaceId, databaseId } = useParams<{ workspaceId: string; databaseId?: string }>();
   const navigate = useNavigate();
-  const [currentView, setCurrentView] = useState<'table' | 'grid' | 'calendar'>('table');
+  const [currentView, setCurrentView] = useState<'table' | 'grid' | 'calendar' | 'kanban' | 'gallery'>('table');
   const [showCreateRecordModal, setShowCreateRecordModal] = useState(false);
 
   const { data: database, isLoading: databaseLoading, error: databaseError } = useDatabase(databaseId || '');
   const { data: records, isLoading: recordsLoading } = useDatabaseRecords(databaseId || '');
+
+  // Heuristic: подобрать ключ свойства в record.properties по имени и типу
+  const findPropKey = (types: string[]): string | null => {
+    const props: any[] = (database as any)?.properties || [];
+    const first = (records as any)?.results?.[0];
+    const keys: string[] = first && first.properties ? Object.keys(first.properties) : [];
+    for (const p of props) {
+      if (!p || typeof p !== 'object') continue;
+      if (!types.includes(p.type)) continue;
+      // точное совпадение имени
+      if (keys.includes(p.name)) return p.name;
+      // регистронезависимое совпадение
+      const k = keys.find(k => k.toLowerCase() === String(p.name || '').toLowerCase());
+      if (k) return k;
+    }
+    return null;
+  };
 
   const handleBack = () => {
     if (workspaceId) {
@@ -129,6 +146,8 @@ const DatabasePage: React.FC = () => {
               { id: 'table', name: 'Таблица' },
               { id: 'grid', name: 'Сетка' },
               { id: 'calendar', name: 'Календарь' },
+              { id: 'kanban', name: 'Канбан' },
+              { id: 'gallery', name: 'Галерея' },
             ].map((view) => (
               <button
                 key={view.id}
@@ -260,7 +279,7 @@ const DatabasePage: React.FC = () => {
                   {currentView === 'calendar' && (
                     <div>
                       {(() => {
-                        const datePropKey = (database.properties || []).find((p: any) => p?.type === 'date')?.key;
+                        const datePropKey = findPropKey(['date']);
                         if (!datePropKey) {
                           return (
                             <div className="text-sm text-gray-600">
@@ -296,6 +315,83 @@ const DatabasePage: React.FC = () => {
                                 </div>
                               </div>
                             ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                  {currentView === 'kanban' && (
+                    <div>
+                      {(() => {
+                        const statusKey = findPropKey(['select','status','multi_select']);
+                        if (!statusKey) {
+                          return <div className="text-sm text-gray-600">Для канбана нужна колонка типа select/status.</div>;
+                        }
+                        const groups: Record<string, any[]> = {};
+                        for (const rec of records.results) {
+                          const raw = rec?.properties?.[statusKey];
+                          const arr = Array.isArray(raw) ? raw : [raw];
+                          if (!arr || arr.length === 0) {
+                            (groups['Без статуса'] = groups['Без статуса'] || []).push(rec);
+                          } else {
+                            for (const v of arr) {
+                              const label = (typeof v === 'object' && v?.label) ? v.label : (v ?? 'Без статуса');
+                              (groups[label] = groups[label] || []).push(rec);
+                            }
+                          }
+                        }
+                        const cols = Object.keys(groups);
+                        return (
+                          <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+                            {cols.map(c => (
+                              <div key={c} className="border rounded-lg bg-gray-50">
+                                <div className="px-3 py-2 border-b font-medium text-sm text-gray-700">{c}</div>
+                                <div className="p-3 space-y-3 min-h-[80px]">
+                                  {groups[c].map((rec:any) => (
+                                    <div key={rec.id} className="bg-white border rounded p-3 shadow-sm">
+                                      <div className="text-sm text-gray-900 truncate">
+                                        {rec.properties && typeof rec.properties === 'object'
+                                          ? Object.entries(rec.properties)
+                                              .map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : v}`)
+                                              .join(', ')
+                                          : 'Нет свойств'}
+                                      </div>
+                                      <div className="text-xs text-gray-500 mt-1">{new Date(rec.created_at).toLocaleDateString('ru-RU')}</div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                  {currentView === 'gallery' && (
+                    <div>
+                      {(() => {
+                        const mediaKey = findPropKey(['file','image','url','cover']);
+                        if (!mediaKey) {
+                          return <div className="text-sm text-gray-600">Для галереи нужна колонка типа file/image/url.</div>;
+                        }
+                        return (
+                          <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                            {records.results.map((rec:any) => {
+                              const src = rec?.properties?.[mediaKey];
+                              const url = typeof src === 'string' ? src : (src?.url || src?.path || null);
+                              return (
+                                <div key={rec.id} className="border rounded overflow-hidden bg-white">
+                                  <div className="aspect-video bg-gray-100 flex items-center justify-center">
+                                    {url ? (
+                                      <img src={url} alt="" className="w-full h-full object-cover" />
+                                    ) : (
+                                      <span className="text-xs text-gray-500">Нет изображения</span>
+                                    )}
+                                  </div>
+                                  <div className="p-2 text-xs text-gray-700 truncate">{rec.id.slice(0,8)}...</div>
+                                </div>
+                              );
+                            })}
                           </div>
                         );
                       })()}

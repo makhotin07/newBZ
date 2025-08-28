@@ -132,7 +132,9 @@ const PageList: React.FC<PageListProps> = ({
     index: number;
     workspaceId: string;
   }> = ({ page, index, workspaceId }) => {
+    const [expanded, setExpanded] = useState(false);
     return (
+      <>
       <Draggable draggableId={page.id} index={index}>
         {(provided: any, snapshot: any) => (
           <div
@@ -194,12 +196,26 @@ const PageList: React.FC<PageListProps> = ({
                   </div>
                 </div>
 
+                {/* Expand children toggle */}
+                <button
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); setExpanded(v => !v); }}
+                  className="ml-3 text-xs text-gray-500 hover:text-gray-700"
+                >
+                  {expanded ? 'Свернуть' : 'Показать дочерние'}
+                </button>
+
                 {/* Actions Menu */}
                 <div className="opacity-0 group-hover:opacity-100 transition-opacity">
                   <Menu as="div" className="relative">
                     <Menu.Button
+                      type="button"
                       className="p-1 text-gray-400 hover:text-gray-600 rounded"
-                      onClick={(e) => e.preventDefault()}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
                     >
                       <EllipsisVerticalIcon className="w-4 h-4" />
                     </Menu.Button>
@@ -212,8 +228,28 @@ const PageList: React.FC<PageListProps> = ({
                       leaveFrom="transform opacity-100 scale-100"
                       leaveTo="transform opacity-0 scale-95"
                     >
-                      <Menu.Items className="absolute right-0 mt-1 w-48 bg-white rounded-md shadow-lg border border-gray-200 focus:outline-none z-10">
+                      <Menu.Items onClick={(e)=> e.stopPropagation()} className="absolute right-0 mt-1 w-56 bg-white rounded-md shadow-lg border border-gray-200 focus:outline-none z-10">
                         <div className="py-1">
+                          {/* Create Subpage */}
+                          <Menu.Item>
+                            {({ active }) => (
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  createPageMutation.mutate({
+                                    title: 'Новая страница',
+                                    workspace: workspaceId,
+                                    parent: page.id,
+                                  });
+                                }}
+                                className={`${active ? 'bg-gray-100' : ''} flex items-center w-full px-4 py-2 text-sm text-gray-700`}
+                              >
+                                <PlusIcon className="w-4 h-4 mr-2" />
+                                Создать подстраницу
+                              </button>
+                            )}
+                          </Menu.Item>
+                          <div className="border-t border-gray-100 my-1" />
                           <Menu.Item>
                             {({ active }) => (
                               <button
@@ -272,6 +308,59 @@ const PageList: React.FC<PageListProps> = ({
           </div>
         )}
       </Draggable>
+      {expanded && (
+        <div className="ml-8 mt-1">
+          <ChildPages parentId={page.id} workspaceId={workspaceId} />
+        </div>
+      )}
+      </>
+    );
+  };
+
+  const ChildPages: React.FC<{ parentId: string; workspaceId: string }> = ({ parentId, workspaceId }) => {
+    const { data: children, isLoading } = usePages({ workspace: workspaceId, parent: parentId });
+    const createPageMutation = useCreatePage();
+    if (isLoading) return null;
+    if (!children || children.length === 0) return (
+      <div className="pl-6 py-2 text-xs text-gray-500">Нет дочерних страниц</div>
+    );
+    const ChildRow: React.FC<{ node: Page }> = ({ node }) => {
+      const [open, setOpen] = useState(false);
+      return (
+        <div className="pl-4">
+          <div className="flex items-center space-x-2">
+            <DocumentIcon className="w-4 h-4 text-gray-400" />
+            <Link to={`/workspace/${workspaceId}/page/${node.id}`} className="text-sm text-gray-700 hover:text-blue-600 truncate flex-1">
+              {node.title}
+            </Link>
+            <button
+              type="button"
+              className="text-xs text-gray-500 hover:text-gray-700"
+              onClick={() => setOpen(v => !v)}
+            >
+              {open ? 'Свернуть' : 'Дочерние'}
+            </button>
+            <button
+              type="button"
+              className="text-xs text-blue-600 hover:text-blue-700"
+              onClick={() => createPageMutation.mutate({ title: 'Новая страница', workspace: workspaceId, parent: node.id })}
+            >
+              + Подстраница
+            </button>
+          </div>
+          {open && (
+            <ChildPages parentId={node.id} workspaceId={workspaceId} />
+          )}
+        </div>
+      );
+    };
+
+    return (
+      <div className="space-y-1">
+        {children.map((child) => (
+          <ChildRow key={child.id} node={child} />
+        ))}
+      </div>
     );
   };
 
