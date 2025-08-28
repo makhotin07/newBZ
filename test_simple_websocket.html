@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple WebSocket Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .status { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .connected { background-color: #d4edda; color: #155724; }
+        .disconnected { background-color: #f8d7da; color: #721c24; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .message { background-color: #d1ecf1; color: #0c5460; padding: 10px; margin: 5px 0; border-radius: 3px; }
+        button { margin: 5px; padding: 8px; }
+        #messages { max-height: 400px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
+    </style>
+</head>
+<body>
+    <div>
+        <h1>Simple WebSocket Test</h1>
+        <button onclick="connect()">Connect to /ws/notifications/</button>
+        <button onclick="disconnect()">Disconnect</button>
+        <button onclick="sendPing()">Send Ping</button>
+        
+        <div id="status" class="status disconnected">Disconnected</div>
+        
+        <h3>Messages:</h3>
+        <div id="messages"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        const statusDiv = document.getElementById('status');
+        const messagesDiv = document.getElementById('messages');
+
+        function updateStatus(message, className) {
+            statusDiv.textContent = message;
+            statusDiv.className = `status ${className}`;
+        }
+
+        function addMessage(message, type = 'message') {
+            const div = document.createElement('div');
+            div.className = `message ${type}`;
+            div.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            messagesDiv.appendChild(div);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function connect() {
+            try {
+                // Подключаемся к notifications без токена для теста
+                const wsUrl = 'ws://localhost:8000/ws/notifications/';
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = function(event) {
+                    updateStatus('Connected to WebSocket', 'connected');
+                    addMessage('WebSocket connection established', 'connected');
+                };
+
+                ws.onmessage = function(event) {
+                    try {
+                        const data = JSON.parse(event.data);
+                        addMessage(`Received: ${JSON.stringify(data)}`, 'message');
+                    } catch (e) {
+                        addMessage(`Received: ${event.data}`, 'message');
+                    }
+                };
+
+                ws.onclose = function(event) {
+                    updateStatus(`Disconnected (Code: ${event.code})`, 'disconnected');
+                    addMessage(`WebSocket closed: ${event.code} - ${event.reason}`, 'disconnected');
+                    ws = null;
+                };
+
+                ws.onerror = function(error) {
+                    updateStatus('WebSocket Error', 'error');
+                    addMessage(`WebSocket error: ${error}`, 'error');
+                };
+
+            } catch (error) {
+                updateStatus('Connection Error', 'error');
+                addMessage(`Connection error: ${error.message}`, 'error');
+            }
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close(1000, 'Normal closure');
+                ws = null;
+            }
+        }
+
+        function sendPing() {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                alert('WebSocket is not connected');
+                return;
+            }
+
+            const data = {
+                type: 'ping',
+                timestamp: Date.now()
+            };
+
+            ws.send(JSON.stringify(data));
+            addMessage(`Sent ping: ${JSON.stringify(data)}`, 'message');
+        }
+    </script>
+</body>
+</html>

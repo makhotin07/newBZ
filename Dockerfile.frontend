@@ -1,0 +1,25 @@
+# Frontend Dockerfile  
+FROM node:18-alpine
+
+# Set work directory
+WORKDIR /app
+
+# Copy package files (from frontend folder)
+COPY frontend/package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy source code (from frontend folder)
+COPY frontend/ .
+
+# Build for production (only if NODE_ENV is production)
+ARG NODE_ENV=development
+RUN ls -la /app/src/
+RUN if [ "$NODE_ENV" = "production" ] ; then npm run build ; fi
+
+# Expose port
+EXPOSE 3000
+
+# Start application
+CMD ["npm", "start"]

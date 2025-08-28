@@ -1,0 +1,99 @@
+# version: '3.8'  # Removed as it's obsolete
+
+services:
+  # PostgreSQL Database
+  db:
+    image: postgres:15
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_DB: notion_clone
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for Channels and caching
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django Backend
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - media_files:/app/media
+      - static_files:/app/staticfiles
+    environment:
+      - DEBUG=True
+      - SECRET_KEY=django-insecure-notion-clone-secret-key-change-in-production
+      - DB_NAME=notion_clone
+      - DB_USER=postgres
+      - DB_PASSWORD=password
+      - DB_HOST=db
+      - DB_PORT=5432
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: >
+      sh -c "mkdir -p /app/staticfiles /app/media &&
+             chmod 755 /app/staticfiles /app/media &&
+             python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             daphne -b 0.0.0.0 -p 8000 backend.asgi:application"
+
+  # React Frontend (development)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:8000/api
+      - REACT_APP_WS_URL=ws://localhost:8000/ws
+    depends_on:
+      - backend
+
+  # Nginx (production)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - static_files:/app/static
+      - media_files:/app/media
+      - ./frontend/build:/usr/share/nginx/html
+    depends_on:
+      - backend
+      - frontend
+    profiles:
+      - production
+
+volumes:
+  postgres_data:
+  media_files:
+  static_files:
