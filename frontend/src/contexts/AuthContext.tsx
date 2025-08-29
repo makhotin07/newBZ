@@ -48,7 +48,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem('access_token');
-      if (token) {
+      const refreshToken = localStorage.getItem('refresh_token');
+      
+      if (token && refreshToken) {
         try {
           // Проверяем валидность токена через API
           const response = await api.get('/auth/user/');
@@ -66,10 +68,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           };
           
           setUser(mappedUser);
-        } catch (error) {
-          // Токен невалидный, очищаем localStorage
-          localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
+        } catch (error: any) {
+          // Если токен истек, пытаемся обновить его
+          if (error.response?.status === 401) {
+            try {
+              const refreshResponse = await api.post('/auth/token/refresh/', {
+                refresh: refreshToken,
+              });
+              
+              const newAccessToken = refreshResponse.data.access;
+              localStorage.setItem('access_token', newAccessToken);
+              
+              // Повторяем запрос с новым токеном
+              const userResponse = await api.get('/auth/user/');
+              const userData = userResponse.data;
+              
+              const mappedUser: User = {
+                id: userData.pk || userData.id,
+                email: userData.email,
+                first_name: userData.first_name,
+                last_name: userData.last_name,
+                full_name: userData.full_name || `${userData.first_name} ${userData.last_name}`,
+                username: userData.username,
+                avatar: userData.avatar
+              };
+              
+              setUser(mappedUser);
+            } catch (refreshError) {
+              // Refresh token тоже истек, очищаем localStorage
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('refresh_token');
+            }
+          } else {
+            // Другие ошибки, очищаем localStorage
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+          }
         }
       }
       setLoading(false);

@@ -1,0 +1,9 @@
+"""
+Импорты ViewSets из API слоя (Clean Architecture)
+"""
+from backend.api.collaboration_consumers import CollaborationConsumer
+
+# Re-export для обратной совместимости
+__all__ = [
+    'CollaborationConsumer'
+]

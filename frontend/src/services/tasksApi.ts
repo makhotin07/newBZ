@@ -142,7 +142,7 @@ class TasksApi {
   // Task Boards
   async getTaskBoards(params?: { workspace?: string }): Promise<TaskBoard[]> {
     try {
-      const response = await api.get('/tasks/boards/', { params });
+      const response = await api.get('/tasks/taskboards/', { params });
       if (response.data && response.data.results) {
         return response.data.results;
       }
@@ -190,22 +190,22 @@ class TasksApi {
   }
 
   async getTaskBoard(id: string): Promise<TaskBoard> {
-    const response = await api.get(`/tasks/boards/${id}/`);
+    const response = await api.get(`/tasks/taskboards/${id}/`);
     return response.data;
   }
 
   async createTaskBoard(data: CreateTaskBoardData): Promise<TaskBoard> {
-    const response = await api.post('/tasks/boards/', data);
+    const response = await api.post('/tasks/taskboards/', data);
     return response.data;
   }
 
   async updateTaskBoard(id: string, data: UpdateTaskBoardData): Promise<TaskBoard> {
-    const response = await api.patch(`/tasks/boards/${id}/`, data);
+    const response = await api.patch(`/tasks/taskboards/${id}/`, data);
     return response.data;
   }
 
   async deleteTaskBoard(id: string): Promise<void> {
-    await api.delete(`/tasks/boards/${id}/`);
+    await api.delete(`/tasks/taskboards/${id}/`);
   }
 
   async getBoardTasks(boardId: string, params?: {
@@ -214,7 +214,7 @@ class TasksApi {
     status?: string;
   }): Promise<Task[]> {
     try {
-      const response = await api.get(`/tasks/boards/${boardId}/tasks/`, { params });
+      const response = await api.get(`/tasks/taskboards/${boardId}/tasks/`, { params });
       if (response.data && response.data.results) {
         return response.data.results;
       }
@@ -266,7 +266,7 @@ class TasksApi {
 
   // Task Columns
   async getBoardColumns(boardId: string): Promise<TaskColumn[]> {
-    const response = await api.get(`/tasks/boards/${boardId}/columns/`);
+    const response = await api.get(`/tasks/taskboards/${boardId}/columns/`);
     return response.data?.results || response.data || [];
   }
 

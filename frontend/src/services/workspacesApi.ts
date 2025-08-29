@@ -72,7 +72,12 @@ class WorkspacesApi {
   // Workspaces
   async getWorkspaces(): Promise<Workspace[]> {
     const response = await api.get('/workspaces/');
-    return response.data.results || response.data;
+    // Проверяем, есть ли пагинация или это простой массив
+    if (response.data && Array.isArray(response.data)) {
+      return response.data;
+    }
+    // Если есть пагинация, возвращаем results
+    return response.data.results || [];
   }
 
   async getWorkspace(id: string): Promise<Workspace> {
