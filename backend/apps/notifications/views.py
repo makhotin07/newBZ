@@ -1,18 +1,15 @@
 """
 Импорты ViewSets из API слоя (Clean Architecture)
 """
-# TODO: Создать сервисы и API контроллеры для уведомлений
-# Пока используем простые CRUD операции
-
 from rest_framework import viewsets, permissions, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from .models import Notification, NotificationSettings, Reminder
-from .serializers import NotificationSerializer, NotificationSettingsSerializer, ReminderSerializer, BulkMarkReadSerializer
+from .serializers import NotificationSerializer, NotificationSettingsSerializer, ReminderSerializer
 
 
-class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
-    """ViewSet для уведомлений (только чтение)"""
+class NotificationViewSet(viewsets.ModelViewSet):
+    """ViewSet для уведомлений"""
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = NotificationSerializer
     
@@ -34,24 +31,27 @@ class NotificationViewSet(viewsets.ReadOnlyModelViewSet):
         
         return queryset
     
+    def perform_update(self, serializer):
+        """Обновить уведомление (например, отметить как прочитанное)"""
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+        """Удалить уведомление"""
+        instance.delete()
+    
     @action(detail=False, methods=['post'])
-    def mark_read(self, request):
-        """Отметить уведомления как прочитанные"""
-        serializer = BulkMarkReadSerializer(data=request.data)
-        if serializer.is_valid():
-            if serializer.validated_data.get('all'):
-                # Отметить все как прочитанные
-                self.get_queryset().update(is_read=True)
-                return Response({'message': 'Все уведомления отмечены как прочитанные'})
-            else:
-                # Отметить конкретные уведомления
-                notification_ids = serializer.validated_data.get('notification_ids', [])
-                Notification.objects.filter(
-                    id__in=notification_ids,
-                    recipient=request.user
-                ).update(is_read=True)
-                return Response({'message': f'Отмечено {len(notification_ids)} уведомлений'})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def mark_all_read(self, request):
+        """Отметить все уведомления как прочитанные"""
+        try:
+            count = self.get_queryset().filter(is_read=False).update(is_read=True)
+            return Response({
+                'message': f'Отмечено {count} уведомлений как прочитанные'
+            })
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class NotificationSettingsViewSet(viewsets.ModelViewSet):
@@ -63,6 +63,36 @@ class NotificationSettingsViewSet(viewsets.ModelViewSet):
         return NotificationSettings.objects.filter(
             user=self.request.user
         )
+    
+    def list(self, request, *args, **kwargs):
+        """Переопределяем list для возврата одного объекта без пагинации"""
+        obj = self.get_object()
+        serializer = self.get_serializer(obj)
+        return Response(serializer.data)
+    
+    def get_object(self):
+        """Получить или создать настройки пользователя"""
+        obj = NotificationSettings.objects.filter(user=self.request.user).first()
+        if not obj:
+            # Создаем настройки по умолчанию
+            obj = NotificationSettings.objects.create(
+                user=self.request.user,
+                email_on_comment=True,
+                email_on_mention=True,
+                email_on_page_share=True,
+                email_on_task_assigned=True,
+                email_on_task_due=True,
+                email_on_workspace_invite=True,
+                push_on_comment=True,
+                push_on_mention=True,
+                push_on_page_share=True,
+                push_on_task_assigned=True,
+                push_on_task_due=True,
+                push_on_workspace_invite=True,
+                daily_digest=False,
+                weekly_digest=False
+            )
+        return obj
 
 
 class ReminderViewSet(viewsets.ModelViewSet):
@@ -74,3 +104,7 @@ class ReminderViewSet(viewsets.ModelViewSet):
         return Reminder.objects.filter(
             user=self.request.user
         )
+    
+    def perform_create(self, serializer):
+        """Создать напоминание с привязкой к пользователю"""
+        serializer.save(user=self.request.user)

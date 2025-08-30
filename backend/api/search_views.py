@@ -56,9 +56,51 @@ class SearchViewSet(viewsets.ViewSet):
         
         serializer = AutocompleteSerializer(suggestions, many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'], url_path='global')
+    def global_search(self, request):
+        """Глобальный поиск по всем workspace"""
+        query = request.query_params.get('q', '')
+        search_type = request.query_params.get('type', 'all')
+        page = int(request.query_params.get('page', 1))
+        page_size = int(request.query_params.get('page_size', 20))
+        
+        if not query:
+            return Response({'results': [], 'count': 0})
+        
+        search_service = SearchService(request.user, None)  # None для глобального поиска
+        results = search_service.search(
+            query=query,
+            search_type=search_type,
+            page=page,
+            page_size=page_size
+        )
+        
+        return Response(results)
+    
+    @action(detail=False, methods=['get'], url_path='workspace/(?P<workspace_id>[^/.]+)')
+    def workspace_search(self, request, workspace_id=None):
+        """Поиск в конкретном workspace"""
+        query = request.query_params.get('q', '')
+        search_type = request.query_params.get('type', 'all')
+        page = int(request.query_params.get('page', 1))
+        page_size = int(request.query_params.get('page_size', 20))
+        
+        if not query:
+            return Response({'results': [], 'count': 0})
+        
+        search_service = SearchService(request.user, workspace_id)
+        results = search_service.search(
+            query=query,
+            search_type=search_type,
+            page=page,
+            page_size=page_size
+        )
+        
+        return Response(results)
 
 
-class SearchHistoryViewSet(viewsets.ReadOnlyModelViewSet):
+class SearchHistoryViewSet(viewsets.ModelViewSet):
     """ViewSet для истории поиска"""
     serializer_class = SearchHistorySerializer
     permission_classes = [IsAuthenticated]
@@ -72,6 +114,10 @@ class SearchHistoryViewSet(viewsets.ReadOnlyModelViewSet):
             queryset = queryset.filter(workspace_id=workspace_id)
         
         return queryset.order_by('-created_at')
+    
+    def perform_create(self, serializer):
+        """Создание записи в истории поиска"""
+        serializer.save(user=self.request.user)
     
     @action(detail=False, methods=['delete'])
     def clear(self, request):
@@ -120,9 +166,7 @@ class SavedSearchViewSet(viewsets.ModelViewSet):
         results = search_service.search(
             query=saved_search.query,
             search_type=saved_search.search_type,
-            filters=saved_search.filters,
-            sort_by=saved_search.sort_by,
-            sort_order=saved_search.sort_order
+            filters=saved_search.filters
         )
         
         return Response(results)

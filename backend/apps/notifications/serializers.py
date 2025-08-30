@@ -83,7 +83,7 @@ class NotificationSettingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = NotificationSettings
         fields = [
-            'email_on_comment', 'email_on_mention', 'email_on_page_share',
+            'id', 'email_on_comment', 'email_on_mention', 'email_on_page_share',
             'email_on_task_assigned', 'email_on_task_due', 'email_on_workspace_invite',
             'push_on_comment', 'push_on_mention', 'push_on_page_share',
             'push_on_task_assigned', 'push_on_task_due', 'push_on_workspace_invite',
@@ -127,30 +127,4 @@ class ReminderSerializer(serializers.ModelSerializer):
         return super().create(validated_data)
 
 
-class CreateNotificationSerializer(serializers.Serializer):
-    """For creating notifications programmatically"""
-    recipient_id = serializers.IntegerField()
-    type = serializers.ChoiceField(choices=Notification.NOTIFICATION_TYPES)
-    title = serializers.CharField(max_length=200)
-    message = serializers.CharField()
-    metadata = serializers.DictField(required=False, default=dict)
-    
-    # Optional content object
-    content_type_id = serializers.IntegerField(required=False)
-    object_id = serializers.CharField(required=False)
 
-
-class BulkMarkReadSerializer(serializers.Serializer):
-    """For marking multiple notifications as read"""
-    notification_ids = serializers.ListField(
-        child=serializers.UUIDField(),
-        required=False
-    )
-    all = serializers.BooleanField(default=False)
-    
-    def validate(self, attrs):
-        if not attrs.get('all') and not attrs.get('notification_ids'):
-            raise serializers.ValidationError(
-                "Either 'all' must be True or 'notification_ids' must be provided"
-            )
-        return attrs

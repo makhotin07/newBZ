@@ -137,6 +137,77 @@ class PageService:
         page.is_archived = True
         page.save()
         return page
+    
+    @staticmethod
+    def get_page_blocks(page_id: int, user: User) -> List[Block]:
+        """Получение блоков страницы"""
+        page = Page.objects.filter(
+            id=page_id,
+            workspace__members__user=user
+        ).first()
+        
+        if not page:
+            return []
+        
+        return list(Block.objects.filter(page=page).order_by('position'))
+    
+    @staticmethod
+    def create_block(user: User, page_id: int, **data) -> Block:
+        """Создание блока страницы"""
+        page = Page.objects.filter(
+            id=page_id,
+            workspace__members__user=user
+        ).first()
+        
+        if not page:
+            raise NotFoundException("Страница не найдена")
+        
+        block = Block.objects.create(
+            page=page,
+            **data
+        )
+        return block
+    
+    @staticmethod
+    def update_block(block_id: int, user: User, **data) -> Block:
+        """Обновление блока"""
+        block = Block.objects.filter(
+            id=block_id,
+            page__workspace__members__user=user
+        ).first()
+        
+        if not block:
+            raise NotFoundException("Блок не найден")
+        
+        for field, value in data.items():
+            setattr(block, field, value)
+        
+        block.save()
+        return block
+    
+    @staticmethod
+    def delete_block(block_id: int, user: User) -> None:
+        """Удаление блока"""
+        block = Block.objects.filter(
+            id=block_id,
+            page__workspace__members__user=user
+        ).first()
+        
+        if not block:
+            raise NotFoundException("Блок не найден")
+        
+        block.delete()
+    
+    @staticmethod
+    def get_all_blocks(user: User) -> List[Block]:
+        """Получение всех блоков пользователя"""
+        user_workspaces = Workspace.objects.filter(
+            members__user=user
+        ).values_list('id', flat=True)
+        
+        return list(Block.objects.filter(
+            page__workspace__in=user_workspaces
+        ).select_related('page'))
 
 
 class TagService:
@@ -190,4 +261,50 @@ class CommentService:
             author=user,
             content=content
         )
+        return comment
+    
+    @staticmethod
+    def update_comment(comment_id: int, user: User, **data) -> Comment:
+        """Обновление комментария"""
+        comment = Comment.objects.filter(
+            id=comment_id,
+            author=user
+        ).first()
+        
+        if not comment:
+            raise NotFoundException("Комментарий не найден")
+        
+        for field, value in data.items():
+            if hasattr(comment, field):
+                setattr(comment, field, value)
+        
+        comment.save()
+        return comment
+    
+    @staticmethod
+    def delete_comment(comment_id: int, user: User) -> None:
+        """Удаление комментария"""
+        comment = Comment.objects.filter(
+            id=comment_id,
+            author=user
+        ).first()
+        
+        if not comment:
+            raise NotFoundException("Комментарий не найден")
+        
+        comment.delete()
+    
+    @staticmethod
+    def resolve_comment(comment_id: int, user: User, resolved: bool) -> Comment:
+        """Разрешение комментария"""
+        comment = Comment.objects.filter(
+            id=comment_id,
+            author=user
+        ).first()
+        
+        if not comment:
+            raise NotFoundException("Комментарий не найден")
+        
+        comment.is_resolved = resolved
+        comment.save()
         return comment

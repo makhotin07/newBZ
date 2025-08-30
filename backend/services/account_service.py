@@ -6,6 +6,9 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 from django.db.models import Q
+from django.utils.crypto import get_random_string
+from django.utils import timezone
+from datetime import timedelta
 
 from backend.core.exceptions import BusinessLogicException, ValidationException
 
@@ -114,4 +117,43 @@ class AccountService:
         """Деактивация пользователя"""
         user.is_active = False
         user.save()
+        return True
+
+    @staticmethod
+    def forgot_password(email: str) -> bool:
+        """Запрос на сброс пароля"""
+        user = AccountService.get_user_by_email(email)
+        if not user:
+            # Не показываем, что пользователь не существует
+            return True
+        
+        # Генерируем токен для сброса пароля
+        reset_token = get_random_string(64)
+        # В реальном приложении здесь нужно сохранить токен в базе
+        # и отправить email с инструкциями
+        
+        # TODO: Реализовать сохранение токена и отправку email
+        print(f"Reset token for {email}: {reset_token}")
+        
+        return True
+    
+    @staticmethod
+    def reset_password(token: str, new_password: str) -> bool:
+        """Сброс пароля по токену"""
+        # Валидация нового пароля
+        try:
+            validate_password(new_password)
+        except ValidationError as e:
+            raise ValidationException(f"Новый пароль не соответствует требованиям: {', '.join(e.messages)}")
+        
+        # TODO: Реализовать проверку токена и поиск пользователя
+        # В реальном приложении здесь нужно найти пользователя по токену
+        
+        # Временная заглушка - ищем пользователя по email (в реальности по токену)
+        # user = User.objects.get(reset_token=token, reset_token_expires__gt=timezone.now())
+        # user.set_password(new_password)
+        # user.save()
+        
+        print(f"Password reset with token: {token}")
+        
         return True

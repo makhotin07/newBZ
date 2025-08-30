@@ -43,6 +43,7 @@ class TaskSerializer(serializers.ModelSerializer):
     """Сериалайзер для задач"""
     created_by_name = serializers.CharField(source='created_by.full_name', read_only=True)
     board_title = serializers.CharField(source='board.title', read_only=True)
+    column_title = serializers.CharField(source='column.title', read_only=True)
     tags = serializers.StringRelatedField(many=True, read_only=True)
     tag_ids = serializers.PrimaryKeyRelatedField(
         queryset=Tag.objects.all(),
@@ -57,12 +58,13 @@ class TaskSerializer(serializers.ModelSerializer):
         model = Task
         fields = [
             'id', 'title', 'description', 'board', 'board_title', 
-            'priority', 'status', 'created_by', 'created_by_name',
+            'column', 'column_title', 'position', 'priority', 'status', 
+            'created_by', 'created_by_name',
             'due_date', 'start_date', 'completed_at', 'estimated_hours',
             'tags', 'tag_ids', 'comments_count',
             'created_at', 'updated_at'
         ]
-        read_only_fields = ['id', 'created_by', 'completed_at', 'created_at', 'updated_at']
+        read_only_fields = ['id', 'created_by', 'completed_at', 'created_at', 'updated_at', 'position', 'board', 'column']
     
     def get_comments_count(self, obj):
         return obj.comments.count()

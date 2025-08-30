@@ -267,3 +267,13 @@ class SearchService:
             query=query,
             workspace_id=self.workspace_id
         )
+    
+    def add_to_history(self, query: str, search_type: str = 'all', filters: Dict[str, Any] = None):
+        """Добавление поиска в историю"""
+        SearchHistory.objects.create(
+            user=self.user,
+            query=query,
+            search_type=search_type,
+            filters=filters or {},
+            workspace_id=self.workspace_id
+        )
