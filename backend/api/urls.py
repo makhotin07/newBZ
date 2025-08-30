@@ -95,14 +95,14 @@ urlpatterns = [
     path("tasks/", include(task_router.urls)),
     # API маршруты для заметок
     path("notes/", include(note_router.urls)),
-    # URL для комментариев страниц
-    path("notes/pages/<uuid:page_id>/comments/", 
+    # URL для комментариев страниц (стандартные RESTful маршруты с pk)
+    path("notes/pages/<str:page_id>/comments/", 
          PageCommentsListView.as_view(),
          name='page-comments'),
-    path("notes/pages/<uuid:page_id>/comment-detail/", 
+    path("notes/pages/<str:page_id>/comments/<str:pk>/", 
          PageCommentDetailView.as_view(),
          name='page-comment-detail'),
-    path("notes/pages/<uuid:page_id>/comment-resolve/", 
+    path("notes/pages/<str:page_id>/comments/<str:pk>/resolve/", 
          PageCommentResolveView.as_view(),
          name='page-comment-resolve'),
     # API маршруты для рабочих пространств

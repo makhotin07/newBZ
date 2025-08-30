@@ -1,10 +1,9 @@
 """
 Контроллеры для управления заметками (Clean Architecture)
 """
-from rest_framework import viewsets, status, permissions
+from rest_framework import viewsets, status, permissions, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from backend.apps.notes.serializers import (
     TagSerializer, PageListSerializer, PageDetailSerializer,
@@ -12,6 +11,7 @@ from backend.apps.notes.serializers import (
     PageVersionSerializer
 )
 from backend.services.note_service import PageService, TagService, CommentService
+from backend.apps.notes.models import Comment
 
 
 class PageViewSet(viewsets.ModelViewSet):
@@ -70,31 +70,6 @@ class PageViewSet(viewsets.ModelViewSet):
         serializer.instance = page
     
     @action(detail=True, methods=['get', 'post'])
-    def comments(self, request, pk=None):
-        """Получение и создание комментариев к странице"""
-        if request.method == 'GET':
-            comments = CommentService.get_page_comments(
-                page_id=pk,
-                user=request.user
-            )
-            serializer = CommentSerializer(comments, many=True, context={'request': request})
-            return Response(serializer.data)
-        elif request.method == 'POST':
-            try:
-                comment = CommentService.add_comment(
-                    user=request.user,
-                    page_id=pk,
-                    content=request.data.get('content', '')
-                )
-                serializer = CommentSerializer(comment, context={'request': request})
-                return Response(serializer.data)
-            except Exception as e:
-                return Response(
-                    {'error': str(e)}, 
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-    
-    @action(detail=True, methods=['get', 'post'])
     def blocks(self, request, pk=None):
         """Получение и создание блоков страницы"""
         if request.method == 'GET':
@@ -112,157 +87,58 @@ class PageViewSet(viewsets.ModelViewSet):
                     **request.data
                 )
                 serializer = BlockSerializer(block, context={'request': request})
-                return Response(serializer.data)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
             except Exception as e:
                 return Response(
                     {'error': str(e)}, 
                     status=status.HTTP_400_BAD_REQUEST
                 )
-    
-    @action(detail=False, methods=['get'])
-    def search(self, request):
-        """Поиск страниц"""
-        query = request.query_params.get('q', '')
-        workspace_id = request.query_params.get('workspace')
-        
-        try:
-            results = PageService.search_pages(
-                user=request.user,
-                query=query,
-                workspace_id=int(workspace_id) if workspace_id else None
-            )
-            serializer = PageListSerializer(results, many=True)
-            return Response({
-                'pages': serializer.data,
-                'count': len(results),
-                'query': query
-            })
-        except Exception as e:
-            return Response(
-                {'error': str(e)}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
 
 
-class PageCommentsListView(APIView):
-    """View для получения списка комментариев страницы и создания комментария"""
+class PageCommentsListView(generics.ListCreateAPIView):
+    """View для списка и создания комментариев к странице"""
+    serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
     
-    def get(self, request, page_id):
-        """Получение списка комментариев страницы"""
-        comments = CommentService.get_page_comments(
-            page_id=page_id,
-            user=request.user
-        )
-        serializer = CommentSerializer(comments, many=True, context={'request': request})
-        return Response(serializer.data)
+    def get_queryset(self):
+        """Получение комментариев для конкретной страницы"""
+        page_id = self.kwargs['page_id']
+        return Comment.objects.filter(page_id=page_id).select_related('author')
     
-    def post(self, request, page_id):
-        """Создание комментария"""
-        try:
-            comment = CommentService.add_comment(
-                user=request.user,
-                page_id=page_id,
-                content=request.data.get('content', '')
-            )
-            serializer = CommentSerializer(comment, context={'request': request})
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    def perform_create(self, serializer):
+        """Создание комментария с привязкой к странице и автору"""
+        serializer.save(
+            page_id=self.kwargs['page_id'],
+            author=self.request.user
+        )
 
 
-class PageCommentDetailView(APIView):
-    """View для управления отдельным комментарием"""
+class PageCommentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    """View для получения, обновления и удаления комментария"""
+    serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'pk'
     
-    def get(self, request, page_id):
-        """Получение конкретного комментария"""
-        comment_id = request.query_params.get('comment_id')
-        if not comment_id:
-            return Response({'error': 'comment_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        comments = CommentService.get_page_comments(
-            page_id=page_id,
-            user=request.user
-        )
-        comment = next((c for c in comments if str(c.id) == comment_id), None)
-        if not comment:
-            return Response({'error': 'Комментарий не найден'}, status=status.HTTP_404_NOT_FOUND)
-        
-        serializer = CommentSerializer(comment, context={'request': request})
-        return Response(serializer.data)
-    
-    def put(self, request, page_id):
-        """Полное обновление комментария"""
-        comment_id = request.query_params.get('comment_id')
-        if not comment_id:
-            return Response({'error': 'comment_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            comment = CommentService.update_comment(
-                comment_id=int(comment_id),
-                user=request.user,
-                content=request.data.get('content', '')
-            )
-            serializer = CommentSerializer(comment, context={'request': request})
-            return Response(serializer.data)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def patch(self, request, page_id):
-        """Частичное обновление комментария"""
-        comment_id = request.query_params.get('comment_id')
-        if not comment_id:
-            return Response({'error': 'comment_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            comment = CommentService.update_comment(
-                comment_id=int(comment_id),
-                user=request.user,
-                content=request.data.get('content', '')
-            )
-            serializer = CommentSerializer(comment, context={'request': request})
-            return Response(serializer.data)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-    
-    def delete(self, request, page_id):
-        """Удаление комментария"""
-        comment_id = request.query_params.get('comment_id')
-        if not comment_id:
-            return Response({'error': 'comment_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            CommentService.delete_comment(
-                comment_id=int(comment_id),
-                user=request.user
-            )
-            return Response({'message': 'Комментарий удален'}, status=status.HTTP_204_NO_CONTENT)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        """Получение комментария с проверкой принадлежности к странице"""
+        page_id = self.kwargs['page_id']
+        return Comment.objects.filter(page_id=page_id).select_related('author')
 
 
-class PageCommentResolveView(APIView):
+class PageCommentResolveView(generics.UpdateAPIView):
     """View для разрешения комментария"""
+    serializer_class = CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
+    lookup_field = 'pk'
     
-    def patch(self, request, page_id):
-        """Разрешение комментария"""
-        comment_id = request.query_params.get('comment_id')
-        if not comment_id:
-            return Response({'error': 'comment_id required'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        try:
-            resolved = request.data.get('resolved', False)
-            comment = CommentService.resolve_comment(
-                comment_id=int(comment_id),
-                user=request.user,
-                resolved=resolved
-            )
-            serializer = CommentSerializer(comment, context={'request': request})
-            return Response(serializer.data)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    def get_queryset(self):
+        """Получение комментария с проверкой принадлежности к странице"""
+        page_id = self.kwargs['page_id']
+        return Comment.objects.filter(page_id=page_id).select_related('author')
+    
+    def perform_update(self, serializer):
+        """Обновление статуса разрешения комментария"""
+        serializer.save(is_resolved=self.request.data.get('resolved', True))
 
 
 class TagViewSet(viewsets.ModelViewSet):

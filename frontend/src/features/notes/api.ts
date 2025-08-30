@@ -258,16 +258,16 @@ class NotesApi {
   }
 
   async updateComment(pageId: string, commentId: string, content: string): Promise<Comment> {
-    const response = await api.patch(`/notes/pages/${pageId}/comment-detail/?comment_id=${commentId}`, { content });
+    const response = await api.patch(`/notes/pages/${pageId}/comments/${commentId}/`, { content });
     return response.data;
   }
 
   async deleteComment(pageId: string, commentId: string): Promise<void> {
-    await api.delete(`/notes/pages/${pageId}/comment-detail/?comment_id=${commentId}`);
+    await api.delete(`/notes/pages/${pageId}/comments/${commentId}/`);
   }
 
   async resolveComment(pageId: string, id: string, resolved: boolean): Promise<Comment> {
-    const response = await api.patch(`/notes/pages/${pageId}/comment-resolve/?comment_id=${id}`, { resolved });
+    const response = await api.patch(`/notes/pages/${pageId}/comments/${id}/resolve/`, { resolved });
     return response.data;
   }
 
