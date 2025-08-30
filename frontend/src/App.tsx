@@ -2,9 +2,9 @@ import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Тестируем импорты context-ов
-import { AuthProvider } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
-import Layout from './components/Layout/Layout';
+import { AuthProvider } from './app/providers/AuthProvider';
+import { ThemeProvider } from './app/providers/ThemeProvider';
+import Layout from './widgets/Layout/Layout';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
@@ -14,16 +14,15 @@ import PageEditor from './pages/PageEditor';
 import TaskBoardPage from './pages/TaskBoardPage';
 import DatabasePage from './pages/DatabasePage';
 import SettingsPage from './pages/SettingsPage';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import ErrorBoundary from './components/ErrorBoundary';
+import ProtectedRoute from './features/workspaces/ui/auth/ProtectedRoute';
+import ErrorBoundary from './shared/ui/ErrorBoundary';
 
 function App() {
   React.useEffect(() => {
     // Глобальный обработчик ошибок React
-    const handleError = (error: Error, errorInfo: React.ErrorInfo) => {
-      console.error('React Error Boundary caught an error:', error);
-      console.error('Error Info:', errorInfo);
-      console.error('Error Stack:', error.stack);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const handleError = (_error: Error, _errorInfo: React.ErrorInfo) => {
+      // Обработчик ошибок React Error Boundary
     };
 
     // Глобальный обработчик необработанных ошибок

@@ -6,9 +6,9 @@ import {
   ShieldCheckIcon,
   PhotoIcon
 } from '@heroicons/react/24/outline';
-import { useUserProfile, useUpdateUserProfile, useChangePassword, useUploadAvatar } from '../hooks/useUser';
-import { UpdateUserData, ChangePasswordData } from '../services/userApi';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
+import { useUserProfile, useUpdateUserProfile, useChangePassword, useUploadAvatar } from '../shared/hooks/useUser';
+import { UpdateUserData, ChangePasswordData } from '../features/auth/api';
+import LoadingSpinner from '../shared/ui/LoadingSpinner';
 import toast from 'react-hot-toast';
 
 const SettingsPage: React.FC = () => {

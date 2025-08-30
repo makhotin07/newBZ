@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon, CalendarIcon, UserIcon, TagIcon, ClockIcon } from '@heroicons/react/24/outline';
-import { useCreateTask, useBoardColumns } from '../../hooks/useTasks';
-import { useTags } from '../../hooks/useNotes';
-import TagSelector from '../ui/TagSelector';
-import { CreateTaskData } from '../../services/tasksApi';
-import { ru } from '../../locales/ru';
+import { useCreateTask, useBoardColumns } from '../../shared/hooks/useTasks';
+import { useTags } from '../../shared/hooks/useNotes';
+import TagSelector from '../../shared/ui/TagSelector';
+import { CreateTaskData } from '../../features/tasks/api';
+import { ru } from '../../shared/config/locales/ru';
 
 interface CreateTaskModalProps {
   boardId: string;
@@ -18,7 +18,6 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
   const [formData, setFormData] = useState<Partial<CreateTaskData>>({
     title: '',
     description: '',
-    board_id: boardId,
     column: columnId,
     priority: 'medium',
     assignee_ids: [],
@@ -48,6 +47,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
       // Prepare data, filtering out empty values
       const taskData = {
         ...formData,
+        board: boardId, // Добавляем board_id
         title: formData.title!.trim(),
         description: formData.description?.trim() || undefined,
         due_date: formData.due_date || undefined,
@@ -68,7 +68,6 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
       setFormData({
         title: '',
         description: '',
-        board_id: boardId,
         column: columnId,
         priority: 'medium',
         assignee_ids: [],
@@ -79,7 +78,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
       });
       onClose();
     } catch (error) {
-      console.error('Failed to create task:', error);
+      console.error('Не удалось создать задачу:', error);
     }
   };
 
@@ -88,7 +87,6 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
       setFormData({
         title: '',
         description: '',
-        board_id: boardId,
         column: columnId,
         priority: 'medium',
         assignee_ids: [],
@@ -101,7 +99,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
     }
   };
 
-  const selectedTags = tags.filter(tag => formData.tag_ids?.includes(tag.id));
+  const selectedTags = tags.filter((tag: any) => formData.tag_ids?.includes(tag.id));
 
   return (
     <Dialog as="div" className="relative z-50" onClose={handleClose} open={isOpen}>
@@ -134,7 +132,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
                         id="title"
                         type="text"
                         value={formData.title || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
+                        onChange={(e) => setFormData((prev: any) => ({ ...prev, title: e.target.value }))}
                         placeholder="Введите название задачи..."
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         required
@@ -150,7 +148,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
                       <textarea
                         id="description"
                         value={formData.description || ''}
-                        onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                        onChange={(e) => setFormData((prev: any) => ({ ...prev, description: e.target.value }))}
                         placeholder="Опишите задачу..."
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
                         rows={3}
@@ -166,10 +164,10 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
                         <select
                           id="column"
                           value={formData.column}
-                          onChange={(e) => setFormData(prev => ({ ...prev, column: e.target.value }))}
+                          onChange={(e) => setFormData((prev: any) => ({ ...prev, column: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
-                          {columns.map((column) => (
+                          {columns.map((column: any) => (
                             <option key={column.id} value={column.id}>
                               {column.title}
                             </option>
@@ -184,7 +182,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
                         <select
                           id="priority"
                           value={formData.priority}
-                          onChange={(e) => setFormData(prev => ({ ...prev, priority: e.target.value as any }))}
+                          onChange={(e) => setFormData((prev: any) => ({ ...prev, priority: e.target.value as any }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         >
                           {priorities.map((priority) => (
@@ -207,7 +205,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
                           id="start_date"
                           type="date"
                           value={formData.start_date || ''}
-                          onChange={(e) => setFormData(prev => ({ ...prev, start_date: e.target.value }))}
+                          onChange={(e) => setFormData((prev: any) => ({ ...prev, start_date: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
@@ -221,7 +219,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
                           id="due_date"
                           type="date"
                           value={formData.due_date || ''}
-                          onChange={(e) => setFormData(prev => ({ ...prev, due_date: e.target.value }))}
+                          onChange={(e) => setFormData((prev: any) => ({ ...prev, due_date: e.target.value }))}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                         />
                       </div>
@@ -239,9 +237,9 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
                         min="0"
                         step="0.5"
                         value={formData.estimated_hours || ''}
-                        onChange={(e) => setFormData(prev => ({ 
+                                                onChange={(e) => setFormData((prev: any) => ({ 
                           ...prev, 
-                          estimated_hours: e.target.value ? parseFloat(e.target.value) : undefined 
+                          estimated_hours: e.target.value ? parseFloat(e.target.value) : undefined
                         }))}
                         placeholder="0.0"
                         className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -256,7 +254,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
                       </label>
                       <TagSelector
                         selectedTags={selectedTags}
-                        onChange={(tagIds) => setFormData(prev => ({ ...prev, tag_ids: tagIds }))}
+                        onChange={(tagIds) => setFormData((prev: any) => ({ ...prev, tag_ids: tagIds }))}
                       />
                     </div>
                   </div>

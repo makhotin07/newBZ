@@ -8,12 +8,12 @@ import {
   TableCellsIcon,
   UserIcon
 } from '@heroicons/react/24/outline';
-import { useSearch } from '../hooks/useSearch';
-import { SearchRequest, SearchFilters } from '../services/searchApi';
-import SearchResultItem from '../components/search/SearchResultItem';
-import SearchFiltersPanel from '../components/search/SearchFiltersPanel';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import EmptyState from '../components/ui/EmptyState';
+import { useSearch } from '../shared/hooks/useSearch';
+import { SearchRequest, SearchFilters } from '../features/search/api';
+import SearchResultItem from '../features/search/ui/search/SearchResultItem';
+import SearchFiltersPanel from '../features/search/ui/search/SearchFiltersPanel';
+import LoadingSpinner from '../shared/ui/LoadingSpinner';
+import EmptyState from '../shared/ui/EmptyState';
 
 const SearchPage: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();

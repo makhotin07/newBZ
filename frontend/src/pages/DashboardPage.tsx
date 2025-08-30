@@ -7,10 +7,10 @@ import {
   UsersIcon,
   CalendarIcon
 } from '@heroicons/react/24/outline';
-import { useCreatePage, useRecentPages } from '../hooks/useNotes';
-import { useCreateDatabase, useWorkspaceDatabases, useWorkspaceDatabaseStats } from '../hooks/useDatabases';
-import { useCreateTaskBoard, useWorkspaceTasks, useWorkspaceTaskStats } from '../hooks/useTasks';
-import { useWorkspaceMembers, useAnalyticsOverview } from '../hooks/useWorkspaces';
+import { useCreatePage, useRecentPages } from '../shared/hooks/useNotes';
+import { useCreateDatabase } from '../shared/hooks/useDatabases';
+import { useCreateTaskBoard } from '../shared/hooks/useTasks';
+import { useAnalyticsOverview } from '../shared/hooks/useWorkspaces';
 import toast from 'react-hot-toast';
 
 const DashboardPage: React.FC = () => {
@@ -23,7 +23,6 @@ const DashboardPage: React.FC = () => {
 
   // Real data hooks
   const { data: recentPagesData } = useRecentPages(workspaceId || '', 5);
-  const { data: members } = useWorkspaceMembers(workspaceId || '');
   const { data: overview } = useAnalyticsOverview({ workspaces: workspaceId ? [workspaceId] : undefined });
 
   const handleCreatePage = async () => {
@@ -85,7 +84,7 @@ const DashboardPage: React.FC = () => {
         workspace: workspaceId
       });
       
-      navigate(`/workspace/${workspaceId}/tasks/${newBoard.id}`);
+      navigate(`/workspace/${workspaceId}/tasks/${(newBoard as any).id}`);
       toast.success('Доска задач создана!');
     } catch (error: any) {
       toast.error('Ошибка создания доски задач');
@@ -189,7 +188,7 @@ const DashboardPage: React.FC = () => {
                       return null;
                     }
                     return (
-                      <div key={page.id || 'unknown'} className="flex items-center p-3 hover:bg-gray-50 rounded-lg">
+                      <div key={page.id || 'неизвестно'} className="flex items-center p-3 hover:bg-gray-50 rounded-lg">
                         <div className="flex-shrink-0">
                           <DocumentIcon className="w-5 h-5 text-blue-600" />
                         </div>
@@ -203,7 +202,7 @@ const DashboardPage: React.FC = () => {
                         </div>
                         <div className="ml-3">
                           <Link
-                            to={`/workspace/${typeof page.workspace === 'string' ? page.workspace : 'unknown'}/page/${page.id || 'unknown'}`}
+                            to={`/workspace/${typeof page.workspace === 'string' ? page.workspace : 'неизвестно'}/page/${page.id || 'неизвестно'}`}
                             className="text-xs text-blue-600 hover:text-blue-700"
                           >
                             Открыть

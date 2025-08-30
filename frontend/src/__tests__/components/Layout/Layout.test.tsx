@@ -2,18 +2,18 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import Layout from '../../../components/Layout/Layout';
-import { AuthProvider } from '../../../contexts/AuthContext';
-import { ThemeProvider } from '../../../contexts/ThemeContext';
+import Layout from '../../../widgets/Layout/Layout';
+import { AuthProvider } from '../../../app/providers/AuthProvider';
+import { ThemeProvider } from '../../../app/providers/ThemeProvider';
 
 // Mock the child components
-jest.mock('../../../components/Layout/Header', () => {
+jest.mock('../../../widgets/Layout/Header', () => {
   return function MockHeader() {
     return <div data-testid="header">Header</div>;
   };
 });
 
-jest.mock('../../../components/Layout/Sidebar', () => {
+jest.mock('../../../widgets/Layout/Sidebar', () => {
   return function MockSidebar() {
     return <div data-testid="sidebar">Sidebar</div>;
   };
@@ -28,7 +28,7 @@ const mockUser = {
 };
 
 // Mock the auth context
-jest.mock('../../../contexts/AuthContext', () => ({
+jest.mock('../../../app/providers/AuthProvider', () => ({
   AuthProvider: ({ children }: { children: React.ReactNode }) => children,
   useAuth: () => ({
     user: mockUser,
@@ -41,7 +41,7 @@ jest.mock('../../../contexts/AuthContext', () => ({
 }));
 
 // Mock the theme context
-jest.mock('../../../contexts/ThemeContext', () => ({
+jest.mock('../../../app/providers/ThemeProvider', () => ({
   ThemeProvider: ({ children }: { children: React.ReactNode }) => children,
   useTheme: () => ({
     theme: 'light',

@@ -10,9 +10,9 @@ import {
   Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 
-import PageList from '../components/pages/PageList';
-import TaskBoardsList from '../components/tasks/TaskBoardsList';
-import DatabasesList from '../components/database/DatabasesList';
+import PageList from '../features/notes/ui/pages/PageList';
+import TaskBoardsList from '../widgets/TaskBoard/TaskBoardsList';
+import DatabasesList from '../widgets/DatabaseTable/DatabasesList';
 
 const WorkspacePage: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();

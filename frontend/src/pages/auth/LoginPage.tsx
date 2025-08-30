@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../app/providers/AuthProvider';
 import toast from 'react-hot-toast';
-import ForgotPasswordModal from '../../components/auth/ForgotPasswordModal';
-import { ru } from '../../locales/ru';
+import ForgotPasswordModal from '../../features/workspaces/ui/auth/ForgotPasswordModal';
+import { ru } from '../../shared/config/locales/ru';
 
 const LoginPage: React.FC = () => {
   const { login, user } = useAuth();

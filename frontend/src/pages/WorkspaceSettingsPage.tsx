@@ -1,6 +1,6 @@
 import React from 'react';
 import { useParams } from 'react-router-dom';
-import WorkspaceSettings from '../components/workspace/WorkspaceSettings';
+import WorkspaceSettings from '../widgets/WorkspaceHeader/WorkspaceSettings';
 
 const WorkspaceSettingsPage: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();

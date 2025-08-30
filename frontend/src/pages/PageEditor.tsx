@@ -7,12 +7,12 @@ import {
   ArrowLeftIcon,
   ChatBubbleLeftIcon
 } from '@heroicons/react/24/outline';
-import { usePage, useUpdatePage } from '../hooks/useNotes';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import SharePageModal from '../components/pages/SharePageModal';
-import PageComments from '../components/pages/PageComments';
-import RichTextEditor from '../components/editor/RichTextEditor';
-import AutoSaveIndicator from '../components/editor/AutoSaveIndicator';
+import { usePage, useUpdatePage } from '../shared/hooks/useNotes';
+import LoadingSpinner from '../shared/ui/LoadingSpinner';
+import SharePageModal from '../features/notes/ui/pages/SharePageModal';
+import PageComments from '../features/notes/ui/pages/PageComments';
+import RichTextEditor from '../features/notes/ui/editor/RichTextEditor';
+import AutoSaveIndicator from '../features/notes/ui/editor/AutoSaveIndicator';
 import toast from 'react-hot-toast';
 
 const PageEditor: React.FC = () => {

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { Link, Navigate } from 'react-router-dom';
-import { useAuth } from '../../contexts/AuthContext';
+import { useAuth } from '../../app/providers/AuthProvider';
 import toast from 'react-hot-toast';
-import { ru } from '../../locales/ru';
+import { ru } from '../../shared/config/locales/ru';
 
 const RegisterPage: React.FC = () => {
   const { register, user } = useAuth();

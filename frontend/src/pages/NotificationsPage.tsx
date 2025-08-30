@@ -19,10 +19,10 @@ import {
   useCompleteReminder,
   useDeleteReminder,
   useUpdateNotificationSettings
-} from '../hooks/useNotifications';
-import { Notification, Reminder, CreateReminderRequest } from '../services/notificationsApi';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import EmptyState from '../components/ui/EmptyState';
+} from '../shared/hooks/useNotifications';
+import { Notification, Reminder, CreateReminderRequest } from '../features/notifications/api';
+import LoadingSpinner from '../shared/ui/LoadingSpinner';
+import EmptyState from '../shared/ui/EmptyState';
 
 const NotificationsPage: React.FC = () => {
   const [selectedTab, setSelectedTab] = useState(0);
@@ -281,7 +281,7 @@ const NotificationItem: React.FC<{
           <button
             onClick={() => onDelete(notification.id)}
             className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50"
-            title="Delete"
+            title="Удалить"
           >
             <TrashIcon className="w-4 h-4" />
           </button>
@@ -358,7 +358,7 @@ const RemindersTab: React.FC<{
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Active
+            Активные
           </button>
           <button
             onClick={() => setFilter('completed')}
@@ -368,7 +368,7 @@ const RemindersTab: React.FC<{
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
-            Completed
+            Завершенные
           </button>
         </div>
 
@@ -524,7 +524,7 @@ const ReminderItem: React.FC<{
   onComplete: (id: string) => void;
   onDelete: (id: string) => void;
 }> = ({ reminder, isLast, onComplete, onDelete }) => {
-  const isCompleted = reminder.is_completed;
+  const isCompleted = reminder.is_sent;
   const isPastDue = new Date(reminder.remind_at) < new Date() && !isCompleted;
 
   return (
@@ -551,8 +551,8 @@ const ReminderItem: React.FC<{
               <span>
                 {isCompleted ? 'Completed' : 'Remind'} at: {new Date(reminder.remind_at).toLocaleString()}
               </span>
-              {isCompleted && reminder.completed_at && (
-                <span>Completed: {new Date(reminder.completed_at).toLocaleString()}</span>
+              {isCompleted && reminder.sent_at && (
+                <span>Completed: {new Date(reminder.sent_at).toLocaleString()}</span>
               )}
             </div>
           </div>
@@ -572,7 +572,7 @@ const ReminderItem: React.FC<{
           <button
             onClick={() => onDelete(reminder.id)}
             className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-50"
-            title="Delete"
+            title="Удалить"
           >
             <TrashIcon className="w-4 h-4" />
           </button>
@@ -611,91 +611,117 @@ const SettingsTab: React.FC = () => {
   return (
     <div className="bg-white rounded-lg shadow">
       <div className="p-6">
-        <h3 className="text-lg font-medium text-gray-900 mb-6">Notification Settings</h3>
+        <h3 className="text-lg font-medium text-gray-900 mb-6">Настройки уведомлений</h3>
         
         <div className="space-y-6">
           <div className="space-y-4">
-            <h4 className="text-md font-medium text-gray-900">Delivery Methods</h4>
+            <h4 className="text-md font-medium text-gray-900">Способы доставки</h4>
             
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Email notifications</p>
-                <p className="text-sm text-gray-500">Receive notifications via email</p>
+                <p className="text-sm font-medium text-gray-700">Email уведомления</p>
+                <p className="text-sm text-gray-500">Получать уведомления по email</p>
               </div>
               <input
                 type="checkbox"
-                checked={settings.email_notifications}
-                onChange={(e) => handleSettingChange('email_notifications', e.target.checked)}
+                checked={settings.email_on_comment}
+                onChange={(e) => handleSettingChange('email_on_comment', e.target.checked)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-700">Push notifications</p>
-                <p className="text-sm text-gray-500">Receive browser push notifications</p>
+                <p className="text-sm font-medium text-gray-700">Push уведомления</p>
+                <p className="text-sm text-gray-500">Получать push уведомления в браузере</p>
               </div>
               <input
                 type="checkbox"
-                checked={settings.push_notifications}
-                onChange={(e) => handleSettingChange('push_notifications', e.target.checked)}
+                checked={settings.push_on_comment}
+                onChange={(e) => handleSettingChange('push_on_comment', e.target.checked)}
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
               />
             </div>
           </div>
 
           <div className="border-t border-gray-200 pt-6">
-            <h4 className="text-md font-medium text-gray-900 mb-4">Notification Types</h4>
+            <h4 className="text-md font-medium text-gray-900 mb-4">Типы уведомлений</h4>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Comments</p>
-                  <p className="text-sm text-gray-500">When someone comments on your content</p>
+                  <p className="text-sm font-medium text-gray-700">Комментарии</p>
+                  <p className="text-sm text-gray-500">Когда кто-то комментирует ваш контент</p>
                 </div>
                 <input
                   type="checkbox"
-                  checked={settings.comment_notifications}
-                  onChange={(e) => handleSettingChange('comment_notifications', e.target.checked)}
+                  checked={settings.email_on_comment}
+                  onChange={(e) => handleSettingChange('email_on_comment', e.target.checked)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Mentions</p>
-                  <p className="text-sm text-gray-500">When someone mentions you</p>
+                  <p className="text-sm font-medium text-gray-700">Упоминания</p>
+                  <p className="text-sm text-gray-500">Когда кто-то упоминает вас</p>
                 </div>
                 <input
                   type="checkbox"
-                  checked={settings.mention_notifications}
-                  onChange={(e) => handleSettingChange('mention_notifications', e.target.checked)}
+                  checked={settings.email_on_mention}
+                  onChange={(e) => handleSettingChange('email_on_mention', e.target.checked)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Tasks</p>
-                  <p className="text-sm text-gray-500">Task assignments and updates</p>
+                  <p className="text-sm font-medium text-gray-700">Поделились страницей</p>
+                  <p className="text-sm text-gray-500">Когда кто-то делится страницей с вами</p>
                 </div>
                 <input
                   type="checkbox"
-                  checked={settings.task_notifications}
-                  onChange={(e) => handleSettingChange('task_notifications', e.target.checked)}
+                  checked={settings.email_on_page_share}
+                  onChange={(e) => handleSettingChange('email_on_page_share', e.target.checked)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
               </div>
 
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-700">Workspace activities</p>
-                  <p className="text-sm text-gray-500">Updates from your workspaces</p>
+                  <p className="text-sm font-medium text-gray-700">Назначение задач</p>
+                  <p className="text-sm text-gray-500">Когда вам назначают задачи</p>
                 </div>
                 <input
                   type="checkbox"
-                  checked={settings.workspace_notifications}
-                  onChange={(e) => handleSettingChange('workspace_notifications', e.target.checked)}
+                  checked={settings.email_on_task_assigned}
+                  onChange={(e) => handleSettingChange('email_on_task_assigned', e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Сроки задач</p>
+                  <p className="text-sm text-gray-500">Напоминания о сроках задач</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={settings.email_on_task_due}
+                  onChange={(e) => handleSettingChange('email_on_task_due', e.target.checked)}
+                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Приглашения в workspace</p>
+                  <p className="text-sm text-gray-500">Приглашения присоединиться к workspace</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={settings.email_on_workspace_invite}
+                  onChange={(e) => handleSettingChange('email_on_workspace_invite', e.target.checked)}
                   className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 />
               </div>
@@ -718,20 +744,7 @@ const SettingsTab: React.FC = () => {
               />
             </div>
 
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Notification frequency
-              </label>
-              <select
-                value={settings.notification_frequency}
-                onChange={(e) => handleSettingChange('notification_frequency', e.target.value)}
-                className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
-              >
-                <option value="immediate">Immediate</option>
-                <option value="hourly">Hourly</option>
-                <option value="daily">Daily</option>
-              </select>
-            </div>
+
           </div>
         </div>
       </div>

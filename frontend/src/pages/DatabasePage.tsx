@@ -8,11 +8,11 @@ import {
   Cog6ToothIcon,
   EllipsisHorizontalIcon
 } from '@heroicons/react/24/outline';
-import { useDatabase, useDatabaseRecords } from '../hooks/useDatabases';
-import DatabasesList from '../components/database/DatabasesList';
-import LoadingSpinner from '../components/ui/LoadingSpinner';
-import CreateRecordModal from '../components/database/CreateRecordModal';
-import toast from 'react-hot-toast';
+import { useDatabase, useDatabaseRecords } from '../shared/hooks/useDatabases';
+import DatabasesList from '../widgets/DatabaseTable/DatabasesList';
+import LoadingSpinner from '../shared/ui/LoadingSpinner';
+import CreateRecordModal from '../widgets/DatabaseTable/CreateRecordModal';
+
 
 const DatabasePage: React.FC = () => {
   const { workspaceId, databaseId } = useParams<{ workspaceId: string; databaseId?: string }>();
@@ -191,7 +191,7 @@ const DatabasePage: React.FC = () => {
                       return null;
                     }
                     return (
-                      <div key={property.id || 'unknown'} className="border border-gray-200 rounded-lg p-4">
+                      <div key={property.id || 'неизвестно'} className="border border-gray-200 rounded-lg p-4">
                         <div className="flex items-center justify-between mb-2">
                           <h4 className="font-medium text-gray-900">{typeof property.name === 'string' ? property.name : 'Без названия'}</h4>
                           <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">
@@ -215,7 +215,7 @@ const DatabasePage: React.FC = () => {
               <div className="flex items-center justify-between">
                 <h3 className="text-lg font-medium text-gray-900">Записи</h3>
                 <span className="text-sm text-gray-500">
-                  {records?.results?.length || 0} записей
+                  {records?.length || 0} записей
                 </span>
               </div>
             </div>
@@ -225,7 +225,7 @@ const DatabasePage: React.FC = () => {
                 <div className="flex items-center justify-center py-12">
                   <LoadingSpinner />
                 </div>
-              ) : records?.results?.length ? (
+              ) : records?.length ? (
                 <>
                   {currentView === 'table' && (
                     <div className="overflow-x-auto">
@@ -238,7 +238,7 @@ const DatabasePage: React.FC = () => {
                           </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                          {records.results.map((record: any) => (
+                          {records.map((record: any) => (
                             <tr key={record.id} className="hover:bg-gray-50">
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{record.id.slice(0, 8)}...</td>
                               <td className="px-6 py-4 text-sm text-gray-900">
@@ -260,7 +260,7 @@ const DatabasePage: React.FC = () => {
 
                   {currentView === 'grid' && (
                     <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                      {records.results.map((record: any) => (
+                      {records.map((record: any) => (
                         <div key={record.id} className="border rounded-lg p-4 hover:shadow">
                           <div className="text-xs text-gray-500 mb-2">{record.id.slice(0,8)}...</div>
                           <div className="text-sm text-gray-900 whitespace-pre-wrap break-words">
@@ -288,7 +288,7 @@ const DatabasePage: React.FC = () => {
                           );
                         }
                         const groups: Record<string, any[]> = {};
-                        for (const rec of records.results) {
+                        for (const rec of records) {
                           const raw = rec?.properties?.[datePropKey];
                           const d = raw ? new Date(raw) : null;
                           const key = d ? d.toLocaleDateString('ru-RU') : 'Без даты';
@@ -328,7 +328,7 @@ const DatabasePage: React.FC = () => {
                           return <div className="text-sm text-gray-600">Для канбана нужна колонка типа select/status.</div>;
                         }
                         const groups: Record<string, any[]> = {};
-                        for (const rec of records.results) {
+                        for (const rec of records) {
                           const raw = rec?.properties?.[statusKey];
                           const arr = Array.isArray(raw) ? raw : [raw];
                           if (!arr || arr.length === 0) {
@@ -376,7 +376,7 @@ const DatabasePage: React.FC = () => {
                         }
                         return (
                           <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                            {records.results.map((rec:any) => {
+                            {records.map((rec:any) => {
                               const src = rec?.properties?.[mediaKey];
                               const url = typeof src === 'string' ? src : (src?.url || src?.path || null);
                               return (
