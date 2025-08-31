@@ -476,7 +476,7 @@ const PageList: React.FC<PageListProps> = ({
       {/* Pages List */}
       {filteredPages.length === 0 ? (
         <EmptyState
-          icon={DocumentIcon}
+          icon={<DocumentIcon className="w-12 h-12" />}
           title={showArchived ? 'Нет архивных страниц' : 'Пока нет страниц'}
           description={
             showArchived
@@ -484,14 +484,11 @@ const PageList: React.FC<PageListProps> = ({
               : 'Начните с создания первой страницы'
           }
           action={
-            !showArchived ? (
-                          <button
-              onClick={() => setShowCreateForm(true)}
-              className="btn-primary hover:shadow-md transition-shadow"
-            >
-              Создать страницу
-            </button>
-            ) : undefined
+            !showArchived ? {
+              label: 'Создать страницу',
+              onClick: () => setShowCreateForm(true),
+              variant: 'primary'
+            } : undefined
           }
         />
       ) : (

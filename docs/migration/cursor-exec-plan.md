@@ -286,7 +286,7 @@ API: /databases/{id}/records/, /databases/{id}/properties/; никакого add
 feat(database): table/board views with inline edit & saved views; RESTful endpoints
 
 P2 — Полировка
-✅ TASK P2-10 — Пустые/ошибки/скелетоны/подсказки
+[x] TASK P2-10 — Пустые/ошибки/скелетоны/подсказки
 
 Коммит:
 feat(ux): empty/error/loading states & hints across key screens

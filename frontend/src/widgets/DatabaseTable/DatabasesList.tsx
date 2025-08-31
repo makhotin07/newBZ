@@ -62,18 +62,14 @@ const DatabasesList: React.FC<DatabasesListProps> = ({ workspaceId }) => {
 
       {sortedDatabases.length === 0 ? (
         <EmptyState
-          icon={TableCellsIcon}
+          icon={<TableCellsIcon className="w-12 h-12" />}
           title="Пока нет баз данных"
           description="Создайте первую базу данных, чтобы организовать данные с помощью свойств и представлений."
-          action={
-            <button
-              onClick={() => setShowCreateModal(true)}
-              className="btn-primary"
-            >
-              <PlusIcon className="w-4 h-4 mr-2" />
-              Создать базу
-            </button>
-          }
+          action={{
+            label: 'Создать базу',
+            onClick: () => setShowCreateModal(true),
+            variant: 'primary'
+          }}
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

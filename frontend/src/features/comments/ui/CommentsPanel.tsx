@@ -8,6 +8,7 @@ import {
   TrashIcon,
   PencilIcon
 } from '@heroicons/react/24/outline';
+import { EmptyState, LoadingSkeleton, Tooltip } from '../../../shared/ui';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Button } from '../../../shared/ui/Button';
@@ -182,13 +183,15 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ pageId, isOpen, onClose }
       {/* Comments List */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         {isLoading ? (
-          <div className="text-center text-gray-500">Загрузка комментариев...</div>
+          <LoadingSkeleton variant="list-item" rows={3} />
         ) : error ? (
           <div className="text-center text-red-500">Ошибка загрузки комментариев</div>
         ) : filteredComments.length === 0 ? (
-          <div className="text-center text-gray-500">
-            {filter === 'all' ? 'Нет комментариев' : 'Нет комментариев по выбранному фильтру'}
-          </div>
+          <EmptyState
+            icon={<ChatBubbleLeftRightIcon className="w-12 h-12" />}
+            title={filter === 'all' ? 'Нет комментариев' : 'Нет комментариев по выбранному фильтру'}
+            description={filter === 'all' ? 'Будьте первым, кто оставит комментарий' : 'Попробуйте изменить фильтр или создать новый комментарий'}
+          />
         ) : (
           filteredComments.map((comment: any) => (
             <CommentItem
@@ -328,47 +331,55 @@ const CommentItem: React.FC<CommentItemProps> = ({
               </button>
               {/* Dropdown menu */}
               <div className="absolute right-0 top-full mt-1 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-10 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200">
-                <button
-                  onClick={onReply}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2"
-                >
-                  <ArrowUturnLeftIcon className="w-4 h-4" />
-                  <span>Ответить</span>
-                </button>
+                <Tooltip content="Ответить на комментарий">
+                  <button
+                    onClick={onReply}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2"
+                  >
+                    <ArrowUturnLeftIcon className="w-4 h-4" />
+                    <span>Ответить</span>
+                  </button>
+                </Tooltip>
                 {isAuthor && (
                   <>
-                    <button
-                      onClick={onEdit}
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2"
-                    >
-                      <PencilIcon className="w-4 h-4" />
-                      <span>Редактировать</span>
-                    </button>
-                    <button
-                      onClick={onDelete}
-                      className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2 text-red-600"
-                    >
-                      <TrashIcon className="w-4 h-4" />
-                      <span>Удалить</span>
-                    </button>
+                    <Tooltip content="Редактировать комментарий">
+                      <button
+                        onClick={onEdit}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2"
+                      >
+                        <PencilIcon className="w-4 h-4" />
+                        <span>Редактировать</span>
+                      </button>
+                    </Tooltip>
+                    <Tooltip content="Удалить комментарий">
+                      <button
+                        onClick={onDelete}
+                        className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2 text-red-600"
+                      >
+                        <TrashIcon className="w-4 h-4" />
+                        <span>Удалить</span>
+                      </button>
+                    </Tooltip>
                   </>
                 )}
-                <button
-                  onClick={() => onResolve(!comment.is_resolved)}
-                  className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2"
-                >
-                  {comment.is_resolved ? (
-                    <>
-                      <XMarkIcon className="w-4 h-4" />
-                      <span>Открыть</span>
-                    </>
-                  ) : (
-                    <>
-                      <CheckIcon className="w-4 h-4" />
-                      <span>Решить</span>
-                    </>
-                  )}
-                </button>
+                <Tooltip content={comment.is_resolved ? "Открыть комментарий" : "Пометить комментарий как решённый"}>
+                  <button
+                    onClick={() => onResolve(!comment.is_resolved)}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2"
+                  >
+                    {comment.is_resolved ? (
+                      <>
+                        <XMarkIcon className="w-4 h-4" />
+                        <span>Открыть</span>
+                      </>
+                    ) : (
+                      <>
+                        <CheckIcon className="w-4 h-4" />
+                        <span>Решить</span>
+                      </>
+                    )}
+                  </button>
+                </Tooltip>
               </div>
             </div>
           </div>
@@ -409,13 +420,15 @@ const CommentItem: React.FC<CommentItemProps> = ({
 
         {/* Reply Button */}
         {!isEditing && (
-          <button
-            onClick={onReply}
-            className="mt-2 text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1"
-          >
-            <ArrowUturnLeftIcon className="w-3 h-3" />
-            <span>Ответить</span>
-          </button>
+          <Tooltip content="Ответить на комментарий">
+            <button
+              onClick={onReply}
+              className="mt-2 text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1"
+            >
+              <ArrowUturnLeftIcon className="w-3 h-3" />
+              <span>Ответить</span>
+            </button>
+          </Tooltip>
         )}
       </div>
 

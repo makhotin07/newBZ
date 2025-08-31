@@ -117,7 +117,7 @@ const EditorFloatingMenu: React.FC<EditorFloatingMenuProps> = ({ editor }) => {
         />
         <MenuButton
           onClick={insertTable}
-          icon={TableCellsIcon}
+                      icon={TableCellsIcon}
           label="Table"
         />
         <MenuButton

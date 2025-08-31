@@ -12,9 +12,7 @@ import {
   PhotoIcon,
   ClockIcon
 } from '@heroicons/react/24/outline';
-import { Button } from '../../../../shared/ui/Button';
-import { Input } from '../../../../shared/ui/Input';
-import { Modal } from '../../../../shared/ui/Modal';
+import { Button, Input, Modal, EmptyState, Tooltip } from '../../../../shared/ui';
 import type { DatabaseView, ViewType } from '../../types/views';
 
 interface ViewManagerProps {
@@ -166,26 +164,28 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
               </div>
               
               <div className="flex items-center space-x-1">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleStartEdit(view);
-                  }}
-                  className="p-1 text-gray-400 hover:text-blue-600 rounded"
-                  title="Редактировать"
-                >
-                  <PencilIcon className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteView(view.id);
-                  }}
-                  className="p-1 text-gray-400 hover:text-red-600 rounded"
-                  title="Удалить"
-                >
-                  <TrashIcon className="w-4 h-4" />
-                </button>
+                <Tooltip content="Редактировать представление">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleStartEdit(view);
+                    }}
+                    className="p-1 text-gray-400 hover:text-blue-600 rounded"
+                  >
+                    <PencilIcon className="w-4 h-4" />
+                  </button>
+                </Tooltip>
+                <Tooltip content="Удалить представление">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteView(view.id);
+                    }}
+                    className="p-1 text-gray-400 hover:text-red-600 rounded"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
+                </Tooltip>
               </div>
             </div>
             
@@ -198,18 +198,15 @@ export const ViewManager: React.FC<ViewManagerProps> = ({
 
       {/* Пустое состояние */}
       {views.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-gray-400 mb-2">
-            <ViewColumnsIcon className="w-12 h-12 mx-auto" />
-          </div>
-          <p className="text-gray-500 mb-4">Нет представлений</p>
-          <Button
-            onClick={() => setShowCreateModal(true)}
-            leftIcon={<PlusIcon className="w-4 h-4" />}
-          >
-            Создать первое представление
-          </Button>
-        </div>
+        <EmptyState
+          icon={<ViewColumnsIcon className="w-12 h-12" />}
+          title="Нет представлений"
+          description="Создайте первое представление для начала работы с базой данных"
+          action={{
+            label: 'Создать первое представление',
+            onClick: () => setShowCreateModal(true)
+          }}
+        />
       )}
 
       {/* Модальное окно создания представления */}

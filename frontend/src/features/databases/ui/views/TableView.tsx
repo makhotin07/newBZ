@@ -16,6 +16,7 @@ import { Button } from '../../../../shared/ui/Button';
 import { Input } from '../../../../shared/ui/Input';
 import { Modal } from '../../../../shared/ui/Modal';
 import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
+import { EmptyState, LoadingSkeleton, Tooltip } from '../../../../shared/ui';
 
 interface TableViewProps {
   properties: DatabaseProperty[];
@@ -215,8 +216,8 @@ export const TableView: React.FC<TableViewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <LoadingSpinner />
+      <div className="p-6">
+        <LoadingSkeleton variant="table-row" rows={5} columns={4} />
       </div>
     );
   }
@@ -226,14 +227,16 @@ export const TableView: React.FC<TableViewProps> = ({
       {/* Toolbar */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowFilters(!showFilters)}
-            leftIcon={<FunnelIcon className="w-4 h-4" />}
-          >
-            Фильтры {filters.size > 0 && `(${filters.size})`}
-          </Button>
+          <Tooltip content="Показать/скрыть фильтры для поиска по свойствам">
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => setShowFilters(!showFilters)}
+              leftIcon={<FunnelIcon className="w-4 h-4" />}
+            >
+              Фильтры {filters.size > 0 && `(${filters.size})`}
+            </Button>
+          </Tooltip>
           
           {selectedRecords.size > 0 && (
             <Button
@@ -358,20 +361,22 @@ export const TableView: React.FC<TableViewProps> = ({
                   {config.show_actions && (
                     <td className="px-3 py-2">
                       <div className="flex items-center space-x-1">
-                        <button
-                          onClick={() => handleStartEdit(record.id, displayProperties[0]?.id || '')}
-                          className="p-1 text-gray-400 hover:text-blue-600 rounded"
-                          title="Редактировать"
-                        >
-                          <PencilIcon className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => onDeleteRecord(record.id)}
-                          className="p-1 text-gray-400 hover:text-red-600 rounded"
-                          title="Удалить"
-                        >
-                          <TrashIcon className="w-4 h-4" />
-                        </button>
+                        <Tooltip content="Редактировать запись">
+                          <button
+                            onClick={() => handleStartEdit(record.id, displayProperties[0]?.id || '')}
+                            className="p-1 text-gray-400 hover:text-blue-600 rounded"
+                          >
+                            <PencilIcon className="w-4 h-4" />
+                          </button>
+                        </Tooltip>
+                        <Tooltip content="Удалить запись">
+                          <button
+                            onClick={() => onDeleteRecord(record.id)}
+                            className="p-1 text-gray-400 hover:text-red-600 rounded"
+                          >
+                            <TrashIcon className="w-4 h-4" />
+                          </button>
+                        </Tooltip>
                       </div>
                     </td>
                   )}
@@ -383,31 +388,16 @@ export const TableView: React.FC<TableViewProps> = ({
         
         {/* Пустое состояние */}
         {sortedRecords.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-gray-400 mb-2">
-              {filters.size > 0 ? (
-                <FunnelIcon className="w-12 h-12 mx-auto" />
-              ) : (
-                <PlusIcon className="w-12 h-12 mx-auto" />
-              )}
-            </div>
-            <p className="text-gray-500">
-              {filters.size > 0 
-                ? 'Нет записей, соответствующих фильтрам'
-                : 'Нет записей в базе данных'
-              }
-            </p>
-            {filters.size === 0 && (
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => setShowCreateModal(true)}
-                className="mt-3"
-              >
-                Создать первую запись
-              </Button>
-            )}
-          </div>
+          <EmptyState
+            icon={filters.size > 0 ? <FunnelIcon className="w-12 h-12" /> : <PlusIcon className="w-12 h-12" />}
+            title={filters.size > 0 ? 'Нет записей, соответствующих фильтрам' : 'Нет записей в базе данных'}
+            action={filters.size === 0 ? {
+              label: 'Создать первую запись',
+              onClick: () => setShowCreateModal(true),
+              variant: 'secondary',
+              size: 'sm'
+            } : undefined}
+          />
         )}
       </div>
 

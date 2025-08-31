@@ -14,7 +14,7 @@ import {
 import PageList from '../features/notes/ui/pages/PageList';
 import TaskBoardsList from '../widgets/TaskBoard/TaskBoardsList';
 import DatabasesList from '../widgets/DatabaseTable/DatabasesList';
-import { PagePreview } from '../shared/ui';
+import { PagePreview, Tooltip } from '../shared/ui';
 import { useDrawer } from '../shared/hooks/useDrawer';
 import { CommentsPanel } from '../features/comments';
 
@@ -52,22 +52,26 @@ const WorkspacePage: React.FC = () => {
           
           <div className="flex items-center space-x-3">
             {/* Comments Button */}
-            <button
-              onClick={() => setIsCommentsOpen(true)}
-              className="btn-secondary flex items-center space-x-2"
-            >
-              <ChatBubbleLeftRightIcon className="w-5 h-5" />
-              <span>Комментарии</span>
-            </button>
+                                    <Tooltip content="Открыть панель комментариев">
+                          <button
+                            onClick={() => setIsCommentsOpen(true)}
+                            className="btn-secondary flex items-center space-x-2"
+                          >
+                            <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                            <span>Комментарии</span>
+                          </button>
+                        </Tooltip>
             
             {/* Settings Button */}
-            <Link
-              to={`/workspace/${workspaceId}/settings`}
-              className="btn-secondary flex items-center space-x-2"
-            >
-              <Cog6ToothIcon className="w-5 h-5" />
-              <span>Настройки</span>
-            </Link>
+                                    <Tooltip content="Настройки рабочего пространства">
+                          <Link
+                            to={`/workspace/${workspaceId}/settings`}
+                            className="btn-secondary flex items-center space-x-2"
+                          >
+                            <Cog6ToothIcon className="w-5 h-5" />
+                            <span>Настройки</span>
+                          </Link>
+                        </Tooltip>
           </div>
         </div>
 

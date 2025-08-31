@@ -180,7 +180,7 @@ const NotificationsTab: React.FC = () => {
       {/* Notifications list */}
       {notifications.length === 0 ? (
         <EmptyState
-          icon={BellIcon}
+          icon={<BellIcon className="w-12 h-12" />}
           title="No notifications"
           description={
             filter === 'unread' 
@@ -393,7 +393,7 @@ const RemindersTab: React.FC<{
       {/* Reminders list */}
       {reminders.length === 0 ? (
         <EmptyState
-          icon={ClockIcon}
+          icon={<ClockIcon className="w-12 h-12" />}
           title="No reminders"
           description={
             filter === 'active' 

@@ -19,6 +19,7 @@ import { EditableCell } from '../EditableCell';
 import { AddRowButton } from '../AddRowButton';
 import { DeleteButton } from '../DeleteButton';
 import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
+import { EmptyState, LoadingSkeleton, Tooltip } from '../../../../shared/ui';
 
 interface BoardViewProps {
   properties: DatabaseProperty[];
@@ -199,8 +200,8 @@ export const BoardView: React.FC<BoardViewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <LoadingSpinner />
+      <div className="p-6">
+        <LoadingSkeleton variant="card" rows={3} />
       </div>
     );
   }
@@ -285,40 +286,44 @@ export const BoardView: React.FC<BoardViewProps> = ({
                             <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
                               <div className="flex items-center space-x-2">
                                 {/* Assign */}
-                                <button
-                                  className="p-1 text-gray-400 hover:text-blue-600 rounded"
-                                  title="Назначить"
-                                  onClick={() => handleQuickAction('assign', (record as any).id)}
-                                >
-                                  <UserIcon className="w-3 h-3" />
-                                </button>
+                                <Tooltip content="Назначить пользователя">
+                                  <button
+                                    className="p-1 text-gray-400 hover:text-blue-600 rounded"
+                                    onClick={() => handleQuickAction('assign', (record as any).id)}
+                                  >
+                                    <UserIcon className="w-3 h-3" />
+                                  </button>
+                                </Tooltip>
                                 
                                 {/* Due Date */}
-                                <button
-                                  className="p-1 text-gray-400 hover:text-orange-600 rounded"
-                                  title="Срок выполнения"
-                                  onClick={() => handleQuickAction('due', (record as any).id)}
-                                >
-                                  <CalendarIcon className="w-3 h-3" />
-                                </button>
+                                <Tooltip content="Установить срок выполнения">
+                                  <button
+                                    className="p-1 text-gray-400 hover:text-orange-600 rounded"
+                                    onClick={() => handleQuickAction('due', (record as any).id)}
+                                  >
+                                    <CalendarIcon className="w-3 h-3" />
+                                  </button>
+                                </Tooltip>
                                 
                                 {/* Priority */}
-                                <button
-                                  className="p-1 text-gray-400 hover:text-red-600 rounded"
-                                  title="Приоритет"
-                                  onClick={() => handleQuickAction('priority', (record as any).id)}
-                                >
-                                  <FlagIcon className="w-3 h-3" />
-                                </button>
+                                <Tooltip content="Установить приоритет">
+                                  <button
+                                    className="p-1 text-gray-400 hover:text-red-600 rounded"
+                                    onClick={() => handleQuickAction('priority', (record as any).id)}
+                                  >
+                                    <FlagIcon className="w-3 h-3" />
+                                  </button>
+                                </Tooltip>
                                 
                                 {/* Tags */}
-                                <button
-                                  className="p-1 text-gray-400 hover:text-green-600 rounded"
-                                  title="Теги"
-                                  onClick={() => handleQuickAction('tags', (record as any).id)}
-                                >
-                                  <TagIcon className="w-3 h-3" />
-                                </button>
+                                <Tooltip content="Управление тегами">
+                                  <button
+                                    className="p-1 text-gray-400 hover:text-green-600 rounded"
+                                    onClick={() => handleQuickAction('tags', (record as any).id)}
+                                  >
+                                    <TagIcon className="w-3 h-3" />
+                                  </button>
+                                </Tooltip>
                               </div>
                               
                               <div className="flex items-center space-x-1">

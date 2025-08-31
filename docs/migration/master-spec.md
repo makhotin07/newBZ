@@ -344,10 +344,30 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
 ### P2 — Полировка
 
 #### TASK P2-10 — Пустые/ошибки/скелетоны
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Созданы компоненты для состояний: EmptyState, ErrorState, LoadingSkeleton, Tooltip
+  - Интегрированы во все ключевые экраны (TableView, BoardView, ViewManager, CommentsPanel)
+  - Добавлены тултипы для улучшения UX и объяснения сложных функций
+  - Заменены простые заглушки на полноценные компоненты состояний
+  - Поддержка различных вариантов скелетонов (таблица, карточки, список)
 - **Файлы**: 
+  - frontend/src/shared/ui/EmptyState.tsx (компонент пустого состояния)
+  - frontend/src/shared/ui/ErrorState.tsx (компонент ошибки)
+  - frontend/src/shared/ui/LoadingSkeleton.tsx (скелетоны загрузки)
+  - frontend/src/shared/ui/Tooltip.tsx (компонент подсказок)
+  - frontend/src/shared/ui/index.ts (обновлен экспорт)
+  - frontend/src/features/databases/ui/views/TableView.tsx (интеграция состояний)
+  - frontend/src/features/databases/ui/views/BoardView.tsx (интеграция состояний)
+  - frontend/src/features/databases/ui/views/ViewManager.tsx (интеграция состояний)
+  - frontend/src/features/databases/ui/views/DatabaseViews.tsx (интеграция состояний)
+  - frontend/src/features/comments/ui/CommentsPanel.tsx (интеграция состояний)
+  - frontend/src/pages/WorkspacePage.tsx (добавлены тултипы)
+  - frontend/src/pages/NotificationsPage.tsx (исправлены иконки)
+  - frontend/src/pages/SearchPage.tsx (исправлены иконки)
+  - frontend/src/widgets/DatabaseTable/DatabasesList.tsx (исправлены иконки и action)
+  - frontend/src/widgets/TaskBoard/TaskBoardsList.tsx (исправлены иконки и action) 
 
 #### TASK P2-20 — Тёмная тема, перф, аналитика
 - **Дата**: 
