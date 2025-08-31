@@ -266,7 +266,7 @@ A11y: роли/aria, таб-навигация, фокус-ловушки при
 Коммит:
 feat(comments): side panel with threads/filters/resolve; nested REST endpoints
 
-✅ TASK P1-30 — Базы данных: Table/Board (MVP)
+[x] TASK P1-30 — Базы данных: Table/Board (MVP)
 
 Цель: управляемые представления.
 

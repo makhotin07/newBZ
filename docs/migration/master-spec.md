@@ -324,10 +324,22 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
   - frontend/package.json (добавлена зависимость date-fns)
 
 #### TASK P1-30 — Базы данных: Table/Board
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Создан полноценный TableView с inline-редактированием, сортировкой, фильтрацией
+  - Улучшен BoardView с быстрыми действиями (assign/due/priority/tags)  
+  - Добавлен ViewManager для управления представлениями баз данных
+  - Создан основной компонент DatabaseViews для интеграции всех представлений
+  - Поддержка пустых состояний и обработки ошибок
+  - Добавлены типы для TableViewConfig
 - **Файлы**: 
+  - frontend/src/features/databases/ui/views/TableView.tsx (новый компонент таблицы)
+  - frontend/src/features/databases/ui/views/ViewManager.tsx (менеджер представлений)
+  - frontend/src/features/databases/ui/views/DatabaseViews.tsx (основной компонент)
+  - frontend/src/features/databases/ui/views/BoardView.tsx (улучшения быстрых действий)
+  - frontend/src/features/databases/types/views.ts (добавлен TableViewConfig)
+  - frontend/src/features/databases/ui/views/index.ts (обновлен экспорт) 
 
 ### P2 — Полировка
 

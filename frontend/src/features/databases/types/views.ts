@@ -65,6 +65,18 @@ export interface CalendarViewConfig {
   };
 }
 
+// Конфигурация для TableView
+export interface TableViewConfig {
+  show_properties: string[]; // ID свойств для отображения
+  show_checkboxes: boolean;
+  show_actions: boolean;
+  default_sort?: {
+    property_id: string;
+    direction: 'asc' | 'desc';
+  };
+  default_filters?: ViewFilter[];
+}
+
 // Конфигурация для ListView
 export interface ListViewConfig {
   show_properties: string[]; // ID свойств для отображения
