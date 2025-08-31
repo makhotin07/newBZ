@@ -1,326 +1,166 @@
-import api from '../../shared/api';
+/**
+ * API для работы с заметками через SDK
+ * Автогенерирован из OpenAPI схемы
+ */
+import { NotesService } from '../../shared/api/sdk/generated/services/NotesService';
+import type { 
+  PageCreate, 
+  PageDetail, 
+  PageList, 
+  PatchedPageDetail,
+  Tag,
+  PatchedTag,
+  Block,
+  PatchedBlock,
+  Comment,
+  PatchedComment
+} from '../../shared/api/sdk/generated';
 
-export interface Tag {
-  id: string;
-  name: string;
-  color: string;
-  created_at: string;
-}
+// API для работы с заметками
+export const notesApi = {
+  // Теги
+  getTags: async () => {
+    const response = await NotesService.notesTagsList();
+    return response;
+  },
 
-export interface Block {
-  id: string;
-  type: string;
-  content: any;
-  position: number;
-  parent_block?: string;
-  children?: Block[];
-  created_at: string;
-  updated_at: string;
-}
+  createTag: async (data: { name: string; color?: string }) => {
+    const response = await NotesService.notesTagsCreate(data);
+    return response;
+  },
 
-export interface Page {
-  id: string;
-  title: string;
-  content: any;
-  content_text: string;
-  icon?: string;
-  cover_image?: string;
-  workspace: string;
-  workspace_name: string;
-  parent?: string;
-  author: string;
-  author_name: string;
-  last_edited_by: string;
-  last_edited_by_name: string;
-  tags: Tag[];
-  permissions: 'private' | 'workspace' | 'public';
-  is_template: boolean;
-  is_archived: boolean;
-  position: number;
-  blocks?: Block[];
-  children?: Page[];
-  path: string;
-  created_at: string;
-  updated_at: string;
-}
+  updateTag: async (id: string, updates: Partial<Tag>) => {
+    const response = await NotesService.notesTagsPartialUpdate(id, updates);
+    return response;
+  },
 
+  deleteTag: async (id: string) => {
+    await NotesService.notesTagsDestroy(id);
+  },
 
+  // Страницы
+  getPages: async (params?: any) => {
+    const response = await NotesService.notesPagesList(params?.page);
+    return response;
+  },
 
-export interface CreatePageData {
-  title: string;
-  content?: any;
-  icon?: string;
-  cover_image?: string;
-  workspace: string;
-  parent?: string;
-  tag_ids?: string[];
-  permissions?: 'private' | 'workspace' | 'public';
-  is_template?: boolean;
-  position?: number;
-}
+  getPage: async (id: string) => {
+    const response = await NotesService.notesPagesRetrieve(id);
+    return response;
+  },
 
-export interface UpdatePageData {
-  title?: string;
-  content?: any;
-  icon?: string;
-  cover_image?: string;
-  parent?: string;
-  tag_ids?: string[];
-  permissions?: 'private' | 'workspace' | 'public';
-  is_template?: boolean;
-  is_archived?: boolean;
-  position?: number;
-}
+  createPage: async (data: PageCreate) => {
+    const response = await NotesService.notesPagesCreate(data);
+    return response;
+  },
 
-export interface PageVersion {
-  id: string;
-  page: string;
-  title: string;
-  content: any;
-  content_text: string;
-  version_number: number;
-  created_by: string;
-  created_by_name: string;
-  created_at: string;
-}
+  updatePage: async (id: string, data: Partial<PageDetail>) => {
+    const response = await NotesService.notesPagesPartialUpdate(id, data);
+    return response;
+  },
 
-class NotesApi {
-  // Tags
-  async getTags(): Promise<Tag[]> {
-    try {
-      const response = await api.get('/notes/tags/');
-      if (response.data && response.data.results) {
-        return response.data.results;
-      }
-      if (Array.isArray(response.data)) {
-        return response.data;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching tags:', error);
-      return [];
-    }
+  deletePage: async (id: string) => {
+    await NotesService.notesPagesDestroy(id);
+  },
+
+  // Блоки страниц
+  getBlocks: async (pageId: string) => {
+    const response = await NotesService.notesBlocksList();
+    // TODO: Добавить фильтрацию по page_id в API
+    return response;
+  },
+
+  createBlock: async (pageId: string, blockData: Partial<Block>) => {
+    // TODO: Добавить page_id в API блоков
+    const response = await NotesService.notesBlocksCreate(blockData);
+    return response;
+  },
+
+  updateBlock: async (blockId: string, updates: Partial<Block>) => {
+    const response = await NotesService.notesBlocksPartialUpdate(blockId, updates);
+    return response;
+  },
+
+  deleteBlock: async (blockId: string) => {
+    await NotesService.notesBlocksDestroy(blockId);
+  },
+
+  // Комментарии страниц
+  getPageComments: async (pageId: string) => {
+    const response = await NotesService.notesPagesCommentsList(pageId);
+    return response;
+  },
+
+  createPageComment: async (pageId: string, commentData: Omit<Comment, 'id' | 'created_at'>) => {
+    const response = await NotesService.notesPagesCommentsCreate(pageId, commentData);
+    return response;
+  },
+
+  updatePageComment: async (pageId: string, commentId: string, updates: Partial<Comment>) => {
+    const response = await NotesService.notesPagesCommentsPartialUpdate(pageId, commentId, updates);
+    return response;
+  },
+
+  deletePageComment: async (pageId: string, commentId: string) => {
+    await NotesService.notesPagesCommentsDestroy(pageId, commentId);
+  },
+
+  // Дополнительные методы (пока через старый API)
+  getRecentPages: async (workspaceId: string) => {
+    // TODO: Добавить в workspaces SDK метод getRecentNotes
+    const response = await fetch(`/api/notes/workspace/${workspaceId}/recent/`);
+    return response.json();
+  },
+
+  sharePage: async (data: { page_id: string; user_id: string; permissions: string }) => {
+    // TODO: Добавить в notes SDK метод sharePage
+    const response = await fetch(`/api/notes/pages/${data.page_id}/share/`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    return response.json();
+  },
+
+  getPageShares: async (pageId: string) => {
+    // TODO: Добавить в notes SDK метод getPageShares
+    const response = await fetch(`/api/notes/pages/${pageId}/shares/`);
+    return response.json();
+  },
+
+  archivePage: async (id: string) => {
+    // Используем PATCH с полем archived
+    const response = await NotesService.notesPagesPartialUpdate(id, { is_archived: true });
+    return response;
+  },
+
+  duplicatePage: async (id: string) => {
+    // Получаем страницу и создаем копию
+    const originalPage = await NotesService.notesPagesRetrieve(id);
+    const { id: _, created_at, updated_at, ...pageData } = originalPage;
+    const response = await NotesService.notesPagesCreate({ 
+      ...pageData, 
+      title: `${pageData.title} (копия)`,
+      workspace: pageData.workspace
+    });
+    return response;
+  },
+
+  getChildPages: async (pageId: string) => {
+    // TODO: Добавить в notes SDK метод getChildPages
+    const response = await fetch(`/api/notes/pages/${pageId}/children/`);
+    return response.json();
+  },
+
+  getPageVersions: async (pageId: string) => {
+    // TODO: Добавить в notes SDK метод getPageVersions
+    const response = await fetch(`/api/notes/pages/${pageId}/versions/`);
+    return response.json();
+  },
+
+  searchPages: async (query: string, params?: any) => {
+    // TODO: Добавить в search SDK метод searchNotes
+    const response = await fetch(`/api/notes/pages/search/?q=${encodeURIComponent(query)}`);
+    return response.json();
   }
-
-  async createTag(name: string, color: string = '#6B7280'): Promise<Tag> {
-    const response = await api.post('/notes/tags/', { name, color });
-    return response.data;
-  }
-
-  async updateTag(id: string, updates: Partial<Tag>): Promise<Tag> {
-    const response = await api.patch(`/notes/tags/${id}/`, updates);
-    return response.data;
-  }
-
-  async deleteTag(id: string): Promise<void> {
-    await api.delete(`/notes/tags/${id}/`);
-  }
-
-  // Pages
-  async getPages(params?: {
-    workspace?: string;
-    parent?: string | 'null';
-    archived?: boolean;
-    templates?: boolean;
-  }): Promise<Page[]> {
-    try {
-      const response = await api.get('/notes/pages/', { params });
-      if (response.data && response.data.results) {
-        return response.data.results;
-      }
-      if (Array.isArray(response.data)) {
-        return response.data;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching pages:', error);
-      return [];
-    }
-  }
-
-  async getPage(id: string): Promise<Page> {
-    const response = await api.get(`/notes/pages/${id}/`);
-    return response.data;
-  }
-
-  async createPage(data: {
-    title: string;
-    content?: any;
-    icon?: string;
-    cover_image?: string;
-    workspace: string;
-    parent?: string;
-    tag_ids?: string[];
-    permissions?: 'private' | 'workspace' | 'public';
-    is_template?: boolean;
-    position?: number;
-  }): Promise<Page> {
-    const response = await api.post('/notes/pages/', data);
-    return response.data;
-  }
-
-  async updatePage(id: string, data: {
-    title?: string;
-    content?: any;
-    icon?: string;
-    cover_image?: string;
-    parent?: string;
-    tag_ids?: string[];
-    permissions?: 'private' | 'workspace' | 'public';
-    is_template?: boolean;
-    is_archived?: boolean;
-    position?: number;
-  }): Promise<Page> {
-    const response = await api.patch(`/notes/pages/${id}/`, data);
-    return response.data;
-  }
-
-  async deletePage(id: string): Promise<void> {
-    await api.delete(`/notes/pages/${id}/`);
-  }
-
-  // Blocks
-  async getPageBlocks(pageId: string): Promise<Block[]> {
-    try {
-      const response = await api.get(`/notes/pages/${pageId}/blocks/`);
-      if (response.data && response.data.results) {
-        return response.data.results;
-      }
-      if (Array.isArray(response.data)) {
-        return response.data;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching page blocks:', error);
-      return [];
-    }
-  }
-
-  async createBlock(pageId: string, blockData: {
-    type: string;
-    content: any;
-    position?: number;
-    parent_block?: string;
-  }): Promise<Block> {
-    const response = await api.post(`/notes/pages/${pageId}/blocks/`, blockData);
-    return response.data;
-  }
-
-  async updateBlock(blockId: string, updates: {
-    type?: string;
-    content?: any;
-    position?: number;
-  }): Promise<Block> {
-    const response = await api.patch(`/notes/blocks/${blockId}/`, updates);
-    return response.data;
-  }
-
-  async deleteBlock(blockId: string): Promise<void> {
-    await api.delete(`/notes/blocks/${blockId}/`);
-  }
-
-  // Database Blocks
-  async createDatabaseBlock(pageId: string, databaseId: string, viewId?: string): Promise<Block> {
-    const blockData = {
-      type: 'database',
-      content: {
-        database_id: databaseId,
-        view_id: viewId,
-      },
-      position: 0, // Будет автоматически установлено сервером
-    };
-    
-    return this.createBlock(pageId, blockData);
-  }
-
-  async updateDatabaseBlock(blockId: string, databaseId: string, viewId?: string): Promise<Block> {
-    const updates = {
-      content: {
-        database_id: databaseId,
-        view_id: viewId,
-      },
-    };
-    
-    return this.updateBlock(blockId, updates);
-  }
-
-
-
-  // Page Management
-  async getRecentPages(workspaceId: string, limit: number = 10): Promise<Page[]> {
-    try {
-      const response = await api.get(`/notes/workspace/${workspaceId}/recent/`, { 
-        params: { limit } 
-      });
-      return response.data.results || response.data;
-    } catch (error) {
-      console.error('Error fetching recent pages:', error);
-      return [];
-    }
-  }
-
-  async sharePage(data: { page_id: string; share_type: 'public' | 'private'; public_access: boolean }): Promise<any> {
-    const response = await api.post(`/notes/pages/${data.page_id}/share/`, data);
-    return response.data;
-  }
-
-  async getPageShares(pageId: string): Promise<any[]> {
-    try {
-      const response = await api.get(`/notes/pages/${pageId}/shares/`);
-      return response.data.results || response.data;
-    } catch (error) {
-      console.error('Error fetching page shares:', error);
-      return [];
-    }
-  }
-
-  async archivePage(id: string): Promise<Page> {
-    const response = await api.patch(`/notes/pages/${id}/archive/`);
-    return response.data;
-  }
-
-  async duplicatePage(id: string): Promise<Page> {
-    const response = await api.post(`/notes/pages/${id}/duplicate/`);
-    return response.data;
-  }
-
-  async getPageChildren(pageId: string): Promise<Page[]> {
-    try {
-      const response = await api.get(`/notes/pages/${pageId}/children/`);
-      return response.data.results || response.data;
-    } catch (error) {
-      console.error('Error fetching page children:', error);
-      return [];
-    }
-  }
-
-  async getPageVersions(pageId: string): Promise<PageVersion[]> {
-    try {
-      const response = await api.get(`/notes/pages/${pageId}/versions/`);
-      return response.data.results || response.data;
-    } catch (error) {
-      console.error('Error fetching page versions:', error);
-      return [];
-    }
-  }
-
-  // Search
-  async searchPages(query: string, params?: {
-    workspace?: string;
-  }): Promise<{ pages: Page[]; count: number; query: string }> {
-    try {
-      const response = await api.get('/notes/pages/search/', {
-        params: { q: query, ...params }
-      });
-      if (response.data && typeof response.data === 'object') {
-        return response.data;
-      }
-      return { pages: [], count: 0, query };
-    } catch (error) {
-      console.error('Error searching pages:', error);
-      return { pages: [], count: 0, query };
-    }
-  }
-}
-
-export const notesApi = new NotesApi();
+};
