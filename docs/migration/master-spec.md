@@ -244,10 +244,22 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
   - frontend/src/features/notes/ui/pages/PageList.tsx (URL-based preview)
 
 #### TASK P0-40 — Базовый UI-kit
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Создан компонент Button с вариантами, размерами и состоянием загрузки
+  - Создан компонент Input с поддержкой иконок, ошибок и helper text
+  - Создан компонент Modal с фокус-ловушкой и a11y поддержкой
+  - Добавлены тесты для всех компонентов
+  - Все компоненты поддерживают Tailwind CSS и TypeScript
 - **Файлы**: 
+  - frontend/src/shared/ui/Button.tsx (базовый компонент кнопки)
+  - frontend/src/shared/ui/Input.tsx (базовый компонент ввода)
+  - frontend/src/shared/ui/Modal.tsx (базовый компонент модала)
+  - frontend/src/shared/ui/Button.test.tsx (тесты для Button)
+  - frontend/src/shared/ui/Input.test.tsx (тесты для Input)
+  - frontend/src/shared/ui/Modal.test.tsx (тесты для Modal)
+  - frontend/src/shared/ui/index.ts (обновлен экспорт)
 
 #### TASK P0-50 — Гигиена
 - **Дата**: 

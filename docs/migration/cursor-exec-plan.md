@@ -40,7 +40,7 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
 
  [x] P0-30 Drawer/SidePanel + маршруты (просмотр страницы сбоку)
 
- P0-40 Базовый UI-kit (Button/Input/Modal/Drawer)
+ [x] P0-40 Базовый UI-kit (Button/Input/Modal/Drawer)
 
  P0-50 Гигиена (дубли, EN-строки, мёртвый код)
 
