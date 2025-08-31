@@ -34,7 +34,7 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
 
  [x] P0-00 Бутстрап (ветка, инструменты, SSOT)
 
- P0-10 Унификация URL и OpenAPI (сквозной контракт)
+ [x] P0-10 Унификация URL и OpenAPI (сквозной контракт)
 
  P0-20 SDK из OpenAPI (единая точка API на фронте)
 
