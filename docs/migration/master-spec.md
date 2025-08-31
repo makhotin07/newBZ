@@ -211,10 +211,20 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
   - docs/migration/url-migration-plan.md (создан план миграции)
 
 #### TASK P0-20 — OpenAPI → фронт-SDK
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Добавлены URL для drf-spectacular в backend/urls.py
+  - Сгенерирована OpenAPI схема (schema.yaml)
+  - Установлен openapi-typescript для генерации TypeScript типов
+  - Создан SDK с методами для всех API endpoints
+  - Заменен модуль notifications на SDK
 - **Файлы**: 
+  - backend/urls.py (добавлены OpenAPI URL)
+  - schema.yaml (сгенерирована OpenAPI схема)
+  - frontend/src/shared/api/sdk/types.ts (TypeScript типы)
+  - frontend/src/shared/api/sdk/index.ts (основной SDK)
+  - frontend/src/features/notifications/api.ts (заменен на SDK)
 
 #### TASK P0-30 — Drawer/SidePanel и маршруты
 - **Дата**: 

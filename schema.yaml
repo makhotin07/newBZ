@@ -1,0 +1,5472 @@
+openapi: 3.0.3
+info:
+  title: Notion Clone API
+  version: 1.0.0
+  description: API for Notion-like productivity app
+paths:
+  /api/auth/login/:
+    post:
+      operationId: auth_login_create
+      description: Кастомный JWT токен view, возвращающий данные пользователя с токенами
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenObtainPair'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenObtainPair'
+          description: ''
+  /api/auth/me/:
+    get:
+      operationId: auth_me_retrieve
+      description: Просмотр и обновление профиля пользователя
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: auth_me_update
+      description: Просмотр и обновление профиля пользователя
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserUpdate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdate'
+          description: ''
+    patch:
+      operationId: auth_me_partial_update
+      description: Просмотр и обновление профиля пользователя
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedUserUpdate'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserUpdate'
+          description: ''
+  /api/auth/me/password/:
+    patch:
+      operationId: auth_me_password_partial_update
+      description: Смена пароля пользователя
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/auth/password-reset/:
+    post:
+      operationId: auth_password_reset_create
+      description: Запрос на сброс пароля
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/password-reset/confirm/:
+    post:
+      operationId: auth_password_reset_confirm_create
+      description: Сброс пароля по токену
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/auth/register/:
+    post:
+      operationId: auth_register_create
+      description: Регистрация нового пользователя
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UserRegistration'
+        required: true
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserRegistration'
+          description: ''
+  /api/auth/token/refresh/:
+    post:
+      operationId: auth_token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - auth
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+  /api/auth/users/:
+    get:
+      operationId: auth_users_list
+      description: Поиск пользователей для добавления в workspace
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - auth
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedUserList'
+          description: ''
+  /api/comments/:
+    get:
+      operationId: comments_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - comments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDatabaseCommentList'
+          description: ''
+    post:
+      operationId: comments_create
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseComment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseComment'
+          description: ''
+  /api/comments/{id}/:
+    get:
+      operationId: comments_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - comments
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseComment'
+          description: ''
+    put:
+      operationId: comments_update
+      description: Обновление комментария
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseComment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseComment'
+          description: ''
+    patch:
+      operationId: comments_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - comments
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseComment'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseComment'
+          description: ''
+    delete:
+      operationId: comments_destroy
+      description: Удаление комментария
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - comments
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/databases/:
+    get:
+      operationId: databases_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - databases
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedDatabaseDetailList'
+          description: ''
+    post:
+      operationId: databases_create
+      tags:
+      - databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+  /api/databases/{id}/:
+    get:
+      operationId: databases_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+    put:
+      operationId: databases_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+    patch:
+      operationId: databases_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedDatabaseDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+    delete:
+      operationId: databases_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/databases/{id}/create_property/:
+    post:
+      operationId: databases_create_property_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+  /api/databases/{id}/create_record/:
+    post:
+      operationId: databases_create_record_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+  /api/databases/{id}/create_view/:
+    post:
+      operationId: databases_create_view_create
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DatabaseDetail'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+  /api/databases/{id}/properties/:
+    get:
+      operationId: databases_properties_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+  /api/databases/{id}/records/:
+    get:
+      operationId: databases_records_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+  /api/databases/{id}/views/:
+    get:
+      operationId: databases_views_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - databases
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseDetail'
+          description: ''
+  /api/notes/blocks/:
+    get:
+      operationId: notes_blocks_list
+      description: ViewSet для блоков
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedBlockList'
+          description: ''
+    post:
+      operationId: notes_blocks_create
+      description: ViewSet для блоков
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Block'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Block'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Block'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+  /api/notes/blocks/{id}/:
+    get:
+      operationId: notes_blocks_retrieve
+      description: ViewSet для блоков
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+    put:
+      operationId: notes_blocks_update
+      description: ViewSet для блоков
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Block'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Block'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Block'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+    patch:
+      operationId: notes_blocks_partial_update
+      description: ViewSet для блоков
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedBlock'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedBlock'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedBlock'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Block'
+          description: ''
+    delete:
+      operationId: notes_blocks_destroy
+      description: ViewSet для блоков
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notes/pages/:
+    get:
+      operationId: notes_pages_list
+      description: ViewSet для страниц
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedPageListList'
+          description: ''
+    post:
+      operationId: notes_pages_create
+      description: ViewSet для страниц
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageCreate'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PageCreate'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PageCreate'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageCreate'
+          description: ''
+  /api/notes/pages/{page_id}/comments/:
+    get:
+      operationId: notes_pages_comments_list
+      description: View для списка и создания комментариев к странице
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: page_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCommentList'
+          description: ''
+    post:
+      operationId: notes_pages_comments_create
+      description: View для списка и создания комментариев к странице
+      parameters:
+      - in: path
+        name: page_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/notes/pages/{page_id}/comments/{id}/:
+    get:
+      operationId: notes_pages_comments_retrieve
+      description: View для получения, обновления и удаления комментария
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: page_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    put:
+      operationId: notes_pages_comments_update
+      description: View для получения, обновления и удаления комментария
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: page_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    patch:
+      operationId: notes_pages_comments_partial_update
+      description: View для получения, обновления и удаления комментария
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: page_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    delete:
+      operationId: notes_pages_comments_destroy
+      description: View для получения, обновления и удаления комментария
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: page_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notes/pages/{page_id}/comments/{id}/resolve/:
+    put:
+      operationId: notes_pages_comments_resolve_update
+      description: View для разрешения комментария
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: page_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Comment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Comment'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+    patch:
+      operationId: notes_pages_comments_resolve_partial_update
+      description: View для разрешения комментария
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: page_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedComment'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+          description: ''
+  /api/notes/pages/{id}/:
+    get:
+      operationId: notes_pages_retrieve
+      description: ViewSet для страниц
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageDetail'
+          description: ''
+    put:
+      operationId: notes_pages_update
+      description: ViewSet для страниц
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PageDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PageDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageDetail'
+          description: ''
+    patch:
+      operationId: notes_pages_partial_update
+      description: ViewSet для страниц
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedPageDetail'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedPageDetail'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedPageDetail'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageDetail'
+          description: ''
+    delete:
+      operationId: notes_pages_destroy
+      description: ViewSet для страниц
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notes/pages/{id}/blocks/:
+    get:
+      operationId: notes_pages_blocks_retrieve
+      description: Получение и создание блоков страницы
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageList'
+          description: ''
+    post:
+      operationId: notes_pages_blocks_create
+      description: Получение и создание блоков страницы
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PageList'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PageList'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PageList'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PageList'
+          description: ''
+  /api/notes/tags/:
+    get:
+      operationId: notes_tags_list
+      description: ViewSet для тегов
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTagList'
+          description: ''
+    post:
+      operationId: notes_tags_create
+      description: ViewSet для тегов
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tag'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+  /api/notes/tags/{id}/:
+    get:
+      operationId: notes_tags_retrieve
+      description: ViewSet для тегов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    put:
+      operationId: notes_tags_update
+      description: ViewSet для тегов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Tag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Tag'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    patch:
+      operationId: notes_tags_partial_update
+      description: ViewSet для тегов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTag'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Tag'
+          description: ''
+    delete:
+      operationId: notes_tags_destroy
+      description: ViewSet для тегов
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notes
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/:
+    get:
+      operationId: notifications_list
+      description: ViewSet для уведомлений
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationList'
+          description: ''
+    post:
+      operationId: notifications_create
+      description: ViewSet для уведомлений
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/{id}/:
+    get:
+      operationId: notifications_retrieve
+      description: ViewSet для уведомлений
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    put:
+      operationId: notifications_update
+      description: ViewSet для уведомлений
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    patch:
+      operationId: notifications_partial_update
+      description: ViewSet для уведомлений
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotification'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+    delete:
+      operationId: notifications_destroy
+      description: ViewSet для уведомлений
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/mark_all_read/:
+    post:
+      operationId: notifications_mark_all_read_create
+      description: Отметить все уведомления как прочитанные
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Notification'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Notification'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /api/notifications/reminders/:
+    get:
+      operationId: notifications_reminders_list
+      description: ViewSet для напоминаний
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedReminderList'
+          description: ''
+    post:
+      operationId: notifications_reminders_create
+      description: ViewSet для напоминаний
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reminder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Reminder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Reminder'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+          description: ''
+  /api/notifications/reminders/{id}/:
+    get:
+      operationId: notifications_reminders_retrieve
+      description: ViewSet для напоминаний
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+          description: ''
+    put:
+      operationId: notifications_reminders_update
+      description: ViewSet для напоминаний
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reminder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Reminder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Reminder'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+          description: ''
+    patch:
+      operationId: notifications_reminders_partial_update
+      description: ViewSet для напоминаний
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedReminder'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedReminder'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedReminder'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+          description: ''
+    delete:
+      operationId: notifications_reminders_destroy
+      description: ViewSet для напоминаний
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/notifications/settings/:
+    get:
+      operationId: notifications_settings_list
+      description: Переопределяем list для возврата одного объекта без пагинации
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationSettingsList'
+          description: ''
+    post:
+      operationId: notifications_settings_create
+      description: ViewSet для настроек уведомлений
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationSettings'
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+          description: ''
+  /api/notifications/settings/{id}/:
+    get:
+      operationId: notifications_settings_retrieve
+      description: ViewSet для настроек уведомлений
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+          description: ''
+    put:
+      operationId: notifications_settings_update
+      description: ViewSet для настроек уведомлений
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NotificationSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NotificationSettings'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+          description: ''
+    patch:
+      operationId: notifications_settings_partial_update
+      description: ViewSet для настроек уведомлений
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationSettings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationSettings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNotificationSettings'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationSettings'
+          description: ''
+    delete:
+      operationId: notifications_settings_destroy
+      description: ViewSet для настроек уведомлений
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - notifications
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/search/autocomplete/:
+    get:
+      operationId: search_autocomplete_retrieve
+      description: Автодополнение поиска
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/search/global/:
+    get:
+      operationId: search_global_retrieve
+      description: Глобальный поиск по всем workspace
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/search/history/:
+    get:
+      operationId: search_history_list
+      description: ViewSet для истории поиска
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSearchHistoryList'
+          description: ''
+    post:
+      operationId: search_history_create
+      description: ViewSet для истории поиска
+      tags:
+      - search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchHistory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SearchHistory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SearchHistory'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchHistory'
+          description: ''
+  /api/search/history/{id}/:
+    get:
+      operationId: search_history_retrieve
+      description: ViewSet для истории поиска
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchHistory'
+          description: ''
+    put:
+      operationId: search_history_update
+      description: ViewSet для истории поиска
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchHistory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SearchHistory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SearchHistory'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchHistory'
+          description: ''
+    patch:
+      operationId: search_history_partial_update
+      description: ViewSet для истории поиска
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSearchHistory'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSearchHistory'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSearchHistory'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchHistory'
+          description: ''
+    delete:
+      operationId: search_history_destroy
+      description: ViewSet для истории поиска
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/search/history/clear/:
+    delete:
+      operationId: search_history_clear_destroy
+      description: Очистка истории поиска
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/search/saved/:
+    get:
+      operationId: search_saved_list
+      description: ViewSet для сохраненных поисков
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSavedSearchList'
+          description: ''
+    post:
+      operationId: search_saved_create
+      description: ViewSet для сохраненных поисков
+      tags:
+      - search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedSearch'
+          description: ''
+  /api/search/saved/{id}/:
+    get:
+      operationId: search_saved_retrieve
+      description: ViewSet для сохраненных поисков
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedSearch'
+          description: ''
+    put:
+      operationId: search_saved_update
+      description: ViewSet для сохраненных поисков
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedSearch'
+          description: ''
+    patch:
+      operationId: search_saved_partial_update
+      description: ViewSet для сохраненных поисков
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedSavedSearch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedSavedSearch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedSavedSearch'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedSearch'
+          description: ''
+    delete:
+      operationId: search_saved_destroy
+      description: ViewSet для сохраненных поисков
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/search/saved/{id}/execute/:
+    post:
+      operationId: search_saved_execute_create
+      description: Выполнение сохраненного поиска
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SavedSearch'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedSearch'
+          description: ''
+  /api/search/search/:
+    post:
+      operationId: search_search_create
+      description: Основной поиск
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/search/workspace/{workspace_id}/:
+    get:
+      operationId: search_workspace_retrieve
+      description: Поиск в конкретном workspace
+      parameters:
+      - in: path
+        name: workspace_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/taskboards/:
+    get:
+      operationId: taskboards_list
+      description: ViewSet для досок задач
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - taskboards
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTaskBoardList'
+          description: ''
+    post:
+      operationId: taskboards_create
+      description: ViewSet для досок задач
+      tags:
+      - taskboards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskBoard'
+          description: ''
+  /api/taskboards/{id}/:
+    get:
+      operationId: taskboards_retrieve
+      description: ViewSet для досок задач
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - taskboards
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskBoard'
+          description: ''
+    put:
+      operationId: taskboards_update
+      description: ViewSet для досок задач
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - taskboards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskBoard'
+          description: ''
+    patch:
+      operationId: taskboards_partial_update
+      description: ViewSet для досок задач
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - taskboards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskBoard'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskBoard'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTaskBoard'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskBoard'
+          description: ''
+    delete:
+      operationId: taskboards_destroy
+      description: ViewSet для досок задач
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - taskboards
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/taskboards/{id}/columns/:
+    get:
+      operationId: taskboards_columns_retrieve
+      description: Управление колонками доски
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - taskboards
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskBoard'
+          description: ''
+    post:
+      operationId: taskboards_columns_create
+      description: Управление колонками доски
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - taskboards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskBoard'
+          description: ''
+  /api/taskboards/{id}/tasks/:
+    get:
+      operationId: taskboards_tasks_retrieve
+      description: Управление задачами доски
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - taskboards
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskBoard'
+          description: ''
+    post:
+      operationId: taskboards_tasks_create
+      description: Управление задачами доски
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - taskboards
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TaskBoard'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskBoard'
+          description: ''
+  /api/tasks/:
+    get:
+      operationId: tasks_list
+      description: ViewSet для задач
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - tasks
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTaskList'
+          description: ''
+    post:
+      operationId: tasks_create
+      description: ViewSet для задач
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/{id}/:
+    get:
+      operationId: tasks_retrieve
+      description: ViewSet для задач
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tasks
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    put:
+      operationId: tasks_update
+      description: ViewSet для задач
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    patch:
+      operationId: tasks_partial_update
+      description: ViewSet для задач
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    delete:
+      operationId: tasks_destroy
+      description: ViewSet для задач
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tasks
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/tasks/{id}/activity/:
+    get:
+      operationId: tasks_activity_retrieve
+      description: Получение активности задачи
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tasks
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/{id}/comments/:
+    get:
+      operationId: tasks_comments_retrieve
+      description: Управление комментариями к задаче
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tasks
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+    post:
+      operationId: tasks_comments_create
+      description: Управление комментариями к задаче
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Task'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/tasks/{id}/move/:
+    patch:
+      operationId: tasks_move_partial_update
+      description: Перемещение задачи в другую колонку
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - tasks
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedTask'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+          description: ''
+  /api/workspaces/:
+    get:
+      operationId: workspaces_list
+      description: ViewSet для рабочих пространств
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWorkspaceList'
+          description: ''
+    post:
+      operationId: workspaces_create
+      description: ViewSet для рабочих пространств
+      tags:
+      - workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+  /api/workspaces/{id}/:
+    get:
+      operationId: workspaces_retrieve
+      description: ViewSet для рабочих пространств
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkspaceDetail'
+          description: ''
+    put:
+      operationId: workspaces_update
+      description: ViewSet для рабочих пространств
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+    patch:
+      operationId: workspaces_partial_update
+      description: ViewSet для рабочих пространств
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+    delete:
+      operationId: workspaces_destroy
+      description: ViewSet для рабочих пространств
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/workspaces/{id}/database_stats/:
+    get:
+      operationId: workspaces_database_stats_retrieve
+      description: Получение статистики баз данных в рабочем пространстве
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+  /api/workspaces/{id}/invite/:
+    post:
+      operationId: workspaces_invite_create
+      description: Приглашение пользователя в рабочее пространство
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Workspace'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+  /api/workspaces/{id}/members/:
+    get:
+      operationId: workspaces_members_retrieve
+      description: Получение участников рабочего пространства
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+  /api/workspaces/{id}/members/{member_id}/:
+    patch:
+      operationId: workspaces_members_partial_update
+      description: Обновление роли участника рабочего пространства
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: member_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+    delete:
+      operationId: workspaces_members_destroy
+      description: Удаление участника из рабочего пространства
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      - in: path
+        name: member_id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/workspaces/{id}/members/me/:
+    get:
+      operationId: workspaces_members_me_retrieve
+      description: Получение информации о текущем участнике
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+    delete:
+      operationId: workspaces_members_me_destroy
+      description: Выход из рабочего пространства
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/workspaces/{id}/task_stats/:
+    get:
+      operationId: workspaces_task_stats_retrieve
+      description: Получение статистики задач в рабочем пространстве
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+  /api/workspaces/{id}/workspace_settings/:
+    get:
+      operationId: workspaces_workspace_settings_retrieve
+      description: Получение и обновление настроек рабочего пространства
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+    patch:
+      operationId: workspaces_workspace_settings_partial_update
+      description: Получение и обновление настроек рабочего пространства
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedWorkspace'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Workspace'
+          description: ''
+  /api/workspaces/analytics/overview/:
+    get:
+      operationId: workspaces_analytics_overview_retrieve
+      description: Общий обзор аналитики workspace
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/workspaces/invitations/{id}/accept/:
+    post:
+      operationId: workspaces_invitations_accept_create_2
+      description: Принятие приглашения по ID
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/workspaces/invitations/{id}/decline/:
+    post:
+      operationId: workspaces_invitations_decline_create
+      description: Отклонение приглашения по ID
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+        required: true
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/workspaces/invitations/accept/:
+    post:
+      operationId: workspaces_invitations_accept_create
+      description: Принятие приглашения по токену
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/workspaces/invitations/pending/:
+    get:
+      operationId: workspaces_invitations_pending_retrieve
+      description: Получение ожидающих приглашений пользователя
+      tags:
+      - workspaces
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    Block:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        content:
+          type: object
+          additionalProperties: {}
+        position:
+          type: number
+          format: double
+        parent_block:
+          type: string
+          format: uuid
+          nullable: true
+        children:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - children
+      - created_at
+      - id
+      - updated_at
+    BlockTypeEnum:
+      enum:
+      - text
+      - heading1
+      - heading2
+      - heading3
+      - bulleted_list
+      - numbered_list
+      - todo
+      - toggle
+      - quote
+      - divider
+      - callout
+      - code
+      - image
+      - video
+      - file
+      - embed
+      - bookmark
+      - table
+      - database
+      - equation
+      type: string
+      description: |-
+        * `text` - Text
+        * `heading1` - Heading 1
+        * `heading2` - Heading 2
+        * `heading3` - Heading 3
+        * `bulleted_list` - Bulleted List
+        * `numbered_list` - Numbered List
+        * `todo` - To-Do
+        * `toggle` - Toggle
+        * `quote` - Quote
+        * `divider` - Divider
+        * `callout` - Callout
+        * `code` - Code
+        * `image` - Image
+        * `video` - Video
+        * `file` - File
+        * `embed` - Embed
+        * `bookmark` - Bookmark
+        * `table` - Table
+        * `database` - Database
+        * `equation` - Equation
+    Comment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        content:
+          type: string
+        author:
+          type: integer
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        author_avatar:
+          type: string
+          readOnly: true
+        parent:
+          type: integer
+          nullable: true
+        block:
+          type: string
+          format: uuid
+          nullable: true
+        is_resolved:
+          type: boolean
+        replies:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - author_avatar
+      - author_name
+      - content
+      - created_at
+      - id
+      - replies
+      - updated_at
+    DatabaseComment:
+      type: object
+      description: Сериализатор для комментариев к записям
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        record:
+          type: string
+          format: uuid
+        author:
+          type: integer
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        content:
+          type: string
+        parent_comment:
+          type: string
+          format: uuid
+          nullable: true
+        replies:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - author_name
+      - content
+      - created_at
+      - id
+      - record
+      - replies
+      - updated_at
+    DatabaseDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        icon:
+          type: string
+          maxLength: 100
+        workspace:
+          type: integer
+        workspace_name:
+          type: string
+          readOnly: true
+        default_view:
+          $ref: '#/components/schemas/DefaultViewEnum'
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatabaseProperty'
+          readOnly: true
+        properties_count:
+          type: string
+          readOnly: true
+        records_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - created_by
+      - created_by_name
+      - id
+      - properties
+      - properties_count
+      - records_count
+      - title
+      - updated_at
+      - workspace
+      - workspace_name
+    DatabaseProperty:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        type:
+          $ref: '#/components/schemas/DatabasePropertyTypeEnum'
+        config:
+          type: object
+          additionalProperties: {}
+        position:
+          type: number
+          format: double
+        is_visible:
+          type: boolean
+        options:
+          type: array
+          items:
+            $ref: '#/components/schemas/SelectOption'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - options
+      - type
+      - updated_at
+    DatabasePropertyTypeEnum:
+      enum:
+      - text
+      - number
+      - select
+      - multi_select
+      - date
+      - person
+      - files
+      - checkbox
+      - url
+      - email
+      - phone
+      - formula
+      - relation
+      - rollup
+      - created_time
+      - created_by
+      - last_edited_time
+      - last_edited_by
+      type: string
+      description: |-
+        * `text` - Text
+        * `number` - Number
+        * `select` - Select
+        * `multi_select` - Multi-select
+        * `date` - Date
+        * `person` - Person
+        * `files` - Files & media
+        * `checkbox` - Checkbox
+        * `url` - URL
+        * `email` - Email
+        * `phone` - Phone number
+        * `formula` - Formula
+        * `relation` - Relation
+        * `rollup` - Rollup
+        * `created_time` - Created time
+        * `created_by` - Created by
+        * `last_edited_time` - Last edited time
+        * `last_edited_by` - Last edited by
+    DefaultPagePermissionsEnum:
+      enum:
+      - private
+      - workspace
+      - public
+      type: string
+      description: |-
+        * `private` - Private
+        * `workspace` - Workspace
+        * `public` - Public
+    DefaultViewEnum:
+      enum:
+      - table
+      - board
+      - list
+      - calendar
+      - gallery
+      - timeline
+      type: string
+      description: |-
+        * `table` - Table
+        * `board` - Board
+        * `list` - List
+        * `calendar` - Calendar
+        * `gallery` - Gallery
+        * `timeline` - Timeline
+    Notification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        sender:
+          type: integer
+          readOnly: true
+          nullable: true
+        sender_name:
+          type: string
+          readOnly: true
+        sender_avatar:
+          type: string
+          readOnly: true
+        content_type:
+          type: integer
+          nullable: true
+        object_id:
+          type: string
+          nullable: true
+          maxLength: 100
+        content_object_data:
+          type: string
+          readOnly: true
+        metadata:
+          type: object
+          additionalProperties: {}
+        is_read:
+          type: boolean
+        is_email_sent:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - content_object_data
+      - created_at
+      - id
+      - message
+      - read_at
+      - sender
+      - sender_avatar
+      - sender_name
+      - title
+      - type
+    NotificationSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email_on_comment:
+          type: boolean
+        email_on_mention:
+          type: boolean
+        email_on_page_share:
+          type: boolean
+        email_on_task_assigned:
+          type: boolean
+        email_on_task_due:
+          type: boolean
+        email_on_workspace_invite:
+          type: boolean
+        push_on_comment:
+          type: boolean
+        push_on_mention:
+          type: boolean
+        push_on_page_share:
+          type: boolean
+        push_on_task_assigned:
+          type: boolean
+        push_on_task_due:
+          type: boolean
+        push_on_workspace_invite:
+          type: boolean
+        daily_digest:
+          type: boolean
+        weekly_digest:
+          type: boolean
+      required:
+      - id
+    NotificationTypeEnum:
+      enum:
+      - comment
+      - mention
+      - page_shared
+      - task_assigned
+      - task_due
+      - workspace_invite
+      - database_updated
+      - reminder
+      type: string
+      description: |-
+        * `comment` - Comment
+        * `mention` - Mention
+        * `page_shared` - Page Shared
+        * `task_assigned` - Task Assigned
+        * `task_due` - Task Due
+        * `workspace_invite` - Workspace Invite
+        * `database_updated` - Database Updated
+        * `reminder` - Reminder
+    PageCreate:
+      type: object
+      properties:
+        title:
+          type: string
+          maxLength: 200
+        content:
+          type: object
+          additionalProperties: {}
+        icon:
+          type: string
+          maxLength: 100
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+        workspace:
+          type: integer
+        parent:
+          type: string
+          format: uuid
+          nullable: true
+        tag_ids:
+          type: array
+          items:
+            type: integer
+        permissions:
+          $ref: '#/components/schemas/PermissionsEnum'
+        is_template:
+          type: boolean
+        position:
+          type: number
+          format: double
+      required:
+      - workspace
+    PageDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        content:
+          type: object
+          additionalProperties: {}
+        content_text:
+          type: string
+        icon:
+          type: string
+          maxLength: 100
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+        workspace:
+          type: string
+          readOnly: true
+        parent:
+          type: string
+          format: uuid
+          nullable: true
+        author:
+          type: string
+          readOnly: true
+        last_edited_by:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          readOnly: true
+        tag_ids:
+          type: array
+          items:
+            type: integer
+            writeOnly: true
+          writeOnly: true
+        permissions:
+          $ref: '#/components/schemas/PermissionsEnum'
+        is_template:
+          type: boolean
+        is_archived:
+          type: boolean
+        position:
+          type: number
+          format: double
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
+          readOnly: true
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/PageList'
+          readOnly: true
+        path:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - blocks
+      - children
+      - created_at
+      - id
+      - last_edited_by
+      - path
+      - tags
+      - updated_at
+      - workspace
+    PageList:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        icon:
+          type: string
+          maxLength: 100
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+        workspace:
+          type: integer
+        workspace_name:
+          type: string
+          readOnly: true
+        parent:
+          type: string
+          format: uuid
+          nullable: true
+        author:
+          type: integer
+        author_name:
+          type: string
+          readOnly: true
+        last_edited_by:
+          type: integer
+        last_edited_by_name:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          readOnly: true
+        permissions:
+          $ref: '#/components/schemas/PermissionsEnum'
+        is_template:
+          type: boolean
+        is_archived:
+          type: boolean
+        is_deleted:
+          type: boolean
+        children_count:
+          type: string
+          readOnly: true
+        path:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - author_name
+      - children_count
+      - created_at
+      - id
+      - last_edited_by
+      - last_edited_by_name
+      - path
+      - tags
+      - updated_at
+      - workspace
+      - workspace_name
+    PaginatedBlockList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
+    PaginatedCommentList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Comment'
+    PaginatedDatabaseCommentList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatabaseComment'
+    PaginatedDatabaseDetailList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatabaseDetail'
+    PaginatedNotificationList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+    PaginatedNotificationSettingsList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationSettings'
+    PaginatedPageListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/PageList'
+    PaginatedReminderList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Reminder'
+    PaginatedSavedSearchList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SavedSearch'
+    PaginatedSearchHistoryList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchHistory'
+    PaginatedTagList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+    PaginatedTaskBoardList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/TaskBoard'
+    PaginatedTaskList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Task'
+    PaginatedUserList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/User'
+    PaginatedWorkspaceList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Workspace'
+    PatchedBlock:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/BlockTypeEnum'
+        content:
+          type: object
+          additionalProperties: {}
+        position:
+          type: number
+          format: double
+        parent_block:
+          type: string
+          format: uuid
+          nullable: true
+        children:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedComment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        content:
+          type: string
+        author:
+          type: integer
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        author_avatar:
+          type: string
+          readOnly: true
+        parent:
+          type: integer
+          nullable: true
+        block:
+          type: string
+          format: uuid
+          nullable: true
+        is_resolved:
+          type: boolean
+        replies:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedDatabaseComment:
+      type: object
+      description: Сериализатор для комментариев к записям
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        record:
+          type: string
+          format: uuid
+        author:
+          type: integer
+          readOnly: true
+        author_name:
+          type: string
+          readOnly: true
+        content:
+          type: string
+        parent_comment:
+          type: string
+          format: uuid
+          nullable: true
+        replies:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedDatabaseDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        icon:
+          type: string
+          maxLength: 100
+        workspace:
+          type: integer
+        workspace_name:
+          type: string
+          readOnly: true
+        default_view:
+          $ref: '#/components/schemas/DefaultViewEnum'
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        properties:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatabaseProperty'
+          readOnly: true
+        properties_count:
+          type: string
+          readOnly: true
+        records_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedNotification:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/NotificationTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        sender:
+          type: integer
+          readOnly: true
+          nullable: true
+        sender_name:
+          type: string
+          readOnly: true
+        sender_avatar:
+          type: string
+          readOnly: true
+        content_type:
+          type: integer
+          nullable: true
+        object_id:
+          type: string
+          nullable: true
+          maxLength: 100
+        content_object_data:
+          type: string
+          readOnly: true
+        metadata:
+          type: object
+          additionalProperties: {}
+        is_read:
+          type: boolean
+        is_email_sent:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        read_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+    PatchedNotificationSettings:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email_on_comment:
+          type: boolean
+        email_on_mention:
+          type: boolean
+        email_on_page_share:
+          type: boolean
+        email_on_task_assigned:
+          type: boolean
+        email_on_task_due:
+          type: boolean
+        email_on_workspace_invite:
+          type: boolean
+        push_on_comment:
+          type: boolean
+        push_on_mention:
+          type: boolean
+        push_on_page_share:
+          type: boolean
+        push_on_task_assigned:
+          type: boolean
+        push_on_task_due:
+          type: boolean
+        push_on_workspace_invite:
+          type: boolean
+        daily_digest:
+          type: boolean
+        weekly_digest:
+          type: boolean
+    PatchedPageDetail:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        content:
+          type: object
+          additionalProperties: {}
+        content_text:
+          type: string
+        icon:
+          type: string
+          maxLength: 100
+        cover_image:
+          type: string
+          format: uri
+          nullable: true
+        workspace:
+          type: string
+          readOnly: true
+        parent:
+          type: string
+          format: uuid
+          nullable: true
+        author:
+          type: string
+          readOnly: true
+        last_edited_by:
+          type: string
+          readOnly: true
+        tags:
+          type: array
+          items:
+            $ref: '#/components/schemas/Tag'
+          readOnly: true
+        tag_ids:
+          type: array
+          items:
+            type: integer
+            writeOnly: true
+          writeOnly: true
+        permissions:
+          $ref: '#/components/schemas/PermissionsEnum'
+        is_template:
+          type: boolean
+        is_archived:
+          type: boolean
+        position:
+          type: number
+          format: double
+        blocks:
+          type: array
+          items:
+            $ref: '#/components/schemas/Block'
+          readOnly: true
+        children:
+          type: array
+          items:
+            $ref: '#/components/schemas/PageList'
+          readOnly: true
+        path:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedReminder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/ReminderTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        content_type:
+          type: integer
+          nullable: true
+        object_id:
+          type: string
+          nullable: true
+          maxLength: 100
+        content_object_data:
+          type: string
+          readOnly: true
+        remind_at:
+          type: string
+          format: date-time
+        is_sent:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+    PatchedSavedSearch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        query:
+          type: string
+          maxLength: 500
+        filters:
+          type: object
+          additionalProperties: {}
+        search_type:
+          $ref: '#/components/schemas/SearchTypeEnum'
+        is_public:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedSearchHistory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        query:
+          type: string
+          maxLength: 500
+        search_type:
+          $ref: '#/components/schemas/SearchTypeEnum'
+        results_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedTag:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        color:
+          type: string
+          maxLength: 7
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedTask:
+      type: object
+      description: Сериалайзер для задач
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        board:
+          type: string
+          format: uuid
+          readOnly: true
+        board_title:
+          type: string
+          readOnly: true
+        column:
+          type: string
+          format: uuid
+          readOnly: true
+        column_title:
+          type: string
+          readOnly: true
+        position:
+          type: number
+          format: double
+          readOnly: true
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        start_date:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        estimated_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        tag_ids:
+          type: array
+          items:
+            type: integer
+            writeOnly: true
+          writeOnly: true
+        comments_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedTaskBoard:
+      type: object
+      description: Сериалайзер для доски задач
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        workspace:
+          type: integer
+        workspace_name:
+          type: string
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        tasks_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedUserUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+        bio:
+          type: string
+          maxLength: 500
+        timezone:
+          type: string
+          maxLength: 50
+        theme_preference:
+          $ref: '#/components/schemas/ThemePreferenceEnum'
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+    PatchedWorkspace:
+      type: object
+      description: Сериалайзер для рабочих пространств
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+        description:
+          type: string
+        icon:
+          type: string
+          maxLength: 100
+        color:
+          type: string
+          maxLength: 7
+        owner:
+          type: string
+          readOnly: true
+        owner_id:
+          type: integer
+          readOnly: true
+        is_personal:
+          type: boolean
+        members_count:
+          type: string
+          readOnly: true
+        member_role:
+          type: string
+          readOnly: true
+        settings:
+          allOf:
+          - $ref: '#/components/schemas/WorkspaceSettings'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PermissionsEnum:
+      enum:
+      - private
+      - workspace
+      - public
+      type: string
+      description: |-
+        * `private` - Private
+        * `workspace` - Workspace
+        * `public` - Public
+    PriorityEnum:
+      enum:
+      - low
+      - medium
+      - high
+      - urgent
+      type: string
+      description: |-
+        * `low` - Low
+        * `medium` - Medium
+        * `high` - High
+        * `urgent` - Urgent
+    Reminder:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        type:
+          $ref: '#/components/schemas/ReminderTypeEnum'
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        content_type:
+          type: integer
+          nullable: true
+        object_id:
+          type: string
+          nullable: true
+          maxLength: 100
+        content_object_data:
+          type: string
+          readOnly: true
+        remind_at:
+          type: string
+          format: date-time
+        is_sent:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        sent_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - content_object_data
+      - created_at
+      - id
+      - is_sent
+      - remind_at
+      - sent_at
+      - title
+      - type
+    ReminderTypeEnum:
+      enum:
+      - page
+      - task
+      - custom
+      type: string
+      description: |-
+        * `page` - Page
+        * `task` - Task
+        * `custom` - Custom
+    RoleEnum:
+      enum:
+      - viewer
+      - editor
+      - admin
+      - owner
+      type: string
+      description: |-
+        * `viewer` - Viewer
+        * `editor` - Editor
+        * `admin` - Admin
+        * `owner` - Owner
+    SavedSearch:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        query:
+          type: string
+          maxLength: 500
+        filters:
+          type: object
+          additionalProperties: {}
+        search_type:
+          $ref: '#/components/schemas/SearchTypeEnum'
+        is_public:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+      - query
+      - updated_at
+    SearchHistory:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        query:
+          type: string
+          maxLength: 500
+        search_type:
+          $ref: '#/components/schemas/SearchTypeEnum'
+        results_count:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - query
+    SearchTypeEnum:
+      enum:
+      - all
+      - pages
+      - tasks
+      - databases
+      - users
+      type: string
+      description: |-
+        * `all` - All Content
+        * `pages` - Pages
+        * `tasks` - Tasks
+        * `databases` - Databases
+        * `users` - Users
+    SelectOption:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+        color:
+          type: string
+          maxLength: 7
+        position:
+          type: number
+          format: double
+      required:
+      - id
+      - name
+    StatusEnum:
+      enum:
+      - todo
+      - in_progress
+      - review
+      - done
+      type: string
+      description: |-
+        * `todo` - To Do
+        * `in_progress` - In Progress
+        * `review` - Review
+        * `done` - Done
+    Tag:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 50
+        color:
+          type: string
+          maxLength: 7
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - name
+    Task:
+      type: object
+      description: Сериалайзер для задач
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        board:
+          type: string
+          format: uuid
+          readOnly: true
+        board_title:
+          type: string
+          readOnly: true
+        column:
+          type: string
+          format: uuid
+          readOnly: true
+        column_title:
+          type: string
+          readOnly: true
+        position:
+          type: number
+          format: double
+          readOnly: true
+        priority:
+          $ref: '#/components/schemas/PriorityEnum'
+        status:
+          $ref: '#/components/schemas/StatusEnum'
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+        start_date:
+          type: string
+          format: date-time
+          nullable: true
+        completed_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        estimated_hours:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          nullable: true
+        tags:
+          type: array
+          items:
+            type: string
+          readOnly: true
+        tag_ids:
+          type: array
+          items:
+            type: integer
+            writeOnly: true
+          writeOnly: true
+        comments_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - board
+      - board_title
+      - column
+      - column_title
+      - comments_count
+      - completed_at
+      - created_at
+      - created_by
+      - created_by_name
+      - id
+      - position
+      - tags
+      - title
+      - updated_at
+    TaskBoard:
+      type: object
+      description: Сериалайзер для доски задач
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        workspace:
+          type: integer
+        workspace_name:
+          type: string
+          readOnly: true
+        created_by:
+          type: integer
+          readOnly: true
+        created_by_name:
+          type: string
+          readOnly: true
+        tasks_count:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - created_by
+      - created_by_name
+      - id
+      - tasks_count
+      - title
+      - updated_at
+      - workspace
+      - workspace_name
+    ThemePreferenceEnum:
+      enum:
+      - light
+      - dark
+      - auto
+      type: string
+      description: |-
+        * `light` - Light
+        * `dark` - Dark
+        * `auto` - Auto
+    TokenObtainPair:
+      type: object
+      properties:
+        email:
+          type: string
+          writeOnly: true
+        password:
+          type: string
+          writeOnly: true
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          readOnly: true
+      required:
+      - access
+      - email
+      - password
+      - refresh
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+      required:
+      - access
+      - refresh
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        email:
+          type: string
+          format: email
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        full_name:
+          type: string
+          readOnly: true
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+        bio:
+          type: string
+          maxLength: 500
+        timezone:
+          type: string
+          maxLength: 50
+        theme_preference:
+          $ref: '#/components/schemas/ThemePreferenceEnum'
+        is_email_verified:
+          type: boolean
+          readOnly: true
+        profile:
+          allOf:
+          - $ref: '#/components/schemas/UserProfile'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - first_name
+      - full_name
+      - id
+      - is_email_verified
+      - last_name
+      - profile
+      - updated_at
+      - username
+    UserProfile:
+      type: object
+      properties:
+        phone:
+          type: string
+          maxLength: 20
+        company:
+          type: string
+          maxLength: 100
+        job_title:
+          type: string
+          maxLength: 100
+        website:
+          type: string
+          format: uri
+          maxLength: 200
+        notification_preferences:
+          type: object
+          additionalProperties: {}
+    UserRegistration:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        password_confirm:
+          type: string
+          writeOnly: true
+      required:
+      - email
+      - first_name
+      - last_name
+      - password
+      - password_confirm
+      - username
+    UserUpdate:
+      type: object
+      properties:
+        first_name:
+          type: string
+          maxLength: 150
+        last_name:
+          type: string
+          maxLength: 150
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+        bio:
+          type: string
+          maxLength: 500
+        timezone:
+          type: string
+          maxLength: 50
+        theme_preference:
+          $ref: '#/components/schemas/ThemePreferenceEnum'
+        profile:
+          $ref: '#/components/schemas/UserProfile'
+      required:
+      - first_name
+      - last_name
+      - profile
+    Workspace:
+      type: object
+      description: Сериалайзер для рабочих пространств
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+        description:
+          type: string
+        icon:
+          type: string
+          maxLength: 100
+        color:
+          type: string
+          maxLength: 7
+        owner:
+          type: string
+          readOnly: true
+        owner_id:
+          type: integer
+          readOnly: true
+        is_personal:
+          type: boolean
+        members_count:
+          type: string
+          readOnly: true
+        member_role:
+          type: string
+          readOnly: true
+        settings:
+          allOf:
+          - $ref: '#/components/schemas/WorkspaceSettings'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - member_role
+      - members_count
+      - name
+      - owner
+      - owner_id
+      - settings
+      - updated_at
+    WorkspaceDetail:
+      type: object
+      description: Сериалайзер для рабочих пространств
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 100
+          minLength: 1
+        description:
+          type: string
+        icon:
+          type: string
+          maxLength: 100
+        color:
+          type: string
+          maxLength: 7
+        owner:
+          type: string
+          readOnly: true
+        owner_id:
+          type: integer
+          readOnly: true
+        is_personal:
+          type: boolean
+        members_count:
+          type: string
+          readOnly: true
+        member_role:
+          type: string
+          readOnly: true
+        settings:
+          allOf:
+          - $ref: '#/components/schemas/WorkspaceSettings'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+        members:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkspaceMember'
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - member_role
+      - members
+      - members_count
+      - name
+      - owner
+      - owner_id
+      - settings
+      - updated_at
+    WorkspaceMember:
+      type: object
+      description: Сериалайзер для участников рабочего пространства
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        user:
+          type: integer
+        user_id:
+          type: string
+          readOnly: true
+        user_email:
+          type: string
+          readOnly: true
+        user_name:
+          type: string
+          readOnly: true
+        role:
+          $ref: '#/components/schemas/RoleEnum'
+        joined_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - id
+      - joined_at
+      - user
+      - user_email
+      - user_id
+      - user_name
+    WorkspaceSettings:
+      type: object
+      description: Сериалайзер для настроек рабочего пространства
+      properties:
+        allow_member_invites:
+          type: boolean
+        allow_public_pages:
+          type: boolean
+        default_page_permissions:
+          $ref: '#/components/schemas/DefaultPagePermissionsEnum'
+        enable_comments:
+          type: boolean
+        enable_page_history:
+          type: boolean
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT

@@ -36,7 +36,7 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
 
  [x] P0-10 Унификация URL и OpenAPI (сквозной контракт)
 
- P0-20 SDK из OpenAPI (единая точка API на фронте)
+ [x] P0-20 SDK из OpenAPI (единая точка API на фронте)
 
  P0-30 Drawer/SidePanel + маршруты (просмотр страницы сбоку)
 

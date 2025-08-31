@@ -1,4 +1,4 @@
-import api from '../../shared/api';
+import { apiClient } from '../../shared/api/sdk';
 
 export interface Notification {
   id: string;
@@ -88,13 +88,13 @@ export const notificationsApi = {
     next: string | null;
     previous: string | null;
   }> => {
-    const response = await api.get('/notifications/', { params });
+    const response = await apiClient.getNotifications(params);
     return response.data;
   },
 
   // Mark notification as read (PATCH to update)
   markAsRead: async (notificationId: string): Promise<Notification> => {
-    const response = await api.patch(`/notifications/${notificationId}/`, {
+    const response = await apiClient.updateNotification(notificationId, {
       is_read: true,
       read_at: new Date().toISOString()
     });
@@ -103,36 +103,36 @@ export const notificationsApi = {
 
   // Mark all notifications as read
   markAllAsRead: async (): Promise<void> => {
-    await api.post('/notifications/mark_all_read/');
+    await apiClient.markAllNotificationsRead();
   },
 
   // Delete notification
   deleteNotification: async (notificationId: string): Promise<void> => {
-    await api.delete(`/notifications/${notificationId}/`);
+    await apiClient.deleteNotification(notificationId);
   },
 
   // Get unread count
   getUnreadCount: async (): Promise<{ count: number }> => {
-    const response = await api.get('/notifications/', {
-      params: { unread_only: true, page_size: 1 }
+    const response = await apiClient.getNotifications({
+      unread_only: true, page_size: 1
     });
     return { count: response.data.count };
   },
 
   // Create notification (admin only)
   createNotification: async (data: CreateNotificationRequest): Promise<Notification> => {
-    const response = await api.post('/notifications/', data);
+    const response = await apiClient.createNotification(data);
     return response.data;
   },
 
   // Notification settings
   getSettings: async (): Promise<NotificationSettings> => {
-    const response = await api.get('/notification-settings/');
+    const response = await apiClient.getNotificationSettings();
     return response.data;
   },
 
   updateSettings: async (settings: Partial<NotificationSettings>): Promise<NotificationSettings> => {
-    const response = await api.patch('/notification-settings/', settings);
+    const response = await apiClient.updateNotificationSettings(settings);
     return response.data;
   },
 
@@ -147,26 +147,26 @@ export const notificationsApi = {
     next: string | null;
     previous: string | null;
   }> => {
-    const response = await api.get('/reminders/', { params });
+    const response = await apiClient.getReminders(params);
     return response.data;
   },
 
   createReminder: async (data: CreateReminderRequest): Promise<Reminder> => {
-    const response = await api.post('/reminders/', data);
+    const response = await apiClient.createReminder(data);
     return response.data;
   },
 
   updateReminder: async (id: string, data: Partial<Reminder>): Promise<Reminder> => {
-    const response = await api.patch(`/reminders/${id}/`, data);
+    const response = await apiClient.updateReminder(id, data);
     return response.data;
   },
 
   deleteReminder: async (id: string): Promise<void> => {
-    await api.delete(`/reminders/${id}/`);
+    await apiClient.deleteReminder(id);
   },
 
   completeReminder: async (id: string): Promise<Reminder> => {
-    const response = await api.patch(`/reminders/${id}/`, {
+    const response = await apiClient.updateReminder(id, {
       is_sent: true,
       sent_at: new Date().toISOString()
     });

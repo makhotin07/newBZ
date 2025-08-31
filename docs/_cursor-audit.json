@@ -1,0 +1,220 @@
+{
+  "audit_metadata": {
+    "role": "Senior Full-Stack/UX Reviewer",
+    "task": "Собрать доказательную базу для ТЗ по редизайну",
+    "date": "Декабрь 2024",
+    "status": "Завершён",
+    "total_steps": 7
+  },
+  "step_1_backend_api": {
+    "description": "Карта маршрутов и API (бэкенд)",
+    "total_endpoints": 45,
+    "custom_actions": 15,
+    "endpoints": [
+      {
+        "method": "POST",
+        "path": "/api/auth/login/",
+        "view": "CustomTokenObtainPairView",
+        "file": "account_views.py:88",
+        "type": "API View"
+      },
+      {
+        "method": "GET/POST",
+        "path": "/api/databases/",
+        "view": "DatabaseViewSet",
+        "file": "database_views.py:57",
+        "type": "ViewSet"
+      },
+      {
+        "method": "GET",
+        "path": "/api/databases/{id}/records/",
+        "view": "@action",
+        "file": "database_views.py:75",
+        "type": "Custom Action"
+      }
+    ],
+    "problematic_patterns": [
+      ".../add_ → .../ (POST)",
+      ".../update_ → .../{id} (PATCH)",
+      ".../mark_ → .../{id} (PATCH)",
+      ".../reorder → .../{id}/reorder (PATCH)"
+    ]
+  },
+  "step_2_frontend_calls": {
+    "description": "Клиентские вызовы (фронтенд)",
+    "total_calls": 60,
+    "backend_match_percentage": 95,
+    "discrepancies": [
+      {
+        "priority": "P0",
+        "issue": "Фронтенд использует /api/tasks/{id}/ вместо /api/taskboards/{id}/tasks/{id}/"
+      },
+      {
+        "priority": "P1",
+        "issue": "Отсутствует эндпоинт для useReorderPages"
+      }
+    ],
+    "http_calls": [
+      {
+        "file": "useWorkspaces.ts",
+        "function": "useWorkspaces",
+        "method": "GET",
+        "url": "/api/workspaces/",
+        "usage": "WorkspacePage, DashboardPage"
+      },
+      {
+        "file": "useDatabases.ts",
+        "function": "useDatabase",
+        "method": "GET",
+        "url": "/api/databases/{id}/",
+        "usage": "DatabaseTable, DatabasePage"
+      }
+    ]
+  },
+  "step_3_frontend_routes": {
+    "description": "Маршруты фронта",
+    "total_routes": 8,
+    "business_functions_coverage": "100%",
+    "routes": [
+      {
+        "path": "/",
+        "component": "DashboardPage",
+        "lazy": false,
+        "business_function": "Workspaces overview"
+      },
+      {
+        "path": "/workspace/:workspaceId/page/:pageId",
+        "component": "PageEditor",
+        "lazy": false,
+        "business_function": "Notes/Pages"
+      },
+      {
+        "path": "/workspace/:workspaceId/tasks/:boardId",
+        "component": "TaskBoardPage",
+        "lazy": false,
+        "business_function": "Tasks/Kanban"
+      }
+    ]
+  },
+  "step_4_ui_inventory": {
+    "description": "Инвентаризация UI",
+    "total_basic_components": 15,
+    "missing_components": 8,
+    "components": [
+      {
+        "name": "Button",
+        "status": "missing",
+        "props": null,
+        "variants": null,
+        "states": null,
+        "tests": null
+      },
+      {
+        "name": "SidePanel",
+        "status": "present",
+        "props": "isOpen, onClose, title, children, width, className",
+        "variants": "width: number",
+        "states": "loading, disabled",
+        "tests": "SidePanel.test.tsx"
+      }
+    ]
+  },
+  "step_5_design_tokens": {
+    "description": "Дизайн-токены и стили",
+    "extracted_tokens": {
+      "colors": {
+        "primary": { "50": "#eff6ff", "500": "#3b82f6", "900": "#1e3a8a" },
+        "gray": { "50": "#f9fafb", "500": "#6b7280", "900": "#111827" }
+      },
+      "typography": {
+        "fontFamily": { "sans": ["Inter", "system-ui", "-apple-system", "sans-serif"] },
+        "fontSizes": { "xs": "0.75rem", "sm": "0.875rem", "base": "1rem" }
+      },
+      "spacing": { "72": "18rem", "84": "21rem", "96": "24rem" },
+      "animations": { "fade-in": "fadeIn 0.5s ease-in-out", "slide-in": "slideIn 0.3s ease-out" }
+    },
+    "missing_tokens": {
+      "critical": ["semantic_colors", "extended_spacing", "box_shadows", "border_radius", "dark_mode"],
+      "important": ["z_index_scale", "transition_durations", "line_heights", "letter_spacing"]
+    }
+  },
+  "step_6_hygiene_duplicates": {
+    "description": "Гигиена и дубли",
+    "total_duplicates": 4,
+    "duplicates": [
+      {
+        "component": "CreateTaskModal",
+        "file1": "widgets/TaskBoard/CreateTaskModal.tsx",
+        "file2": "components/tasks/CreateTaskModal.tsx",
+        "suggested_location": "shared/ui/CreateTaskModal.tsx",
+        "migration_plan": "Создать единый компонент, обновить импорты, удалить дубли"
+      },
+      {
+        "component": "TaskModal",
+        "file1": "widgets/TaskBoard/TaskModal.tsx",
+        "file2": null,
+        "suggested_location": "shared/ui/TaskModal.tsx",
+        "migration_plan": "Переместить в shared/ui, обновить импорты"
+      }
+    ]
+  },
+  "step_7_critical_ux": {
+    "description": "Критические UX-точки",
+    "total_critical_issues": 10,
+    "editors_analysis": {
+      "PageEditor": {
+        "features": ["RichTextEditor", "SlashCommands", "BubbleMenu"],
+        "missing": ["Автосохранение", "Откат/повтор", "Подтверждения", "Inline-ошибки"]
+      },
+      "DatabaseTable": {
+        "features": ["Inline редактирование", "Создание/удаление", "Подтверждения", "Лоадеры"],
+        "missing": ["Автосохранение", "Откат изменений", "Inline-ошибки"]
+      }
+    },
+    "accessibility_issues": {
+      "aria_attributes": ["aria-label", "aria-describedby", "aria-expanded", "aria-pressed"],
+      "focus_management": ["focus_trap", "focus_management", "keyboard_navigation"],
+      "hotkeys": ["Ctrl+S", "Ctrl+Z", "Escape"]
+    },
+    "top_ux_fixes": [
+      {
+        "priority": "P0",
+        "fix": "Автосохранение для всех редакторов",
+        "code_example": "useAutoSave hook"
+      },
+      {
+        "priority": "P0",
+        "fix": "Глобальные горячие клавиши",
+        "code_example": "useHotkeys hook"
+      }
+    ]
+  },
+  "summary": {
+    "total_tables": 7,
+    "frontend_backend_discrepancies": {
+      "P0": 2,
+      "P1": 2,
+      "P2": 1
+    },
+    "missing_endpoints": [
+      "/api/taskboards/{id}/tasks/{task_id}/",
+      "/api/notes/pages/reorder/",
+      "/api/workspaces/{id}/analytics/overview/"
+    ],
+    "missing_ui_components": {
+      "P0": ["Button", "Input", "Modal", "Dropdown"],
+      "P1": ["Tabs", "Table", "Tooltip", "Breadcrumbs"],
+      "P2": ["Semantic Colors", "Extended Spacing", "Box Shadows"]
+    },
+    "plan_of_record": {
+      "weeks": 2,
+      "week1": ["Backend API unification", "Basic UI components", "Design tokens"],
+      "week2": ["Component migration", "UX fixes", "Testing"]
+    },
+    "final_assessment": {
+      "project_score": "7.5/10",
+      "redesign_readiness": "75%",
+      "preparation_time": "2 недели"
+    }
+  }
+}
