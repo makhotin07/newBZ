@@ -13,10 +13,19 @@ import {
 import PageList from '../features/notes/ui/pages/PageList';
 import TaskBoardsList from '../widgets/TaskBoard/TaskBoardsList';
 import DatabasesList from '../widgets/DatabaseTable/DatabasesList';
+import { PagePreview } from '../shared/ui';
+import { useDrawer } from '../shared/hooks/useDrawer';
 
 const WorkspacePage: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
+  
+  // Хук для управления drawer
+  const { isOpen, drawerValue, closeDrawer } = useDrawer({
+    paramName: 'preview',
+    onOpen: () => console.log('Drawer открыт'),
+    onClose: () => console.log('Drawer закрыт')
+  });
 
   if (!workspaceId) {
     return <div>Invalid workspace ID</div>;
@@ -96,6 +105,16 @@ const WorkspacePage: React.FC = () => {
           </Tab.Panels>
         </Tab.Group>
       </div>
+      
+      {/* PagePreview Drawer */}
+      {drawerValue && (
+        <PagePreview
+          isOpen={isOpen}
+          onClose={closeDrawer}
+          pageId={drawerValue}
+          pageTitle="Предварительный просмотр страницы"
+        />
+      )}
     </div>
   );
 };

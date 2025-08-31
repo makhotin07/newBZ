@@ -227,10 +227,21 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
   - frontend/src/features/notifications/api.ts (заменен на SDK)
 
 #### TASK P0-30 — Drawer/SidePanel и маршруты
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Создан компонент Drawer с поддержкой фокус-ловушки и a11y
+  - Создан хук useDrawer для синхронизации состояния с URL
+  - Создан компонент PagePreview для отображения страниц в drawer
+  - Интегрирован drawer в WorkspacePage с URL-синхронизацией
+  - Обновлен PageList для открытия preview через URL
 - **Файлы**: 
+  - frontend/src/shared/ui/Drawer.tsx (основной компонент drawer)
+  - frontend/src/shared/ui/PagePreview.tsx (preview страницы)
+  - frontend/src/shared/ui/index.ts (экспорт компонентов)
+  - frontend/src/shared/hooks/useDrawer.ts (хук для управления)
+  - frontend/src/pages/WorkspacePage.tsx (интеграция drawer)
+  - frontend/src/features/notes/ui/pages/PageList.tsx (URL-based preview)
 
 #### TASK P0-40 — Базовый UI-kit
 - **Дата**: 
