@@ -284,16 +284,44 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
 ### P1 — Редактор, комментарии, базы
 
 #### TASK P1-10 — Редактор страницы
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Добавлено расширение DragAndDrop для TipTap
+  - Создан компонент DragHandle для перетаскивания блоков
+  - Создан компонент BlockWrapper для оборачивания блоков
+  - Интегрирован drag & drop в RichTextEditor
+  - SlashCommands уже реализован
+  - Автосейв уже реализован
+  - Версии страниц уже реализованы
 - **Файлы**: 
+  - frontend/src/shared/extensions/DragAndDrop.ts (расширение TipTap)
+  - frontend/src/shared/extensions/index.ts (обновлен экспорт)
+  - frontend/src/features/notes/ui/editor/DragHandle.tsx (ручка перетаскивания)
+  - frontend/src/features/notes/ui/editor/BlockWrapper.tsx (обертка блоков)
+  - frontend/src/features/notes/ui/editor/RichTextEditor.tsx (интеграция DnD)
 
 #### TASK P1-20 — Панель комментариев
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Создана панель комментариев с фильтрами (все/открытые/мои/решённые)
+  - Реализована функциональность создания, редактирования, удаления комментариев
+  - Добавлена поддержка тредов (ответы на комментарии)
+  - Реализован функционал resolve/unresolve комментариев
+  - Добавлены hotkeys (Ctrl+Enter для отправки)
+  - Интегрирована в WorkspacePage с кнопкой в header
+  - Добавлена библиотека date-fns для форматирования дат
+  - Созданы unit-тесты для панели комментариев
 - **Файлы**: 
+  - frontend/src/features/comments/ui/CommentsPanel.tsx (основной компонент)
+  - frontend/src/features/comments/api/types.ts (типы для комментариев)
+  - frontend/src/features/comments/api/index.ts (API хуки и функции)
+  - frontend/src/features/comments/index.ts (экспорты модуля)
+  - frontend/src/features/comments/ui/CommentsPanel.test.tsx (тесты)
+  - frontend/src/pages/WorkspacePage.tsx (интеграция панели)
+  - frontend/src/shared/api/sdk/index.ts (исправлен метод resolvePageComment)
+  - frontend/package.json (добавлена зависимость date-fns)
 
 #### TASK P1-30 — Базы данных: Table/Board
 - **Дата**: 

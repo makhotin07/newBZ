@@ -19,7 +19,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import HorizontalRule from '@tiptap/extension-horizontal-rule';
 import CodeBlock from '@tiptap/extension-code-block';
 import Blockquote from '@tiptap/extension-blockquote';
-import { DatabaseExtension } from '../../../../shared/extensions';
+import { DatabaseExtension, DragAndDrop } from '../../../../shared/extensions';
 
 import EditorToolbar from './EditorToolbar';
 import EditorBubbleMenu from './EditorBubbleMenu';
@@ -98,6 +98,14 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
         resizable: true,
       }),
       TableRow,
+      DragAndDrop.configure({
+        onBlockMove: (fromIndex, toIndex) => {
+          console.log(`Block moved from ${fromIndex} to ${toIndex}`);
+        },
+        onBlockDrop: (blockId, targetId, position) => {
+          console.log(`Block ${blockId} dropped ${position} ${targetId}`);
+        },
+      }),
       TableHeader,
       TableCell,
       Highlight.configure({

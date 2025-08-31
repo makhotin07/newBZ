@@ -165,8 +165,8 @@ class ApiClient {
     return this.request('DELETE', `/api/notes/pages/${pageId}/comments/${commentId}/`);
   }
 
-  async resolvePageComment(pageId: string, commentId: string): Promise<ApiResponse<any>> {
-    return this.request('PATCH', `/api/notes/pages/${pageId}/comments/${commentId}/resolve/`);
+  async resolvePageComment(pageId: string, commentId: string, data: any): Promise<ApiResponse<any>> {
+    return this.request('PATCH', `/api/notes/pages/${pageId}/comments/${commentId}/resolve/`, data);
   }
 
   // Методы для работы с тегами

@@ -7,7 +7,8 @@ import {
   ClipboardDocumentListIcon,
   ArchiveBoxIcon,
   DocumentDuplicateIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
 import PageList from '../features/notes/ui/pages/PageList';
@@ -15,10 +16,12 @@ import TaskBoardsList from '../widgets/TaskBoard/TaskBoardsList';
 import DatabasesList from '../widgets/DatabaseTable/DatabasesList';
 import { PagePreview } from '../shared/ui';
 import { useDrawer } from '../shared/hooks/useDrawer';
+import { CommentsPanel } from '../features/comments';
 
 const WorkspacePage: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
   
   // Хук для управления drawer
   const { isOpen, drawerValue, closeDrawer } = useDrawer({
@@ -47,14 +50,25 @@ const WorkspacePage: React.FC = () => {
             Рабочее пространство
           </h1>
           
-          {/* Settings Button */}
-          <Link
-            to={`/workspace/${workspaceId}/settings`}
-            className="btn-secondary flex items-center space-x-2"
-          >
-            <Cog6ToothIcon className="w-5 h-5" />
-            <span>Настройки</span>
-          </Link>
+          <div className="flex items-center space-x-3">
+            {/* Comments Button */}
+            <button
+              onClick={() => setIsCommentsOpen(true)}
+              className="btn-secondary flex items-center space-x-2"
+            >
+              <ChatBubbleLeftRightIcon className="w-5 h-5" />
+              <span>Комментарии</span>
+            </button>
+            
+            {/* Settings Button */}
+            <Link
+              to={`/workspace/${workspaceId}/settings`}
+              className="btn-secondary flex items-center space-x-2"
+            >
+              <Cog6ToothIcon className="w-5 h-5" />
+              <span>Настройки</span>
+            </Link>
+          </div>
         </div>
 
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
@@ -115,6 +129,13 @@ const WorkspacePage: React.FC = () => {
           pageTitle="Предварительный просмотр страницы"
         />
       )}
+
+      {/* Comments Panel */}
+      <CommentsPanel
+        pageId={workspaceId}
+        isOpen={isCommentsOpen}
+        onClose={() => setIsCommentsOpen(false)}
+      />
     </div>
   );
 };
