@@ -35,7 +35,7 @@ RESTful / kebab-case / nested пути, без add_ / update_ / delete_ / mark_.
 
 2) Дорожная карта и статус
 
- P0-10 Инвентаризация URL (DRF) и фронтовых вызовов, план унификации (таблицы) ✅
+ P0-10 Инвентаризация URL (DRF) и фронтовых вызовов, план унификации (таблицы)
 
  P0-20 OpenAPI → фронт-SDK; перевод модулей на SDK; удаление ручных вызовов
 
@@ -102,6 +102,13 @@ Target: финальные пути из §3
 Changes: список файлов/правок
 Checks: pnpm lint/typecheck/test, pytest, rg по старым путям = 0
 Changelog: ссылка на коммит/PR
+
+Модуль: notes
+Inventory (кратко): 21 API вызов через axios, включая /notes/tags/, /notes/pages/, /notes/blocks/, /notes/pages/:id/comments/
+Target: /notes/pages, /notes/pages/:id, /notes/pages/:id/comments, /notes/pages/:id/blocks, /notes/tags
+Changes: frontend/src/features/notes/api.ts - частично переведен на SDK, frontend/src/shared/api/sdk/ - создан новый SDK
+Checks: pnpm lint/typecheck/test - частично OK (есть TODO по типам), pytest - не применимо, rg по старым путям - частично заменены
+Changelog: commit 652a975 - feat(sdk): P0-20 - создание OpenAPI SDK и начало миграции notes модуля
 
 7) Гигиена/удаление/валидация
 
