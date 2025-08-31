@@ -262,10 +262,24 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
   - frontend/src/shared/ui/index.ts (обновлен экспорт)
 
 #### TASK P0-50 — Гигиена
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Удален дублирующий SidePanel (заменен на Drawer)
+  - Удален простой PagePreview (используется функциональный из features)
+  - Заменены EN-строки на русские: "Loading..." → "Загрузка...", "Load more" → "Загрузить ещё"
+  - Исправлены неправильные импорты LoadingSpinner
+  - Очищен мёртвый код
 - **Файлы**: 
+  - frontend/src/widgets/TaskBoard/PageDrawer.tsx (заменен SidePanel на Drawer)
+  - frontend/src/shared/ui/SidePanel.tsx (удален)
+  - frontend/src/shared/ui/SidePanel.test.tsx (удален)
+  - frontend/src/shared/ui/PagePreview.tsx (удален)
+  - frontend/src/shared/ui/index.ts (обновлен экспорт)
+  - frontend/src/pages/NotificationsPage.tsx (EN → RU)
+  - frontend/src/features/notifications/ui/notifications/NotificationPanel.tsx (EN → RU)
+  - frontend/src/pages/SearchPage.tsx (EN → RU)
+  - frontend/src/features/search/ui/search/GlobalSearch.tsx (EN → RU)
 
 ### P1 — Редактор, комментарии, базы
 

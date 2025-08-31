@@ -16,7 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { usePages, useCreatePage, useArchivePage, useDuplicatePage, useDeletePage } from '../../../../shared/hooks/useNotes';
 import { Page } from '../../api';
-import LoadingSpinner from '../../../../shared/ui/Loading/ui/LoadingSpinner';
+import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
 import EmptyState from '../../../../shared/ui/EmptyState';
 import { notesApi } from '../../api';
 import ConfirmModal from '../../../../shared/ui/ConfirmModal';

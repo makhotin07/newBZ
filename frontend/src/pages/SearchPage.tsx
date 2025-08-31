@@ -201,7 +201,7 @@ const SearchPage: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Load More */}
+                {/* Загрузить ещё */}
                 {searchResults.has_next && (
                   <div className="text-center pt-6">
                     <button className="btn-secondary">

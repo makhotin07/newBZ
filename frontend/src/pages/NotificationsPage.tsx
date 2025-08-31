@@ -207,7 +207,7 @@ const NotificationsTab: React.FC = () => {
                 disabled={isFetchingNextPage}
                 className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800 disabled:opacity-50"
               >
-                {isFetchingNextPage ? 'Loading...' : 'Load more'}
+                {isFetchingNextPage ? 'Загрузка...' : 'Загрузить ещё'}
               </button>
             </div>
           )}
@@ -419,7 +419,7 @@ const RemindersTab: React.FC<{
                 onClick={() => fetchNextPage()}
                 className="px-4 py-2 text-sm font-medium text-blue-600 hover:text-blue-800"
               >
-                Load more
+                Загрузить ещё
               </button>
             </div>
           )}

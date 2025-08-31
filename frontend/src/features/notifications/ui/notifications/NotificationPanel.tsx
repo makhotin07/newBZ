@@ -262,7 +262,7 @@ const NotificationPanel: React.FC = () => {
                   </div>
                 ))}
 
-                {/* Load more */}
+                {/* Загрузить ещё */}
                 {hasNextPage && (
                   <div className="p-3 text-center border-t border-gray-200">
                     <button

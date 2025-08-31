@@ -1,5 +1,5 @@
 import React from 'react';
-import SidePanel from '../../shared/ui/SidePanel';
+import { Drawer } from '../../shared/ui';
 
 interface Page {
   id: string;
@@ -30,11 +30,12 @@ const PageDrawer: React.FC<PageDrawerProps> = ({
   if (!page) return null;
 
   return (
-    <SidePanel
+    <Drawer
       isOpen={isOpen}
       onClose={onClose}
       title={page.title}
-      width={80}
+      width={480}
+      position="right"
     >
       <div className="p-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-4">{page.title}</h1>
@@ -49,7 +50,7 @@ const PageDrawer: React.FC<PageDrawerProps> = ({
           Обновлено: {new Date(page.updated_at).toLocaleString()}
         </div>
       </div>
-    </SidePanel>
+    </Drawer>
   );
 };
 

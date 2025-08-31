@@ -42,7 +42,7 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
 
  [x] P0-40 Базовый UI-kit (Button/Input/Modal/Drawer)
 
- P0-50 Гигиена (дубли, EN-строки, мёртвый код)
+ [x] P0-50 Гигиена (дубли, EN-строки, мёртвый код)
 
  P1-10 Редактор страницы (bubble/slash, dnd, автосейв, версии)
 
