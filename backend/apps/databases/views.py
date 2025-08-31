@@ -4,12 +4,14 @@
 from backend.api.database_views import (
     DatabaseViewSet,
     DatabasePropertyViewSet,
-    DatabaseRecordViewSet
+    DatabaseRecordViewSet,
+    DatabaseViewViewSet
 )
 
 # Re-export для обратной совместимости
 __all__ = [
     'DatabaseViewSet',
     'DatabasePropertyViewSet',
-    'DatabaseRecordViewSet'
+    'DatabaseRecordViewSet',
+    'DatabaseViewViewSet'
 ]

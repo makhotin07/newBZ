@@ -8,7 +8,7 @@ export const notesKeys = {
   pages: () => [...notesKeys.all, 'pages'] as const,
   page: (id: string) => [...notesKeys.pages(), id] as const,
   pageChildren: (id: string) => [...notesKeys.page(id), 'children'] as const,
-  pageComments: (id: string) => [...notesKeys.page(id), 'comments'] as const,
+
   pageVersions: (id: string) => [...notesKeys.page(id), 'versions'] as const,
   pageBlocks: (id: string) => [...notesKeys.page(id), 'blocks'] as const,
   tags: () => [...notesKeys.all, 'tags'] as const,
@@ -205,95 +205,7 @@ export const useCreateTag = () => {
   });
 };
 
-// Comments Hooks
-export const usePageComments = (pageId: string) => {
-  return useQuery({
-    queryKey: notesKeys.pageComments(pageId),
-    queryFn: () => notesApi.getPageComments(pageId),
-    enabled: !!pageId,
-  });
-};
 
-export const useCreateComment = (pageId: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (data: { content: string; parent?: string; block?: string }) =>
-      notesApi.createComment(pageId, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: notesKeys.pageComments(pageId) });
-      toast.success('Comment added successfully!');
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to add comment');
-    },
-  });
-};
-
-export const useUpdateComment = (pageId: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, content }: { id: string; content: string }) =>
-      notesApi.updateComment(pageId, id, content),
-    onSuccess: (_: unknown, { id }: { id: string }) => {
-      // Find which page this comment belongs to and invalidate its comments
-      queryClient.invalidateQueries({ 
-        predicate: (query: any) => 
-          query.queryKey[0] === 'notes' && 
-          query.queryKey[1] === 'pages' && 
-          query.queryKey[3] === 'comments'
-      });
-      
-      toast.success('Comment updated successfully!');
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to update comment');
-    },
-  });
-};
-
-export const useDeleteComment = (pageId: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string) => notesApi.deleteComment(pageId, id),
-    onSuccess: () => {
-      if (pageId) {
-        queryClient.invalidateQueries({ queryKey: notesKeys.pageComments(pageId) });
-      } else {
-        queryClient.invalidateQueries({
-          predicate: (q: any) => Array.isArray(q.queryKey) && q.queryKey.includes('comments'),
-        });
-      }
-      toast.success('Комментарий удалён');
-    },
-    onError: () => {
-      toast.error('Не удалось удалить комментарий');
-    },
-  });
-};
-
-export const useResolveComment = (pageId: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, resolved }: { id: string; resolved: boolean }) => notesApi.resolveComment(pageId, id, resolved),
-    onSuccess: () => {
-      if (pageId) {
-        queryClient.invalidateQueries({ queryKey: notesKeys.pageComments(pageId) });
-      } else {
-        queryClient.invalidateQueries({
-          predicate: (q: any) => Array.isArray(q.queryKey) && q.queryKey.includes('comments'),
-        });
-      }
-      toast.success('Статус комментария обновлён');
-    },
-    onError: () => {
-      toast.error('Не удалось обновить статус комментария');
-    },
-  });
-};
 
 // Search Hook
 export const useSearchPages = (query: string, params?: { workspace?: string }) => {

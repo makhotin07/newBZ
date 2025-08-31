@@ -18,6 +18,7 @@ interface SlashCommandsProps {
   isOpen: boolean;
   onClose: () => void;
   position: { x: number; y: number };
+  onInsertDatabase?: () => void;
 }
 
 interface CommandItem {
@@ -33,7 +34,8 @@ const SlashCommands: React.FC<SlashCommandsProps> = ({
   editor,
   isOpen,
   onClose,
-  position
+  position,
+  onInsertDatabase
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [filteredCommands, setFilteredCommands] = useState<CommandItem[]>([]);
@@ -174,8 +176,25 @@ const SlashCommands: React.FC<SlashCommandsProps> = ({
         onClose();
       },
       keywords: ['текст', 'параграф', 'paragraph', 'обычный', 'p']
+    },
+    {
+      id: 'database',
+      title: 'База данных',
+      description: 'Вставить базу данных',
+      icon: ({ className }) => (
+        <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 1.79 4 4 4h8c2.21 0 4-1.79 4-4V7c0-2.21-1.79-4-4-4H8c-2.21 0-4 1.79-4 4z"/>
+        </svg>
+      ),
+      command: () => {
+        if (onInsertDatabase) {
+          onInsertDatabase();
+        }
+        onClose();
+      },
+      keywords: ['база', 'database', 'данные', 'таблица', 'db']
     }
-  ], [editor, onClose]);
+  ], [editor, onClose, onInsertDatabase]);
 
   useEffect(() => {
     setFilteredCommands(commands);

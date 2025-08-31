@@ -4,13 +4,12 @@ import {
   DocumentIcon, 
   ShareIcon,
   EllipsisHorizontalIcon,
-  ArrowLeftIcon,
-  ChatBubbleLeftIcon
+  ArrowLeftIcon
 } from '@heroicons/react/24/outline';
 import { usePage, useUpdatePage } from '../shared/hooks/useNotes';
 import LoadingSpinner from '../shared/ui/LoadingSpinner';
 import SharePageModal from '../features/notes/ui/pages/SharePageModal';
-import PageComments from '../features/notes/ui/pages/PageComments';
+
 import RichTextEditor from '../features/notes/ui/editor/RichTextEditor';
 import AutoSaveIndicator from '../features/notes/ui/editor/AutoSaveIndicator';
 import toast from 'react-hot-toast';
@@ -22,7 +21,7 @@ const PageEditor: React.FC = () => {
   const [content, setContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
-  const [showComments, setShowComments] = useState(true);
+
   const [saveStatus, setSaveStatus] = useState<'saved' | 'saving' | 'error' | 'idle'>('idle');
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
   const [autoSaveTimeout, setAutoSaveTimeout] = useState<NodeJS.Timeout | null>(null);
@@ -248,13 +247,7 @@ const PageEditor: React.FC = () => {
                 Редактировать
               </button>
             )}
-            <button
-              onClick={() => setShowComments(!showComments)}
-              className={`p-2 rounded-lg ${showComments ? 'bg-blue-100 text-blue-700' : 'text-gray-400 hover:text-gray-600 hover:bg-gray-100'}`}
-              title="Комментарии"
-            >
-              <ChatBubbleLeftIcon className="w-5 h-5" />
-            </button>
+
             <button 
               onClick={() => setShowShareModal(true)}
               className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg"
@@ -340,12 +333,7 @@ const PageEditor: React.FC = () => {
             )}
           </div>
         </div>
-             {/* Comments Sidebar - Fixed Position */}
-             {showComments && (
-               <div className="fixed right-6 top-24 w-80 border border-gray-200 bg-white rounded-lg shadow-lg max-h-[calc(100vh-8rem)] overflow-y-auto z-50">
-                 <PageComments pageId={pageId || ''} onClose={() => setShowComments(false)} />
-               </div>
-             )}
+
       </div>
 
       {/* Share Modal */}

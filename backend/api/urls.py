@@ -15,7 +15,7 @@ from backend.api.account_views import (
     reset_password,
 )
 from backend.api.database_views import (
-    DatabaseViewSet, DatabasePropertyViewSet, DatabaseRecordViewSet
+    DatabaseViewSet, DatabaseRecordViewSet, DatabaseCommentViewSet
 )
 from backend.api.taskboard_views import (
     TaskBoardViewSet, TaskColumnViewSet, TaskViewSet
@@ -38,6 +38,10 @@ from backend.api.note_views import PageCommentsListView, PageCommentDetailView, 
 # Создание роутеров для ViewSets
 database_router = DefaultRouter()
 database_router.register(r"", DatabaseViewSet, basename="database")
+
+# Роутеры для комментариев
+comment_router = DefaultRouter()
+comment_router.register(r"", DatabaseCommentViewSet, basename="comment")
 
 taskboard_router = DefaultRouter()
 taskboard_router.register(r"", TaskBoardViewSet, basename="taskboard")
@@ -89,6 +93,10 @@ notifications_router.register(r"reminders", ReminderViewSet, basename="reminder"
 urlpatterns = [
     # API маршруты для баз данных
     path("databases/", include(database_router.urls)),
+    
+    # API маршруты для комментариев
+    path("comments/", include(comment_router.urls)),
+    
     # API маршруты для досок задач
     path("taskboards/", include(taskboard_router.urls)),
     # API маршруты для задач

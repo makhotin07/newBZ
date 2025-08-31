@@ -1,0 +1,9 @@
+export { default as TaskModal } from './TaskModal';
+export { default as TaskCard } from './TaskCard';
+export { default as KanbanBoard } from './KanbanBoard';
+export { default as CreateTaskBoardModal } from './CreateTaskBoardModal';
+export { default as CreateTaskModal } from './CreateTaskModal';
+export { default as TaskBoardsList } from './TaskBoardsList';
+export { default as PageDrawer } from './PageDrawer';
+export { default as PagesList } from './PagesList';
+export { default as PagesDemo } from './PagesDemo';

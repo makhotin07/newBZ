@@ -206,3 +206,44 @@ class DatabaseRelation(models.Model):
     
     def __str__(self):
         return f"{self.from_database.title} → {self.to_database.title}"
+
+
+class DatabaseRecordRevision(models.Model):
+    """История изменений записи базы данных"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    record = models.ForeignKey('DatabaseRecord', on_delete=models.CASCADE, related_name='revisions')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='database_revisions')
+    
+    # Изменения в формате JSON
+    changes = models.JSONField()  # {property_id: {'old': value, 'new': value}}
+    change_type = models.CharField(max_length=20, choices=[
+        ('create', 'Create'),
+        ('delete', 'Delete'),
+        ('update', 'Update'),
+    ])
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Revision by {self.author.username} on {self.record.id} at {self.created_at}"
+
+
+class DatabaseComment(models.Model):
+    """Комментарий к записи базы данных"""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    record = models.ForeignKey('DatabaseRecord', on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='database_comments')
+    content = models.TextField()
+    parent_comment = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies')
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"Comment by {self.author.username} on {self.record.id}"

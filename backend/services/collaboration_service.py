@@ -28,15 +28,12 @@ class CollaborationService:
         if not await self._check_workspace_access():
             raise BusinessLogicException("Нет доступа к рабочему пространству")
         
-        # Создание или обновление активной сессии
         session, created = ActiveSession.objects.get_or_create(
             user=self.user,
-            workspace_id=self.workspace_id,
-            resource_type=self.resource_type,
-            resource_id=self.resource_id,
+            workspace=self.workspace_id,
             defaults={
+                'workspace': self.workspace_id,
                 'session_id': session_id,
-                'last_activity': timezone.now()
             }
         )
         
@@ -52,9 +49,7 @@ class CollaborationService:
         try:
             session = ActiveSession.objects.get(
                 user=self.user,
-                workspace_id=self.workspace_id,
-                resource_type=self.resource_type,
-                resource_id=self.resource_id,
+                workspace=self.workspace_id,
                 session_id=session_id
             )
             session.delete()
@@ -64,11 +59,19 @@ class CollaborationService:
     
     async def get_active_users(self) -> List[Dict[str, Any]]:
         """Получение списка активных пользователей"""
+        # Строим фильтр в зависимости от типа ресурса
+        filter_kwargs = {
+            'workspace': self.workspace_id,
+            'last_activity__gte': timezone.now() - timezone.timedelta(minutes=5)
+        }
+        
+        if self.resource_type == 'page':
+            filter_kwargs['page_id'] = self.resource_id
+        elif self.resource_type == 'database':
+            filter_kwargs['database_id'] = self.resource_id
+        
         active_sessions = ActiveSession.objects.filter(
-            workspace_id=self.workspace_id,
-            resource_type=self.resource_type,
-            resource_id=self.resource_id,
-            last_activity__gte=timezone.now() - timezone.timedelta(minutes=5)
+            **filter_kwargs
         ).select_related('user')
         
         users = []
@@ -91,9 +94,7 @@ class CollaborationService:
         try:
             session = ActiveSession.objects.get(
                 user=self.user,
-                workspace_id=self.workspace_id,
-                resource_type=self.resource_type,
-                resource_id=self.resource_id
+                workspace=self.workspace_id
             )
             session.last_activity = timezone.now()
             session.save()
@@ -108,32 +109,44 @@ class CollaborationService:
         if not await self._check_workspace_access():
             raise BusinessLogicException("Нет доступа к рабочему пространству")
         
-        comment = CollaborationComment.objects.create(
-            user=self.user,
-            workspace_id=self.workspace_id,
-            resource_type=self.resource_type,
-            resource_id=self.resource_id,
-            content=comment_data.get('content', ''),
-            position=comment_data.get('position', {}),
-            parent_comment_id=comment_data.get('parent_comment_id')
-        )
+        # Определяем тип ресурса и создаем соответствующие связи
+        comment_data_to_create = {
+            'user': self.user,
+            'workspace': self.workspace_id,
+            'content': comment_data.get('content', ''),
+        }
+        
+        # Добавляем связь с соответствующим ресурсом
+        if self.resource_type == 'page':
+            comment_data_to_create['page_id'] = self.resource_id
+        elif self.resource_type == 'database':
+            comment_data_to_create['database_id'] = self.resource_id
+        elif self.resource_type == 'database_record':
+            comment_data_to_create['database_record_id'] = self.resource_id
+        
+        # Добавляем родительский комментарий, если есть
+        if comment_data.get('parent_comment_id'):
+            comment_data_to_create['parent_comment_id'] = comment_data.get('parent_comment_id')
+        
+        comment = CollaborationComment.objects.create(**comment_data_to_create)
         
         return comment
     
     async def add_reaction(self, reaction_data: Dict[str, Any]) -> CollaborationReaction:
-        """Добавление реакции к ресурсу или комментарию"""
+        """Добавление реакции к комментарию"""
         # Проверка доступа к workspace
         if not await self._check_workspace_access():
             raise BusinessLogicException("Нет доступа к рабочему пространству")
         
+        comment_id = reaction_data.get('comment_id')
+        if not comment_id:
+            raise BusinessLogicException("ID комментария обязателен для реакции")
+        
         # Проверка, что реакция еще не существует
         existing_reaction = CollaborationReaction.objects.filter(
             user=self.user,
-            workspace_id=self.workspace_id,
-            resource_type=self.resource_type,
-            resource_id=self.resource_id,
-            reaction_type=reaction_data.get('reaction_type'),
-            comment_id=reaction_data.get('comment_id')
+            comment_id=comment_id,
+            reaction_type=reaction_data.get('reaction_type')
         ).first()
         
         if existing_reaction:
@@ -144,31 +157,39 @@ class CollaborationService:
         # Создание новой реакции
         reaction = CollaborationReaction.objects.create(
             user=self.user,
-            workspace_id=self.workspace_id,
-            resource_type=self.resource_type,
-            resource_id=self.resource_id,
-            reaction_type=reaction_data.get('reaction_type'),
-            comment_id=reaction_data.get('comment_id')
+            comment_id=comment_id,
+            reaction_type=reaction_data.get('reaction_type')
         )
         
         return reaction
     
     async def get_comments(self, limit: int = 50) -> List[CollaborationComment]:
         """Получение комментариев к ресурсу"""
+        # Строим фильтр в зависимости от типа ресурса
+        filter_kwargs = {'workspace': self.workspace_id}
+        
+        if self.resource_type == 'page':
+            filter_kwargs['page_id'] = self.resource_id
+        elif self.resource_type == 'database':
+            filter_kwargs['database_id'] = self.resource_id
+        elif self.resource_type == 'database_record':
+            filter_kwargs['database_record_id'] = self.resource_id
+        
         comments = CollaborationComment.objects.filter(
-            workspace_id=self.workspace_id,
-            resource_type=self.resource_type,
-            resource_id=self.resource_id
+            **filter_kwargs
         ).select_related('user').order_by('-created_at')[:limit]
         
         return list(comments)
     
     async def get_reactions_summary(self) -> Dict[str, int]:
         """Получение сводки реакций к ресурсу"""
+        # Получаем комментарии к ресурсу
+        comments = await self.get_comments()
+        comment_ids = [comment.id for comment in comments]
+        
+        # Получаем реакции на эти комментарии
         reactions = CollaborationReaction.objects.filter(
-            workspace_id=self.workspace_id,
-            resource_type=self.resource_type,
-            resource_id=self.resource_id
+            comment_id__in=comment_ids
         ).values('reaction_type').annotate(count=Count('id'))
         
         summary = {}

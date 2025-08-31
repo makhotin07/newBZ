@@ -1,7 +1,6 @@
 import React from 'react';
 import { 
   ClockIcon, 
-  ChatBubbleLeftIcon, 
   PaperClipIcon,
   ExclamationTriangleIcon,
   CheckCircleIcon,
@@ -159,12 +158,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
       {/* Footer */}
       <div className="flex items-center justify-between text-xs text-gray-500">
         <div className="flex items-center space-x-3">
-          {task.comments_count > 0 && (
-            <div className="flex items-center space-x-1">
-              <ChatBubbleLeftIcon className="w-3 h-3" />
-              <span>{task.comments_count}</span>
-            </div>
-          )}
+
           
           {task.attachments_count > 0 && (
             <div className="flex items-center space-x-1">

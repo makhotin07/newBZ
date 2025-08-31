@@ -75,8 +75,7 @@ const NotificationPanel: React.FC = () => {
         return '❌';
       case 'mention':
         return '👤';
-      case 'comment':
-        return '💬';
+
       case 'task':
         return '📋';
       case 'workspace':

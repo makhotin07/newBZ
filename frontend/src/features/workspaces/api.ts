@@ -14,7 +14,7 @@ export interface WorkspaceSettings {
   allow_member_invites: boolean;
   allow_public_pages: boolean;
   default_page_permissions: 'private' | 'workspace' | 'public';
-  enable_comments: boolean;
+
   enable_page_history: boolean;
 }
 

@@ -1,224 +1,184 @@
 """
 API контроллеры для управления базами данных (Clean Architecture)
 """
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
 
+from backend.apps.databases.models import Database, DatabaseProperty, DatabaseRecord, DatabaseView
 from backend.apps.databases.serializers import (
-    DatabaseDetailSerializer, DatabasePropertySerializer, DatabaseRecordSerializer
+    DatabaseDetailSerializer, DatabasePropertySerializer, 
+    DatabaseRecordSerializer, DatabaseViewSerializer
 )
 from backend.services.databases import (
-    DatabaseService, DatabasePropertyService, DatabaseRecordService
+    DatabaseService, DatabasePropertyService, DatabaseRecordService,
+    DatabaseCommentService
 )
+from backend.apps.databases.models import DatabaseComment, DatabaseRecordRevision
+from backend.apps.databases.serializers import DatabaseCommentSerializer, DatabaseRecordRevisionSerializer
 
 
 class DatabaseViewSet(viewsets.ModelViewSet):
-    """ViewSet для баз данных"""
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = DatabaseDetailSerializer
-    
+    permission_classes = [IsAuthenticated]
+
     def get_queryset(self):
-        """Получение queryset через сервис"""
-        workspace_id = self.request.query_params.get('workspace')
-        return DatabaseService.get_user_databases(
-            user=self.request.user,
-            workspace_id=workspace_id
-        )
-    
-    def get_object(self):
-        """Получение объекта по ID с проверкой доступа"""
-        pk = self.kwargs.get('pk')
-        return DatabaseService.get_database_by_id(pk, self.request.user)
-    
-    def perform_create(self, serializer):
-        """Создание базы данных через сервис"""
-        workspace_id = self.request.data.get('workspace')
+        workspace_id = self.request.query_params.get('workspace_id')
+        return DatabaseService.get_user_databases(self.request.user, workspace_id)
+
+    def create(self, request):
+        workspace_id = request.data.get('workspace') or request.data.get('workspace_id')
+        data = {k: v for k, v in request.data.items() if k not in ['workspace', 'workspace_id']}
+        
         database = DatabaseService.create_database(
-            user=self.request.user,
             workspace_id=workspace_id,
-            **serializer.validated_data
+            user=request.user,
+            **data
         )
-        serializer.instance = database
-    
-    def perform_update(self, serializer):
-        """Обновление базы данных через сервис"""
+        
+        return Response(
+            DatabaseDetailSerializer(database).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    def update(self, request, pk=None):
         database = DatabaseService.update_database(
-            database_id=serializer.instance.id,
-            user=self.request.user,
-            **serializer.validated_data
+            database_id=pk,
+            user=request.user,
+            **request.data
         )
-        serializer.instance = database
-    
-    def perform_destroy(self, instance):
-        """Удаление базы данных через сервис"""
-        DatabaseService.delete_database(
-            database_id=instance.id,
-            user=self.request.user
-        )
-    
-    @action(detail=True, methods=['get', 'post'])
-    def properties(self, request, pk=None):
-        """Управление свойствами базы данных"""
-        if request.method == 'GET':
-            properties = DatabasePropertyService.get_database_properties(
-                database_id=pk,
-                user=request.user
-            )
-            serializer = DatabasePropertySerializer(properties, many=True)
-            return Response(serializer.data)
         
-        elif request.method == 'POST':
-            serializer = DatabasePropertySerializer(data=request.data)
-            if serializer.is_valid():
-                property_obj = DatabasePropertyService.create_property(
-                    database_id=pk,
-                    user=request.user,
-                    **serializer.validated_data
-                )
-                serializer = DatabasePropertySerializer(property_obj)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=True, methods=['get', 'post'])
-    def records(self, request, pk=None):
-        """Управление записями базы данных"""
-        if request.method == 'GET':
-            limit = int(request.query_params.get('limit', 100))
-            records = DatabaseRecordService.get_database_records(
-                database_id=pk,
-                user=request.user,
-                limit=limit
-            )
-            serializer = DatabaseRecordSerializer(records, many=True)
-            return Response(serializer.data)
-        
-        elif request.method == 'POST':
-            serializer = DatabaseRecordSerializer(data=request.data)
-            if serializer.is_valid():
-                record = DatabaseRecordService.create_record(
-                    database_id=pk,
-                    user=request.user,
-                    properties=serializer.validated_data.get('properties', {})
-                )
-                serializer = DatabaseRecordSerializer(record)
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
-    @action(detail=True, methods=['post'])
-    def bulk(self, request, pk=None):
-        """Массовые операции с записями"""
-        # Заглушка для bulk операций
-        return Response({'message': 'Bulk operation completed'}, status=status.HTTP_200_OK)
-    
-    @action(detail=True, methods=['get', 'post'])
-    def views(self, request, pk=None):
-        """Управление представлениями базы данных"""
-        if request.method == 'GET':
-            # Заглушка для views
-            return Response([])
-        
-        elif request.method == 'POST':
-            # Заглушка для создания view
-            return Response({'id': 1, 'name': request.data.get('name')}, status=status.HTTP_201_CREATED)
-    
+        return Response(DatabaseDetailSerializer(database).data)
+
+    def destroy(self, request, pk=None):
+        DatabaseService.delete_database(pk, request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
     @action(detail=True, methods=['get'])
-    def export(self, request, pk=None):
-        """Экспорт базы данных"""
-        format_type = request.query_params.get('format', 'json')
-        # Заглушка для экспорта
-        return Response({'message': f'Export in {format_type} format'}, status=status.HTTP_200_OK)
-    
+    def properties(self, request, pk=None):
+        properties = DatabasePropertyService.get_database_properties(pk, request.user)
+        return Response(DatabasePropertySerializer(properties, many=True).data)
+
     @action(detail=True, methods=['post'])
-    def import_data(self, request, pk=None):
-        """Импорт данных в базу данных"""
-        # Заглушка для импорта
-        return Response({'imported_count': 0, 'message': 'Import completed'}, status=status.HTTP_200_OK)
-
-
-class DatabasePropertyViewSet(viewsets.ModelViewSet):
-    """ViewSet для свойств базы данных"""
-    permission_classes = [permissions.IsAuthenticated]
-    serializer_class = DatabasePropertySerializer
-    
-    def get_queryset(self):
-        """Получение свойств через сервис"""
-        database_id = self.kwargs.get('database_pk')
-        if not database_id:
-            return []
-        
-        return DatabasePropertyService.get_database_properties(
-            database_id=database_id,
-            user=self.request.user
-        )
-    
-    def perform_create(self, serializer):
-        """Создание свойства через сервис"""
-        database_id = self.kwargs.get('database_pk')
+    def create_property(self, request, pk=None):
         property_obj = DatabasePropertyService.create_property(
-            database_id=database_id,
-            user=self.request.user,
-            **serializer.validated_data
+            database_id=pk,
+            user=request.user,
+            **request.data
         )
-        serializer.instance = property_obj
-    
-    def perform_update(self, serializer):
-        """Обновление свойства через сервис"""
-        property_obj = DatabasePropertyService.update_property(
-            property_id=serializer.instance.id,
-            user=self.request.user,
-            **serializer.validated_data
+        
+        return Response(
+            DatabasePropertySerializer(property_obj).data,
+            status=status.HTTP_201_CREATED
         )
-        serializer.instance = property_obj
-    
-    def perform_destroy(self, instance):
-        """Удаление свойства через сервис"""
-        DatabasePropertyService.delete_property(
-            property_id=instance.id,
-            user=self.request.user
+
+    @action(detail=True, methods=['get'])
+    def records(self, request, pk=None):
+        filters = request.query_params.dict()
+        records = DatabaseRecordService.get_database_records(pk, request.user, filters)
+        return Response(DatabaseRecordSerializer(records, many=True).data)
+
+    @action(detail=True, methods=['post'])
+    def create_record(self, request, pk=None):
+        record = DatabaseRecordService.create_record(
+            database_id=pk,
+            user=request.user,
+            data=request.data
+        )
+        
+        return Response(
+            DatabaseRecordSerializer(record).data,
+            status=status.HTTP_201_CREATED
+        )
+
+    @action(detail=True, methods=['get'])
+    def views(self, request, pk=None):
+        views = DatabaseService.get_database_views(pk, request.user)
+        return Response(DatabaseViewSerializer(views, many=True).data)
+
+    @action(detail=True, methods=['post'])
+    def create_view(self, request, pk=None):
+        view = DatabaseService.create_database_view(
+            database_id=pk,
+            user=request.user,
+            **request.data
+        )
+        
+        return Response(
+            DatabaseViewSerializer(view).data,
+            status=status.HTTP_201_CREATED
         )
 
 
 class DatabaseRecordViewSet(viewsets.ModelViewSet):
-    """ViewSet для записей базы данных"""
-    permission_classes = [permissions.IsAuthenticated]
     serializer_class = DatabaseRecordSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return DatabaseRecordService.get_user_records(self.request.user)
+
+    def update(self, request, pk=None):
+        record = DatabaseRecordService.update_record(
+            record_id=pk,
+            user=request.user,
+            data=request.data
+        )
+        
+        return Response(DatabaseRecordSerializer(record).data)
+
+    def destroy(self, request, pk=None):
+        DatabaseRecordService.delete_record(pk, request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+    @action(detail=True, methods=['get'])
+    def history(self, request, pk=None):
+        """Получение истории изменений записи"""
+        revisions = DatabaseRecordService.get_record_history(pk, request.user)
+        return Response(DatabaseRecordRevisionSerializer(revisions, many=True).data)
+    
+    @action(detail=True, methods=['get'])
+    def comments(self, request, pk=None):
+        """Получение комментариев к записи"""
+        comments = DatabaseCommentService.get_record_comments(pk, request.user)
+        return Response(DatabaseCommentSerializer(comments, many=True).data)
+    
+    @action(detail=True, methods=['post'])
+    def create_comment(self, request, pk=None):
+        """Создание комментария к записи"""
+        comment = DatabaseCommentService.create_comment(
+            record_id=pk,
+            user=request.user,
+            content=request.data.get('content'),
+            parent_comment_id=request.data.get('parent_comment_id')
+        )
+        
+        return Response(
+            DatabaseCommentSerializer(comment).data,
+            status=status.HTTP_201_CREATED
+        )
+
+
+class DatabaseCommentViewSet(viewsets.ModelViewSet):
+    serializer_class = DatabaseCommentSerializer
+    permission_classes = [IsAuthenticated]
     
     def get_queryset(self):
-        """Получение записей через сервис"""
-        database_id = self.kwargs.get('database_pk')
-        if not database_id:
-            return []
+        return DatabaseComment.objects.filter(
+            record__database__workspace__members__user=self.request.user
+        )
+    
+    def update(self, request, pk=None):
+        """Обновление комментария"""
+        comment = DatabaseCommentService.update_comment(
+            comment_id=pk,
+            user=request.user,
+            content=request.data.get('content')
+        )
         
-        limit = int(self.request.query_params.get('limit', 100))
-        return DatabaseRecordService.get_database_records(
-            database_id=database_id,
-            user=self.request.user,
-            limit=limit
-        )
+        return Response(DatabaseCommentSerializer(comment).data)
     
-    def perform_create(self, serializer):
-        """Создание записи через сервис"""
-        database_id = self.kwargs.get('database_pk')
-        record = DatabaseRecordService.create_record(
-            database_id=database_id,
-            user=self.request.user,
-            properties=serializer.validated_data.get('properties', {})
-        )
-        serializer.instance = record
-    
-    def perform_update(self, serializer):
-        """Обновление записи через сервис"""
-        record = DatabaseRecordService.update_record(
-            record_id=serializer.instance.id,
-            user=self.request.user,
-            properties=serializer.validated_data.get('properties', {})
-        )
-        serializer.instance = record
-    
-    def perform_destroy(self, instance):
-        """Удаление записи через сервис"""
-        DatabaseRecordService.delete_record(
-            record_id=instance.id,
-            user=self.request.user
-        )
+    def destroy(self, request, pk=None):
+        """Удаление комментария"""
+        DatabaseCommentService.delete_comment(pk, request.user)
+        return Response(status=status.HTTP_204_NO_CONTENT)

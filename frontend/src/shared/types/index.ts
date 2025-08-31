@@ -36,7 +36,6 @@ export interface UpdateUserData {
       push_notifications?: boolean;
       task_reminders?: boolean;
       workspace_invites?: boolean;
-      comment_mentions?: boolean;
     };
   };
 }
@@ -70,7 +69,6 @@ export interface User {
       push_notifications?: boolean;
       task_reminders?: boolean;
       workspace_invites?: boolean;
-      comment_mentions?: boolean;
     };
   };
 }
@@ -141,8 +139,7 @@ export interface TaskActivity {
     | 'unassigned'
     | 'moved'
     | 'completed'
-    | 'reopened'
-    | 'commented';
+    | 'reopened';
   description: string;
   user: string;
   user_name: string;
@@ -151,15 +148,7 @@ export interface TaskActivity {
   created_at: string;
 }
 
-export interface TaskComment {
-  id: string;
-  content: string;
-  author: string;
-  author_name: string;
-  author_avatar?: string;
-  created_at: string;
-  updated_at: string;
-}
+
 
 // Базовые типы для заметок
 
@@ -296,20 +285,7 @@ export interface SearchResults {
   databases?: SearchResult[];
 }
 
-// Добавляю недостающие типы для исправления ошибок
-export interface Comment {
-  id: string;
-  content: string;
-  author: string;
-  author_name: string;
-  author_avatar?: string;
-  created_at: string;
-  updated_at: string;
-  parent?: string;
-  resolved?: boolean;
-  is_resolved?: boolean;
-  replies?: Comment[];
-}
+
 
 export interface AutocompleteSuggestion {
   type: string;
@@ -404,7 +380,7 @@ export interface Task {
   is_overdue?: boolean;
   created_by_name?: string;
   position?: number;
-  comments_count?: number;
+
   attachments_count?: number;
 }
 

@@ -33,7 +33,6 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({ workspaceId }) =>
     allow_member_invites: true,
     allow_public_pages: false,
     default_page_permissions: 'workspace' as 'private' | 'workspace' | 'public',
-    enable_comments: true,
     enable_page_history: true,
   });
 
@@ -70,7 +69,6 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({ workspaceId }) =>
         allow_member_invites: settings.allow_member_invites,
         allow_public_pages: settings.allow_public_pages,
         default_page_permissions: settings.default_page_permissions,
-        enable_comments: settings.enable_comments,
         enable_page_history: settings.enable_page_history,
       });
     }
@@ -336,22 +334,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({ workspaceId }) =>
                     </select>
                   </div>
 
-                  {/* Comments */}
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900">Разрешить комментарии</h4>
-                      <p className="text-sm text-gray-500">Позволить участникам комментировать страницы</p>
-                    </div>
-                    <label className="relative inline-flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={permissionsForm.enable_comments}
-                        onChange={(e) => setPermissionsForm(prev => ({ ...prev, enable_comments: e.target.checked }))}
-                        className="sr-only peer"
-                      />
-                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
-                    </label>
-                  </div>
+
 
                   {/* Page History */}
                   <div className="flex items-center justify-between">

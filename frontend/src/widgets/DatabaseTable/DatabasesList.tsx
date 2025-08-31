@@ -14,7 +14,7 @@ import {
 import { Menu, Transition } from '@headlessui/react';
 
 import { useDatabases, useDeleteDatabase } from '../../shared/hooks/useDatabases';
-import { Database } from '../../features/databases/api';
+import type { Database } from '../../features/databases/types/database';
 import CreateDatabaseModal from './CreateDatabaseModal';
 import ConfirmModal from '../../shared/ui/ConfirmModal';
 import LoadingSpinner from '../../shared/ui/LoadingSpinner';
@@ -43,7 +43,7 @@ const DatabasesList: React.FC<DatabasesListProps> = ({ workspaceId }) => {
     );
   }
 
-  const sortedDatabases = databases?.sort((a, b) => 
+  const sortedDatabases = databases?.sort((a: Database, b: Database) => 
     new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
   ) || [];
 
@@ -77,7 +77,7 @@ const DatabasesList: React.FC<DatabasesListProps> = ({ workspaceId }) => {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {sortedDatabases.map((database) => (
+          {sortedDatabases.map((database: Database) => (
             <DatabaseCard
               key={database.id}
               database={database}

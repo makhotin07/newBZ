@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from .models import Database, DatabaseProperty, DatabaseRecord, DatabaseView, SelectOption, DatabaseRelation
+from .models import DatabaseComment, DatabaseRecordRevision
 
 User = get_user_model()
 
@@ -277,3 +278,36 @@ class FilterSerializer(serializers.Serializer):
         'is_true', 'is_false'
     ])
     value = serializers.JSONField(required=False)
+
+
+class DatabaseCommentSerializer(serializers.ModelSerializer):
+    """Сериализатор для комментариев к записям"""
+    author_name = serializers.CharField(source='author.username', read_only=True)
+    replies = serializers.SerializerMethodField()
+
+    class Meta:
+        model = DatabaseComment
+        fields = [
+            'id', 'record', 'author', 'author_name', 'content', 
+            'parent_comment', 'replies', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'author', 'author_name', 'created_at', 'updated_at']
+
+    def get_replies(self, obj):
+        """Получение ответов на комментарий"""
+        if obj.replies.exists():
+            return DatabaseCommentSerializer(obj.replies.all(), many=True).data
+        return []
+
+
+class DatabaseRecordRevisionSerializer(serializers.ModelSerializer):
+    """Сериализатор для истории изменений записей"""
+    author_name = serializers.CharField(source='author.username', read_only=True)
+
+    class Meta:
+        model = DatabaseRecordRevision
+        fields = [
+            'id', 'record', 'author', 'author_name', 'changes', 
+            'change_type', 'created_at'
+        ]
+        read_only_fields = ['id', 'author', 'author_name', 'created_at']

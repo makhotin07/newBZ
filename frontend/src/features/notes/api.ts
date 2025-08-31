@@ -44,19 +44,7 @@ export interface Page {
   updated_at: string;
 }
 
-export interface Comment {
-  id: string;
-  content: string;
-  author: string;
-  author_name: string;
-  author_avatar?: string;
-  parent?: string;
-  block?: string;
-  is_resolved: boolean;
-  replies: Comment[];
-  created_at: string;
-  updated_at: string;
-}
+
 
 export interface CreatePageData {
   title: string;
@@ -231,45 +219,32 @@ class NotesApi {
     await api.delete(`/notes/blocks/${blockId}/`);
   }
 
-  // Comments
-  async getPageComments(pageId: string): Promise<Comment[]> {
-    try {
-      const response = await api.get(`/notes/pages/${pageId}/comments/`);
-      if (response.data && response.data.results) {
-        return response.data.results;
-      }
-      if (Array.isArray(response.data)) {
-        return response.data;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching page comments:', error);
-      return [];
-    }
+  // Database Blocks
+  async createDatabaseBlock(pageId: string, databaseId: string, viewId?: string): Promise<Block> {
+    const blockData = {
+      type: 'database',
+      content: {
+        database_id: databaseId,
+        view_id: viewId,
+      },
+      position: 0, // Будет автоматически установлено сервером
+    };
+    
+    return this.createBlock(pageId, blockData);
   }
 
-  async createComment(pageId: string, commentData: {
-    content: string;
-    parent?: string;
-    block?: string;
-  }): Promise<Comment> {
-    const response = await api.post(`/notes/pages/${pageId}/comments/`, commentData);
-    return response.data;
+  async updateDatabaseBlock(blockId: string, databaseId: string, viewId?: string): Promise<Block> {
+    const updates = {
+      content: {
+        database_id: databaseId,
+        view_id: viewId,
+      },
+    };
+    
+    return this.updateBlock(blockId, updates);
   }
 
-  async updateComment(pageId: string, commentId: string, content: string): Promise<Comment> {
-    const response = await api.patch(`/notes/pages/${pageId}/comments/${commentId}/`, { content });
-    return response.data;
-  }
 
-  async deleteComment(pageId: string, commentId: string): Promise<void> {
-    await api.delete(`/notes/pages/${pageId}/comments/${commentId}/`);
-  }
-
-  async resolveComment(pageId: string, id: string, resolved: boolean): Promise<Comment> {
-    const response = await api.patch(`/notes/pages/${pageId}/comments/${id}/resolve/`, { resolved });
-    return response.data;
-  }
 
   // Page Management
   async getRecentPages(workspaceId: string, limit: number = 10): Promise<Page[]> {

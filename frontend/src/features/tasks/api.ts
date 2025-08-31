@@ -50,7 +50,7 @@ export interface Task {
   estimated_hours?: number;
   tags: Tag[];
   tag_ids?: string[];
-  comments_count: number;
+
   attachments_count: number;
   is_overdue: boolean;
   created_at: string;
@@ -274,27 +274,7 @@ class TasksApi {
     }
   }
 
-  // Task Comments
-  async getTaskComments(taskId: string): Promise<any[]> {
-    try {
-      const response = await api.get(`/tasks/${taskId}/comments/`);
-      if (response.data && response.data.results) {
-        return response.data.results;
-      }
-      if (Array.isArray(response.data)) {
-        return response.data;
-      }
-      return [];
-    } catch (error) {
-      console.error('Error fetching task comments:', error);
-      return [];
-    }
-  }
 
-  async createTaskComment(taskId: string, content: string): Promise<any> {
-    const response = await api.post(`/tasks/${taskId}/comments/`, { content });
-    return response.data;
-  }
 
   // Task Activity
   async getTaskActivity(taskId: string): Promise<any[]> {

@@ -1,6 +1,7 @@
 from django.urls import path
 from . import consumers
 from . import test_consumer
+from backend.api.collaboration_consumers import DatabaseCollaborationConsumer
 
 websocket_urlpatterns = [
     # Тестовый WebSocket для отладки
@@ -10,6 +11,10 @@ websocket_urlpatterns = [
     # Совместная работа над ресурсами
     path('ws/collab/<str:workspace_id>/<str:resource_type>/<str:resource_id>/', 
          consumers.CollaborationConsumer.as_asgi()),
+    
+    # Real-time обновления базы данных
+    path('ws/database/<str:database_id>/',
+         DatabaseCollaborationConsumer.as_asgi()),
     
     # Уведомления пользователя
     path('ws/notifications/', 

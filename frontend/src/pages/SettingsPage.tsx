@@ -43,7 +43,7 @@ const SettingsPage: React.FC = () => {
             push_notifications: user.profile?.notification_preferences?.push_notifications ?? true,
             task_reminders: user.profile?.notification_preferences?.task_reminders ?? true,
             workspace_invites: user.profile?.notification_preferences?.workspace_invites ?? true,
-            comment_mentions: user.profile?.notification_preferences?.comment_mentions ?? true,
+
           }
         }
       });
@@ -343,7 +343,7 @@ const SettingsPage: React.FC = () => {
                     { key: 'push_notifications', label: 'Push уведомления', description: 'Показывать уведомления в браузере' },
                     { key: 'task_reminders', label: 'Напоминания о задачах', description: 'Уведомления о сроках задач' },
                     { key: 'workspace_invites', label: 'Приглашения в рабочие пространства', description: 'Уведомления о приглашениях' },
-                    { key: 'comment_mentions', label: 'Упоминания в комментариях', description: 'Когда вас упоминают в комментариях' },
+
                   ].map((setting) => (
                     <div key={setting.key} className="flex items-start space-x-3">
                       <input

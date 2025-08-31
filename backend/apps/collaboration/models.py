@@ -7,6 +7,8 @@ User = get_user_model()
 class ActiveSession(models.Model):
     """Track active user sessions for real-time collaboration"""
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='active_sessions')
+    workspace = models.ForeignKey('workspaces.Workspace', on_delete=models.CASCADE, null=True, blank=True)
+    
     page = models.ForeignKey(
         'notes.Page',
         on_delete=models.CASCADE,
@@ -30,6 +32,7 @@ class ActiveSession(models.Model):
     selection = models.JSONField(default=dict)
     
     last_seen = models.DateTimeField(auto_now=True)
+    last_activity = models.DateTimeField(auto_now=True)
     connected_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -126,3 +129,85 @@ class ShareLink(models.Model):
     
     def get_absolute_url(self):
         return f"/shared/{self.token}"
+
+
+class CollaborationComment(models.Model):
+    """Комментарии для совместной работы"""
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='collaboration_comments')
+    workspace = models.ForeignKey('workspaces.Workspace', on_delete=models.CASCADE)
+    
+    # Generic relation to commentable content
+    page = models.ForeignKey(
+        'notes.Page',
+        on_delete=models.CASCADE,
+        related_name='collaboration_comments',
+        null=True,
+        blank=True
+    )
+    database = models.ForeignKey(
+        'databases.Database',
+        on_delete=models.CASCADE,
+        related_name='collaboration_comments',
+        null=True,
+        blank=True
+    )
+    database_record = models.ForeignKey(
+        'databases.DatabaseRecord',
+        on_delete=models.CASCADE,
+        related_name='collaboration_comments',
+        null=True,
+        blank=True
+    )
+    
+    content = models.TextField()
+    parent_comment = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['created_at']
+        indexes = [
+            models.Index(fields=['workspace', 'created_at']),
+            models.Index(fields=['page', 'created_at']),
+            models.Index(fields=['database', 'created_at']),
+            models.Index(fields=['database_record', 'created_at']),
+        ]
+    
+    def __str__(self):
+        target = self.page or self.database or self.database_record
+        return f"Comment by {self.user.email} on {target}"
+
+
+class CollaborationReaction(models.Model):
+    """Реакции на комментарии"""
+    REACTION_TYPES = [
+        ('like', '👍'),
+        ('love', '❤️'),
+        ('laugh', '😂'),
+        ('wow', '😮'),
+        ('sad', '😢'),
+        ('angry', '😠'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='collaboration_reactions')
+    comment = models.ForeignKey(CollaborationComment, on_delete=models.CASCADE, related_name='reactions')
+    reaction_type = models.CharField(max_length=10, choices=REACTION_TYPES)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['user', 'comment', 'reaction_type']
+        indexes = [
+            models.Index(fields=['comment', 'reaction_type']),
+            models.Index(fields=['user', 'reaction_type']),
+        ]
+    
+    def __str__(self):
+        return f"{self.user.email} {self.get_reaction_type_display()} on {self.comment}"

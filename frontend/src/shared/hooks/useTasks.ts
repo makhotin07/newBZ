@@ -11,7 +11,7 @@ export const taskKeys = {
   boardColumns: (id: string) => [...taskKeys.board(id), 'columns'] as const,
   tasks: () => [...taskKeys.all, 'list'] as const,
   task: (id: string) => [...taskKeys.tasks(), id] as const,
-  taskComments: (id: string) => [...taskKeys.task(id), 'comments'] as const,
+
   taskActivity: (id: string) => [...taskKeys.task(id), 'activity'] as const,
   workspaceBoards: (workspaceId: string) => [...taskKeys.boards(), workspaceId] as const,
   workspace: (workspaceId: string) => [...taskKeys.all, 'workspace', workspaceId] as const,
@@ -280,29 +280,7 @@ export const useMoveTask = (boardId: string) => {
   });
 };
 
-// Task Comments Hooks
-export const useTaskComments = (taskId: string) => {
-  return useQuery({
-    queryKey: taskKeys.taskComments(taskId),
-    queryFn: () => tasksApi.getTaskComments(taskId),
-    enabled: !!taskId,
-  });
-};
 
-export const useCreateTaskComment = (taskId: string) => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (content: string) => tasksApi.createTaskComment(taskId, content),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: taskKeys.taskComments(taskId) });
-      toast.success('Comment added successfully!');
-    },
-    onError: (error: any) => {
-      toast.error(error.response?.data?.detail || 'Failed to add comment');
-    },
-  });
-};
 
 // Task Activity Hook
 export const useTaskActivity = (taskId: string) => {

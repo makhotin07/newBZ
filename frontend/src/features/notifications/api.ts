@@ -4,7 +4,7 @@ export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error' | 'mention' | 'comment' | 'task' | 'workspace';
+  type: 'info' | 'success' | 'warning' | 'error' | 'mention' | 'task' | 'workspace';
   is_read: boolean;
   created_at: string;
   read_at?: string;
@@ -24,13 +24,13 @@ export interface Notification {
 
 export interface NotificationSettings {
   id: string;
-  email_on_comment: boolean;
+
   email_on_mention: boolean;
   email_on_page_share: boolean;
   email_on_task_assigned: boolean;
   email_on_task_due: boolean;
   email_on_workspace_invite: boolean;
-  push_on_comment: boolean;
+
   push_on_mention: boolean;
   push_on_page_share: boolean;
   push_on_task_assigned: boolean;

@@ -10,7 +10,7 @@ export interface UserProfile {
     push_notifications?: boolean;
     task_reminders?: boolean;
     workspace_invites?: boolean;
-    comment_mentions?: boolean;
+
   };
 }
 

@@ -64,7 +64,7 @@ const DashboardPage: React.FC = () => {
         default_view: 'table'
       });
       
-      navigate(`/workspace/${workspaceId}/database/${newDatabase.id}`);
+      navigate(`/workspace/${workspaceId}/database/${(newDatabase as any).id}`);
       toast.success('База данных создана!');
     } catch (error: any) {
       toast.error('Ошибка создания базы данных');

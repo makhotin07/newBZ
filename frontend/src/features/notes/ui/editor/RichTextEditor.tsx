@@ -19,6 +19,7 @@ import TextStyle from '@tiptap/extension-text-style';
 import HorizontalRule from '@tiptap/extension-horizontal-rule';
 import CodeBlock from '@tiptap/extension-code-block';
 import Blockquote from '@tiptap/extension-blockquote';
+import { DatabaseExtension } from '../../../../shared/extensions';
 
 import EditorToolbar from './EditorToolbar';
 import EditorBubbleMenu from './EditorBubbleMenu';
@@ -35,6 +36,7 @@ interface RichTextEditorProps {
   collaborative?: boolean;
   onSelectionUpdate?: (selection: any) => void;
   onTransaction?: (transaction: any) => void;
+  onInsertDatabase?: () => void;
 }
 
 export interface RichTextEditorRef {
@@ -55,6 +57,7 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
   collaborative = false,
   onSelectionUpdate,
   onTransaction,
+  onInsertDatabase,
 }, ref) => {
   const [slashCommandsOpen, setSlashCommandsOpen] = useState(false);
   const [slashCommandsPosition, setSlashCommandsPosition] = useState({ x: 0, y: 0 });
@@ -115,6 +118,11 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
       Blockquote.configure({
         HTMLAttributes: {
           class: 'border-l-4 border-blue-500 pl-4 italic text-gray-700 bg-blue-50 py-2 rounded-r',
+        },
+      }),
+      DatabaseExtension.configure({
+        HTMLAttributes: {
+          class: 'database-block my-4',
         },
       }),
     ],
@@ -282,12 +290,13 @@ const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({
       </div>
       
       {/* Slash Commands */}
-      <SlashCommands
-        editor={editor}
-        isOpen={slashCommandsOpen}
-        onClose={() => setSlashCommandsOpen(false)}
-        position={slashCommandsPosition}
-      />
+                <SlashCommands
+            editor={editor}
+            isOpen={slashCommandsOpen}
+            onClose={() => setSlashCommandsOpen(false)}
+            position={slashCommandsPosition}
+            onInsertDatabase={onInsertDatabase}
+          />
     </div>
   );
 });

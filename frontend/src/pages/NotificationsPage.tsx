@@ -617,49 +617,14 @@ const SettingsTab: React.FC = () => {
           <div className="space-y-4">
             <h4 className="text-md font-medium text-gray-900">Способы доставки</h4>
             
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Email уведомления</p>
-                <p className="text-sm text-gray-500">Получать уведомления по email</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.email_on_comment}
-                onChange={(e) => handleSettingChange('email_on_comment', e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-            </div>
 
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-700">Push уведомления</p>
-                <p className="text-sm text-gray-500">Получать push уведомления в браузере</p>
-              </div>
-              <input
-                type="checkbox"
-                checked={settings.push_on_comment}
-                onChange={(e) => handleSettingChange('push_on_comment', e.target.checked)}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-            </div>
           </div>
 
           <div className="border-t border-gray-200 pt-6">
             <h4 className="text-md font-medium text-gray-900 mb-4">Типы уведомлений</h4>
             
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-medium text-gray-700">Комментарии</p>
-                  <p className="text-sm text-gray-500">Когда кто-то комментирует ваш контент</p>
-                </div>
-                <input
-                  type="checkbox"
-                  checked={settings.email_on_comment}
-                  onChange={(e) => handleSettingChange('email_on_comment', e.target.checked)}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                />
-              </div>
+
 
               <div className="flex items-center justify-between">
                 <div>

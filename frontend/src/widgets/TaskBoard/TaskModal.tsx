@@ -10,7 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { Tab } from '@headlessui/react';
 
-import { useTask, useUpdateTask, useDeleteTask, useTaskComments, useCreateTaskComment, useTaskActivity } from '../../shared/hooks/useTasks';
+import { useTask, useUpdateTask, useDeleteTask, useTaskActivity } from '../../shared/hooks/useTasks';
 import { useTags } from '../../shared/hooks/useNotes';
 import TagSelector from '../../shared/ui/TagSelector';
 import LoadingSpinner from '../../shared/ui/LoadingSpinner';
@@ -26,17 +26,17 @@ interface TaskModalProps {
 const TaskModal: React.FC<TaskModalProps> = ({ taskId, onClose }) => {
   const [activeTab, setActiveTab] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
-  const [newComment, setNewComment] = useState('');
+
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { data: task, isLoading } = useTask(taskId);
-  const { data: comments = [] } = useTaskComments(taskId);
+
   const { data: activity = [] } = useTaskActivity(taskId);
   const { data: tags = [] } = useTags();
 
   const updateTaskMutation = useUpdateTask(task?.board || '');
   const deleteTaskMutation = useDeleteTask(task?.board || '');
-  const createCommentMutation = useCreateTaskComment(taskId);
+
 
   const [formData, setFormData] = useState<UpdateTaskData>({});
 
@@ -72,7 +72,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ taskId, onClose }) => {
     { value: 'done', label: ru.tasks.statuses.done, color: 'bg-green-100 text-green-800' },
   ];
 
-  const tabs = [ru.tasks.details, ru.tasks.comments, ru.tasks.activity];
+  const tabs = [ru.tasks.details, ru.tasks.activity];
 
   const handleSave = async () => {
     if (!task || !formData.title?.trim()) return;
@@ -97,17 +97,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ taskId, onClose }) => {
     setConfirmDelete(true);
   };
 
-  const handleAddComment = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newComment.trim()) return;
 
-    try {
-      await createCommentMutation.mutateAsync(newComment.trim());
-      setNewComment('');
-    } catch (error) {
-      console.error('Failed to add comment:', error);
-    }
-  };
 
   if (isLoading) {
     return (
@@ -293,61 +283,7 @@ const TaskModal: React.FC<TaskModalProps> = ({ taskId, onClose }) => {
                           </div>
                         </Tab.Panel>
 
-                        {/* Comments Tab */}
-                        <Tab.Panel>
-                          <div className="space-y-4">
-                            {/* Add Comment Form */}
-                            <form onSubmit={handleAddComment} className="border-b border-gray-200 pb-4">
-                              <textarea
-                                value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
-                                placeholder={ru.tasks.addComment}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"
-                                rows={3}
-                              />
-                              <div className="flex justify-end mt-2">
-                                <button
-                                  type="submit"
-                                  disabled={!newComment.trim() || createCommentMutation.isPending}
-                                  className="btn-primary text-sm disabled:opacity-50"
-                                >
-                                  {createCommentMutation.isPending ? ru.tasks.addingComment : ru.tasks.addCommentBtn}
-                                </button>
-                              </div>
-                            </form>
 
-                            {/* Comments List */}
-                            <div className="space-y-4">
-                              {comments.map((comment: any) => (
-                                <div key={comment.id} className="flex space-x-3">
-                                  <div className="flex-shrink-0">
-                                    <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                                      <span className="text-blue-600 text-xs font-medium">
-                                        {comment.author_name?.charAt(0)}
-                                      </span>
-                                    </div>
-                                  </div>
-                                  <div className="flex-1">
-                                    <div className="flex items-center space-x-2 mb-1">
-                                      <span className="text-sm font-medium text-gray-900">
-                                        {comment.author_name}
-                                      </span>
-                                      <span className="text-xs text-gray-500">
-                                        {new Date(comment.created_at).toLocaleString()}
-                                      </span>
-                                    </div>
-                                    <p className="text-sm text-gray-600 whitespace-pre-wrap">
-                                      {comment.content}
-                                    </p>
-                                  </div>
-                                </div>
-                              ))}
-                              {comments.length === 0 && (
-                                <p className="text-gray-500 text-center py-4">{ru.tasks.noComments}</p>
-                              )}
-                            </div>
-                          </div>
-                        </Tab.Panel>
 
                         {/* Activity Tab */}
                         <Tab.Panel>

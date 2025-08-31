@@ -8,13 +8,13 @@ import {
   DocumentDuplicateIcon,
   TrashIcon,
   ClockIcon,
-  ChatBubbleLeftIcon,
   EyeIcon
 } from '@heroicons/react/24/outline';
 import { Menu, Transition } from '@headlessui/react';
 
-import { RichTextEditor, RichTextEditorRef } from '../editor';
-import PageComments from './PageComments';
+import { RichTextEditor } from '../editor';
+import type { RichTextEditorRef } from '../editor/RichTextEditor';
+
 import PageVersions from './PageVersions';
 import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
 import EmojiPicker from '../../../../shared/ui/EmojiPicker';
@@ -29,7 +29,7 @@ const PageEditor: React.FC = () => {
   const [title, setTitle] = useState('');
   const [icon, setIcon] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
-  const [showComments, setShowComments] = useState(true);
+
   const [showVersions, setShowVersions] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
@@ -188,16 +188,7 @@ const PageEditor: React.FC = () => {
           </div>
           
           <div className="flex items-center space-x-2">
-            {/* Comments Toggle */}
-            <button
-              onClick={() => setShowComments(!showComments)}
-              className={`p-2 rounded-md transition-colors ${
-                showComments ? 'bg-blue-100 text-blue-700' : 'text-gray-600 hover:bg-gray-100'
-              }`}
-              title="Комментарии"
-            >
-              <ChatBubbleLeftIcon className="w-5 h-5" />
-            </button>
+
             
             {/* Versions Toggle */}
             <button
@@ -284,7 +275,7 @@ const PageEditor: React.FC = () => {
       
       <div className="flex">
         {/* Main Content */}
-        <div className={`flex-1 ${showComments || showVersions ? 'pr-4' : ''}`}>
+        <div className={`flex-1 ${showVersions ? 'pr-4' : ''}`}>
           <div className="p-6">
             {/* Page Icon & Title */}
             <div className="mb-6">
@@ -347,26 +338,17 @@ const PageEditor: React.FC = () => {
         </div>
         
         {/* Sidebar */}
-        {(showComments || showVersions) && (
+        {showVersions && (
           <div className="w-80 border-l border-gray-200 bg-gray-50">
-            {showComments && (
-              <PageComments 
-                pageId={pageId!} 
-                onClose={() => setShowComments(false)}
-              />
-            )}
-            
-            {showVersions && (
-              <PageVersions 
-                pageId={pageId!} 
-                onClose={() => setShowVersions(false)}
-                onRestore={(version) => {
-                  // TODO: Implement version restoration
-                  toast.success('Version restored!');
-                  setShowVersions(false);
-                }}
-              />
-            )}
+            <PageVersions 
+              pageId={pageId!} 
+              onClose={() => setShowVersions(false)}
+              onRestore={(version) => {
+                // TODO: Implement version restoration
+                toast.success('Version restored!');
+                setShowVersions(false);
+              }}
+            />
           </div>
         )}
       </div>
