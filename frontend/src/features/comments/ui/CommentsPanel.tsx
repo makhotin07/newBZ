@@ -4,14 +4,13 @@ import {
   CheckIcon, 
   XMarkIcon,
   EllipsisHorizontalIcon,
-  ReplyIcon,
+  ArrowUturnLeftIcon,
   TrashIcon,
   PencilIcon
 } from '@heroicons/react/24/outline';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import { Button } from '../../../shared/ui/Button';
-import { Input } from '../../../shared/ui/Input';
 import { usePageComments, useCreateComment, useUpdateComment, useDeleteComment, useResolveComment } from '../api';
 import { Comment } from '../api/types';
 
@@ -38,10 +37,10 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ pageId, isOpen, onClose }
   const deleteCommentMutation = useDeleteComment();
   const resolveCommentMutation = useResolveComment();
 
-  const comments = commentsData?.data || [];
+  const comments = commentsData?.results || [];
 
   // Фильтрация комментариев
-  const filteredComments = comments.filter(comment => {
+  const filteredComments = comments.filter((comment: any) => {
     if (filter === 'open') return !comment.is_resolved;
     if (filter === 'my') return comment.author === 1; // TODO: заменить на реальный ID пользователя из контекста
     if (filter === 'resolved') return comment.is_resolved;
@@ -77,7 +76,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ pageId, isOpen, onClose }
         pageId,
         data: { 
           content: replyContent,
-          parent: parentId
+          parent: parseInt(parentId)
         }
       });
       setReplyContent('');
@@ -104,7 +103,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ pageId, isOpen, onClose }
   };
 
   const handleDeleteComment = async (commentId: string) => {
-    if (!confirm('Вы уверены, что хотите удалить этот комментарий?')) return;
+    if (!window.confirm('Вы уверены, что хотите удалить этот комментарий?')) return;
 
     try {
       await deleteCommentMutation.mutateAsync({
@@ -191,7 +190,7 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({ pageId, isOpen, onClose }
             {filter === 'all' ? 'Нет комментариев' : 'Нет комментариев по выбранному фильтру'}
           </div>
         ) : (
-          filteredComments.map(comment => (
+          filteredComments.map((comment: any) => (
             <CommentItem
               key={comment.id}
               comment={comment}
@@ -333,7 +332,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
                   onClick={onReply}
                   className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 flex items-center space-x-2"
                 >
-                  <ReplyIcon className="w-4 h-4" />
+                  <ArrowUturnLeftIcon className="w-4 h-4" />
                   <span>Ответить</span>
                 </button>
                 {isAuthor && (
@@ -414,7 +413,7 @@ const CommentItem: React.FC<CommentItemProps> = ({
             onClick={onReply}
             className="mt-2 text-xs text-blue-600 hover:text-blue-800 font-medium flex items-center space-x-1"
           >
-            <ReplyIcon className="w-3 h-3" />
+            <ArrowUturnLeftIcon className="w-3 h-3" />
             <span>Ответить</span>
           </button>
         )}

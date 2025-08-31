@@ -101,6 +101,11 @@ const NotificationPanel: React.FC = () => {
   };
 
   const NotificationItem: React.FC<{ notification: Notification }> = ({ notification }) => {
+    // Дополнительная проверка на случай, если notification undefined
+    if (!notification || !notification.id) {
+      return null;
+    }
+    
     const isUnread = !notification.is_read;
 
     return (
@@ -184,9 +189,9 @@ const NotificationPanel: React.FC = () => {
         }}
       >
         <BellIcon className="w-5 h-5" />
-        {(unreadCount > 0 || newNotifications.length > 0) && (
+        {(unreadCount > 0 || (newNotifications.filter(notification => notification && notification.id).length > 0)) && (
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center text-xs font-bold">
-            {Math.min(unreadCount + newNotifications.length, 99)}
+            {Math.min(unreadCount + newNotifications.filter(notification => notification && notification.id).length, 99)}
           </span>
         )}
       </Menu.Button>
@@ -249,14 +254,14 @@ const NotificationPanel: React.FC = () => {
             ) : (
               <>
                 {/* New notifications (from real-time) */}
-                {newNotifications.map(notification => (
+                {newNotifications.filter(notification => notification && notification.id).map(notification => (
                   <div key={`new-${notification.id}`} className="border-b border-yellow-200 bg-yellow-50">
                     <NotificationItem notification={notification} />
                   </div>
                 ))}
 
                 {/* Existing notifications */}
-                {notifications.map(notification => (
+                {notifications.filter(notification => notification && notification.id).map(notification => (
                   <div key={notification.id} className="border-b border-gray-100">
                     <NotificationItem notification={notification} />
                   </div>

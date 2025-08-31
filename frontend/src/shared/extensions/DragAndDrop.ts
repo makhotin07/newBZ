@@ -1,6 +1,6 @@
 import { Extension } from '@tiptap/core';
 import { Plugin, PluginKey } from '@tiptap/pm/state';
-import { Decoration, DecorationSet } from '@tiptap/pm/view';
+import { DecorationSet } from '@tiptap/pm/view';
 
 export interface DragAndDropOptions {
   onBlockMove?: (fromIndex: number, toIndex: number) => void;
@@ -52,7 +52,9 @@ export const DragAndDrop = Extension.create<DragAndDropOptions>({
             dispatch(tr);
             
             // Вызываем callback
-            this.options.onBlockMove(fromIndex, toIndex);
+            if (this.options.onBlockMove) {
+              this.options.onBlockMove(fromIndex, toIndex);
+            }
             
             return true;
           }
@@ -63,7 +65,9 @@ export const DragAndDrop = Extension.create<DragAndDropOptions>({
       dropBlock: (blockId: string, targetId: string, position: 'before' | 'after') => ({ dispatch, state }) => {
         if (dispatch) {
           // Вызываем callback для обработки drop
-          this.options.onBlockDrop(blockId, targetId, position);
+          if (this.options.onBlockDrop) {
+            this.options.onBlockDrop(blockId, targetId, position);
+          }
           return true;
         }
         return false;
@@ -93,9 +97,11 @@ export const DragAndDrop = Extension.create<DragAndDropOptions>({
               if (blockElement) {
                 const blockId = blockElement.getAttribute('data-block-id');
                 if (blockId) {
-                  event.dataTransfer?.setData('text/plain', blockId);
-                  event.dataTransfer?.setData('application/block-id', blockId);
-                  event.dataTransfer?.effectAllowed = 'move';
+                  if (event.dataTransfer) {
+                    event.dataTransfer.setData('text/plain', blockId);
+                    event.dataTransfer.setData('application/block-id', blockId);
+                    event.dataTransfer.effectAllowed = 'move';
+                  }
                   
                   // Добавляем визуальный индикатор
                   blockElement.classList.add('opacity-50');

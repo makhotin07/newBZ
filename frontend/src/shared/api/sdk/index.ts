@@ -1,4 +1,4 @@
-import api from '../api';
+// import api from '../api'; // Временно закомментировано
 
 // Типы для API ответов
 export type ApiResponse<T> = {
@@ -39,13 +39,26 @@ class ApiClient {
         config.params = params;
       }
 
-      const response = await api(config);
+      // Временно используем fetch вместо api
+      const response = await fetch(`${this.baseURL}${url}`, {
+        method,
+        headers: config.headers,
+        body: data ? JSON.stringify(data) : undefined,
+      });
+
+      const responseData = await response.json();
+      
       return {
-        data: response.data,
+        data: responseData,
         status: response.status,
+        message: response.statusText,
       };
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || error.message);
+      return {
+        data: null as T,
+        status: 500,
+        message: error.message || 'Произошла ошибка',
+      };
     }
   }
 

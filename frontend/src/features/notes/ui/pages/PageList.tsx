@@ -148,14 +148,14 @@ const PageList: React.FC<PageListProps> = ({
 
 
 
-  const handleEditPage = (pageId: string) => {
-    // Здесь можно добавить логику для перехода к редактированию
-    console.log('Редактировать страницу:', pageId);
-  };
+  // const handleEditPage = (pageId: string) => {
+  //   // Здесь можно добавить логику для перехода к редактированию
+  //   console.log('Редактировать страницу:', pageId);
+  // };
 
-  const handleDeletePage = (pageId: string) => {
-    setConfirm({ open: true, id: pageId });
-  };
+  // const handleDeletePage = (pageId: string) => {
+  //   setConfirm({ open: true, id: pageId });
+  // };
 
   const PageItem: React.FC<{ 
     page: Page; 

@@ -125,8 +125,8 @@ const WorkspacePage: React.FC = () => {
         <PagePreview
           isOpen={isOpen}
           onClose={closeDrawer}
-          pageId={drawerValue}
-          pageTitle="Предварительный просмотр страницы"
+          page={null} // TODO: загрузить страницу по ID
+          workspaceId={workspaceId}
         />
       )}
 

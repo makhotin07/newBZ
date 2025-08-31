@@ -50,9 +50,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   const labelClasses = 'block text-sm font-medium text-gray-700 mb-1';
   
   // Классы для helper text
-  const helperClasses = error 
-    ? 'text-sm text-red-600' 
-    : 'text-sm text-gray-500';
+  // const helperClasses = error 
+  //   ? 'text-sm text-red-600' 
+  //   : 'text-sm text-gray-500';
   
   return (
     <div className={containerClasses}>
