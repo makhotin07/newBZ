@@ -291,7 +291,7 @@ P2 — Полировка
 Коммит:
 feat(ux): empty/error/loading states & hints across key screens
 
-✅ TASK P2-20 — Тёмная тема, перф, аналитика
+[x] TASK P2-20 — Тёмная тема, перф, аналитика
 
 Коммит:
 feat(theming+perf): dark mode tokens, code-splitting, RUM events

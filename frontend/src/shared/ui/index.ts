@@ -26,3 +26,9 @@ export type { LoadingSkeletonProps } from './LoadingSkeleton';
 
 export { default as Tooltip } from './Tooltip';
 export type { TooltipProps } from './Tooltip';
+
+export { default as ThemeProvider } from './ThemeProvider';
+export type { Theme, ThemeContextType } from './ThemeProvider';
+
+export { default as ThemeToggle } from './ThemeToggle';
+export type { ThemeToggleProps } from './ThemeToggle';

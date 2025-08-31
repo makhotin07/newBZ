@@ -17,6 +17,7 @@ import { Input } from '../../../../shared/ui/Input';
 import { Modal } from '../../../../shared/ui/Modal';
 import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
 import { EmptyState, LoadingSkeleton, Tooltip } from '../../../../shared/ui';
+import { useDeepCompareMemo, useDeepCompareCallback } from '../../../../shared/hooks';
 
 interface TableViewProps {
   properties: DatabaseProperty[];
@@ -58,7 +59,7 @@ export const TableView: React.FC<TableViewProps> = ({
   const [newRecordData, setNewRecordData] = useState<Record<string, any>>({});
 
   // Фильтруем свойства для отображения
-  const displayProperties = useMemo(() => {
+  const displayProperties = useDeepCompareMemo(() => {
     if (config.show_properties.length === 0) {
       return properties;
     }
@@ -66,7 +67,7 @@ export const TableView: React.FC<TableViewProps> = ({
   }, [properties, config.show_properties]);
 
   // Применяем фильтры к записям
-  const filteredRecords = useMemo(() => {
+  const filteredRecords = useDeepCompareMemo(() => {
     let filtered = [...records];
     
     filters.forEach((value, propertyId) => {
@@ -85,7 +86,7 @@ export const TableView: React.FC<TableViewProps> = ({
   }, [records, filters]);
 
   // Применяем сортировку
-  const sortedRecords = useMemo(() => {
+  const sortedRecords = useDeepCompareMemo(() => {
     if (!sortConfig) return filteredRecords;
     
     return [...filteredRecords].sort((a, b) => {

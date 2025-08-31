@@ -6,6 +6,7 @@ import {
   ViewManager 
 } from './index';
 import { EmptyState, LoadingSkeleton, Tooltip } from '../../../../shared/ui';
+import { usePerformanceTracking } from '../../../../shared/analytics';
 import type { DatabaseView, ViewType } from '../../types/views';
 import type { DatabaseProperty, DatabaseRecord } from '../../types/database';
 
@@ -46,6 +47,9 @@ export const DatabaseViews: React.FC<DatabaseViewsProps> = ({
   onDeleteView,
   className = ''
 }) => {
+  // Отслеживание производительности компонента
+  usePerformanceTracking('DatabaseViews');
+  
   const [showViewManager, setShowViewManager] = useState(false);
 
   // Получение конфигурации для текущего представления

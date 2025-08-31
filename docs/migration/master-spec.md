@@ -370,7 +370,28 @@ CI-качество: Front — ESLint/TypeCheck/Jest; Back — black/isort/mypy/
   - frontend/src/widgets/TaskBoard/TaskBoardsList.tsx (исправлены иконки и action) 
 
 #### TASK P2-20 — Тёмная тема, перф, аналитика
-- **Дата**: 
-- **Статус**: ⏳ Ожидает
+- **Дата**: 2024-12-19
+- **Статус**: ✅ Завершено
 - **Изменения**: 
+  - Реализована тёмная тема с CSS-переменными и системными настройками
+  - Создан ThemeProvider для управления темами (светлая/тёмная/системная)
+  - Добавлен ThemeToggle компонент для переключения тем
+  - Реализован PerformanceMonitor для отслеживания RUM метрик (FCP, LCP, FID, CLS, TTFB)
+  - Создан LazyLoader для code-splitting и lazy loading компонентов
+  - Добавлены хуки мемоизации (useDeepCompareMemo, useDeepCompareCallback, useCustomMemo)
+  - Интегрированы компоненты в App.tsx и Header
+  - Поддержка Google Analytics и других сервисов аналитики
 - **Файлы**: 
+  - frontend/src/shared/ui/ThemeProvider.tsx (провайдер темы с CSS-переменными)
+  - frontend/src/shared/ui/ThemeToggle.tsx (переключатель темы)
+  - frontend/src/shared/analytics/PerformanceMonitor.tsx (монитор производительности)
+  - frontend/src/shared/utils/LazyLoader.tsx (lazy loading и code-splitting)
+  - frontend/src/shared/hooks/useMemoization.ts (хуки мемоизации)
+  - frontend/src/shared/ui/index.ts (обновлен экспорт)
+  - frontend/src/shared/hooks/index.ts (обновлен экспорт)
+  - frontend/src/shared/analytics/index.ts (экспорт аналитики)
+  - frontend/src/shared/utils/index.ts (экспорт утилит)
+  - frontend/src/App.tsx (интеграция ThemeProvider и PerformanceMonitor)
+  - frontend/src/widgets/Layout/Header.tsx (интеграция ThemeToggle)
+  - frontend/src/features/databases/ui/views/DatabaseViews.tsx (отслеживание производительности)
+  - frontend/src/features/databases/ui/views/TableView.tsx (мемоизация с useDeepCompareMemo) 
