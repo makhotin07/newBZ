@@ -152,7 +152,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ workspaceId }) => {
       return (
         <div className="px-4 py-6 text-center text-gray-500">
           <MagnifyingGlassIcon className="mx-auto h-6 w-6 mb-2" />
-          <p>No results found</p>
+                          <p>Результаты не найдены</p>
           {query.trim() && (
             <Link
               to={`/search?q=${encodeURIComponent(query.trim())}&workspace=${workspaceId || ''}`}

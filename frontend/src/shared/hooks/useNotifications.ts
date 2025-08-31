@@ -179,6 +179,12 @@ export const useRealtimeNotifications = () => {
         setIsConnected(true);
 
         notificationService.onNotification((notification: any) => {
+          // Проверяем, что уведомление валидно
+          if (!notification || !notification.id || !notification.title) {
+            console.warn('Received invalid notification:', notification);
+            return;
+          }
+
           // Add to local state for immediate UI feedback
           setNewNotifications(prev => [notification, ...prev.slice(0, 4)]); // Keep last 5
 
@@ -202,9 +208,15 @@ export const useRealtimeNotifications = () => {
 
     connect();
 
+    // Периодическая очистка невалидных уведомлений
+    const cleanupInterval = setInterval(() => {
+      setNewNotifications(prev => prev.filter(notification => notification && notification.id));
+    }, 30000); // Каждые 30 секунд
+
     return () => {
       notificationService.disconnect();
       setIsConnected(false);
+      clearInterval(cleanupInterval);
     };
   }, [token, queryClient]);
 
@@ -220,5 +232,6 @@ export const useRealtimeNotifications = () => {
     newNotifications,
     clearNewNotifications: () => setNewNotifications([]),
     requestNotificationPermission,
+    cleanInvalidNotifications: () => setNewNotifications(prev => prev.filter(notification => notification && notification.id)),
   };
 };

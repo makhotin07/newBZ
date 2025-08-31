@@ -174,7 +174,7 @@ const SearchPage: React.FC = () => {
               </div>
             ) : !hasResults ? (
               <EmptyState
-                icon={MagnifyingGlassIcon}
+                icon={<MagnifyingGlassIcon className="w-12 h-12" />}
                 title="Ничего не найдено"
                 description={`По запросу "${query}" ничего не найдено. Попробуйте изменить поисковый запрос или фильтры.`}
               />
@@ -201,7 +201,7 @@ const SearchPage: React.FC = () => {
                   ))}
                 </div>
 
-                {/* Load More */}
+                {/* Загрузить ещё */}
                 {searchResults.has_next && (
                   <div className="text-center pt-6">
                     <button className="btn-secondary">

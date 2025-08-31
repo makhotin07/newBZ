@@ -1,7 +1,14 @@
 import React, { useMemo, useState } from 'react';
+import { 
+  UserIcon,
+  CalendarIcon,
+  FlagIcon,
+  TagIcon
+} from '@heroicons/react/24/outline';
 // import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 
 // Временные заглушки для react-beautiful-dnd
+// TODO: заменить на реальную библиотеку drag-n-drop
 const DragDropContext = ({ children, onDragEnd }: any) => <div>{children}</div>;
 const Droppable = ({ children, droppableId }: any) => <div data-droppable-id={droppableId}>{children}</div>;
 const Draggable = ({ children, draggableId, index }: any) => <div data-draggable-id={draggableId} data-index={index}>{children}</div>;
@@ -12,6 +19,7 @@ import { EditableCell } from '../EditableCell';
 import { AddRowButton } from '../AddRowButton';
 import { DeleteButton } from '../DeleteButton';
 import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
+import { EmptyState, LoadingSkeleton, Tooltip } from '../../../../shared/ui';
 
 interface BoardViewProps {
   properties: DatabaseProperty[];
@@ -83,13 +91,13 @@ export const BoardView: React.FC<BoardViewProps> = ({
     
     // Если запись перемещается между группами
     if (source.droppableId !== destination.droppableId) {
-      const record = records.find(r => r.id === draggableId);
+      const record = records.find(r => (r as any).id === draggableId);
       if (!record) return;
 
       const newValue = destination.droppableId === 'no-status' ? null : destination.droppableId;
       
       try {
-        await onUpdateRecord(record.id, {
+        await onUpdateRecord((record as any).id, {
           properties: {
             ...(record as any).properties,
             [config.group_by_property]: newValue
@@ -107,7 +115,7 @@ export const BoardView: React.FC<BoardViewProps> = ({
   };
 
   const handleSaveCell = async (recordId: string, propertyId: string, value: any) => {
-    const record = records.find(r => r.id === recordId);
+    const record = records.find(r => (r as any).id === recordId);
     if (!record) return;
 
     try {
@@ -125,6 +133,33 @@ export const BoardView: React.FC<BoardViewProps> = ({
 
   const handleCancelEdit = () => {
     setEditingCell(null);
+  };
+
+  // Обработчик быстрых действий
+  const handleQuickAction = (action: string, recordId: string) => {
+    const record = records.find(r => (r as any).id === recordId);
+    if (!record) return;
+
+    switch (action) {
+      case 'assign':
+        // TODO: Открыть модальное окно для назначения пользователя
+        console.log('Назначить пользователя для записи:', recordId);
+        break;
+      case 'due':
+        // TODO: Открыть модальное окно для установки срока
+        console.log('Установить срок для записи:', recordId);
+        break;
+      case 'priority':
+        // TODO: Открыть модальное окно для установки приоритета
+        console.log('Установить приоритет для записи:', recordId);
+        break;
+      case 'tags':
+        // TODO: Открыть модальное окно для управления тегами
+        console.log('Управление тегами для записи:', recordId);
+        break;
+      default:
+        console.log('Неизвестное действие:', action);
+    }
   };
 
   // Обработчик добавления записи в группу
@@ -165,8 +200,8 @@ export const BoardView: React.FC<BoardViewProps> = ({
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <LoadingSpinner />
+      <div className="p-6">
+        <LoadingSkeleton variant="card" rows={3} />
       </div>
     );
   }
@@ -220,7 +255,7 @@ export const BoardView: React.FC<BoardViewProps> = ({
                     }`}
                   >
                     {group.records.map((record, index) => (
-                      <Draggable key={record.id} draggableId={record.id} index={index}>
+                      <Draggable key={(record as any).id} draggableId={(record as any).id} index={index}>
                         {(provided: any, snapshot: any) => (
                           <div
                             ref={provided.innerRef}
@@ -237,26 +272,70 @@ export const BoardView: React.FC<BoardViewProps> = ({
                                   {property.name}
                                 </div>
                                 <EditableCell
-                                  value={record.properties[property.id] || ''}
+                                  value={(record as any).properties[property.id] || ''}
                                   property={property}
-                                  isEditing={editingCell?.recordId === record.id && editingCell?.propertyId === property.id}
-                                  onStartEdit={() => handleStartEdit(record.id, property.id)}
-                                  onSave={(value) => handleSaveCell(record.id, property.id, value)}
+                                  isEditing={editingCell?.recordId === (record as any).id && editingCell?.propertyId === property.id}
+                                  onStartEdit={() => handleStartEdit((record as any).id, property.id)}
+                                  onSave={(value) => handleSaveCell((record as any).id, property.id, value)}
                                   onCancel={handleCancelEdit}
                                 />
                               </div>
                             ))}
 
-                            {/* Действия */}
+                            {/* Быстрые действия */}
                             <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-100">
-                              <div className="text-xs text-gray-400">
-                                {new Date(record.updated_at).toLocaleDateString('ru-RU')}
+                              <div className="flex items-center space-x-2">
+                                {/* Assign */}
+                                <Tooltip content="Назначить пользователя">
+                                  <button
+                                    className="p-1 text-gray-400 hover:text-blue-600 rounded"
+                                    onClick={() => handleQuickAction('assign', (record as any).id)}
+                                  >
+                                    <UserIcon className="w-3 h-3" />
+                                  </button>
+                                </Tooltip>
+                                
+                                {/* Due Date */}
+                                <Tooltip content="Установить срок выполнения">
+                                  <button
+                                    className="p-1 text-gray-400 hover:text-orange-600 rounded"
+                                    onClick={() => handleQuickAction('due', (record as any).id)}
+                                  >
+                                    <CalendarIcon className="w-3 h-3" />
+                                  </button>
+                                </Tooltip>
+                                
+                                {/* Priority */}
+                                <Tooltip content="Установить приоритет">
+                                  <button
+                                    className="p-1 text-gray-400 hover:text-red-600 rounded"
+                                    onClick={() => handleQuickAction('priority', (record as any).id)}
+                                  >
+                                    <FlagIcon className="w-3 h-3" />
+                                  </button>
+                                </Tooltip>
+                                
+                                {/* Tags */}
+                                <Tooltip content="Управление тегами">
+                                  <button
+                                    className="p-1 text-gray-400 hover:text-green-600 rounded"
+                                    onClick={() => handleQuickAction('tags', (record as any).id)}
+                                  >
+                                    <TagIcon className="w-3 h-3" />
+                                  </button>
+                                </Tooltip>
                               </div>
-                              <DeleteButton
-                                onDelete={() => onDeleteRecord(record.id)}
+                              
+                              <div className="flex items-center space-x-1">
+                                                              <div className="text-xs text-gray-400">
+                                {new Date((record as any).updated_at).toLocaleDateString('ru-RU')}
+                              </div>
+                                                              <DeleteButton
+                                onDelete={() => onDeleteRecord((record as any).id)}
                                 tooltip="Удалить запись"
                                 size="sm"
                               />
+                              </div>
                             </div>
                           </div>
                         )}

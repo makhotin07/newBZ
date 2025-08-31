@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { 
   DocumentIcon, 
   PlusIcon,
@@ -20,7 +20,7 @@ import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
 import EmptyState from '../../../../shared/ui/EmptyState';
 import { notesApi } from '../../api';
 import ConfirmModal from '../../../../shared/ui/ConfirmModal';
-import PagePreview from './PagePreview';
+
 
 interface PageListProps {
   workspaceId: string;
@@ -35,12 +35,13 @@ const PageList: React.FC<PageListProps> = ({
   showArchived = false,
   showTemplates = false
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [newPageTitle, setNewPageTitle] = useState('');
   const [confirm, setConfirm] = useState<{ open: boolean; id?: string }>({ open: false });
-  const [previewPage, setPreviewPage] = useState<Page | null>(null);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
   const { data: pages, isLoading } = usePages({
     workspace: workspaceId,
@@ -88,6 +89,17 @@ const PageList: React.FC<PageListProps> = ({
     }
   };
 
+  // Функция для открытия preview в URL
+  const openPreviewInUrl = (pageId: string) => {
+    const params = new URLSearchParams(location.search);
+    params.set('preview', pageId);
+    
+    navigate({
+      pathname: location.pathname,
+      search: params.toString()
+    }, { replace: true });
+  };
+
   const handleDragEnd = (result: any) => {
     if (!result.destination) return;
 
@@ -131,25 +143,19 @@ const PageList: React.FC<PageListProps> = ({
   };
 
   const handlePageClick = (page: Page) => {
-    setPreviewPage(page);
-    setIsPreviewOpen(true);
+    openPreviewInUrl(page.id);
   };
 
-  const handleClosePreview = () => {
-    setIsPreviewOpen(false);
-    setPreviewPage(null);
-  };
 
-  const handleEditPage = (pageId: string) => {
-    // Закрываем превью и переходим к редактированию
-    handleClosePreview();
-    // Здесь можно добавить логику для перехода к редактированию
-  };
 
-  const handleDeletePage = (pageId: string) => {
-    setConfirm({ open: true, id: pageId });
-    handleClosePreview();
-  };
+  // const handleEditPage = (pageId: string) => {
+  //   // Здесь можно добавить логику для перехода к редактированию
+  //   console.log('Редактировать страницу:', pageId);
+  // };
+
+  // const handleDeletePage = (pageId: string) => {
+  //   setConfirm({ open: true, id: pageId });
+  // };
 
   const PageItem: React.FC<{ 
     page: Page; 
@@ -470,7 +476,7 @@ const PageList: React.FC<PageListProps> = ({
       {/* Pages List */}
       {filteredPages.length === 0 ? (
         <EmptyState
-          icon={DocumentIcon}
+          icon={<DocumentIcon className="w-12 h-12" />}
           title={showArchived ? 'Нет архивных страниц' : 'Пока нет страниц'}
           description={
             showArchived
@@ -478,14 +484,11 @@ const PageList: React.FC<PageListProps> = ({
               : 'Начните с создания первой страницы'
           }
           action={
-            !showArchived ? (
-                          <button
-              onClick={() => setShowCreateForm(true)}
-              className="btn-primary hover:shadow-md transition-shadow"
-            >
-              Создать страницу
-            </button>
-            ) : undefined
+            !showArchived ? {
+              label: 'Создать страницу',
+              onClick: () => setShowCreateForm(true),
+              variant: 'primary'
+            } : undefined
           }
         />
       ) : (
@@ -524,15 +527,7 @@ const PageList: React.FC<PageListProps> = ({
         }}
       />
 
-      {/* Page Preview */}
-      <PagePreview
-        page={previewPage}
-        isOpen={isPreviewOpen}
-        onClose={handleClosePreview}
-        workspaceId={workspaceId}
-        onEdit={handleEditPage}
-        onDelete={handleDeletePage}
-      />
+
     </div>
   );
 };

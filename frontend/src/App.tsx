@@ -3,7 +3,7 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 
 // Тестируем импорты context-ов
 import { AuthProvider } from './app/providers/AuthProvider';
-import { ThemeProvider } from './app/providers/ThemeProvider';
+import { ThemeProvider } from './shared/ui/ThemeProvider';
 import Layout from './widgets/Layout/Layout';
 import LoginPage from './pages/auth/LoginPage';
 import RegisterPage from './pages/auth/RegisterPage';
@@ -16,8 +16,12 @@ import DatabasePage from './pages/DatabasePage';
 import SettingsPage from './pages/SettingsPage';
 import ProtectedRoute from './features/workspaces/ui/auth/ProtectedRoute';
 import ErrorBoundary from './shared/ui/ErrorBoundary';
+import { usePerformanceMonitor } from './shared/analytics';
 
 function App() {
+  // Инициализация монитора производительности
+  usePerformanceMonitor();
+
   React.useEffect(() => {
     // Глобальный обработчик ошибок React
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -7,16 +7,28 @@ import {
   ClipboardDocumentListIcon,
   ArchiveBoxIcon,
   DocumentDuplicateIcon,
-  Cog6ToothIcon
+  Cog6ToothIcon,
+  ChatBubbleLeftRightIcon
 } from '@heroicons/react/24/outline';
 
 import PageList from '../features/notes/ui/pages/PageList';
 import TaskBoardsList from '../widgets/TaskBoard/TaskBoardsList';
 import DatabasesList from '../widgets/DatabaseTable/DatabasesList';
+import { PagePreview, Tooltip } from '../shared/ui';
+import { useDrawer } from '../shared/hooks/useDrawer';
+import { CommentsPanel } from '../features/comments';
 
 const WorkspacePage: React.FC = () => {
   const { workspaceId } = useParams<{ workspaceId: string }>();
   const [selectedTab, setSelectedTab] = useState(0);
+  const [isCommentsOpen, setIsCommentsOpen] = useState(false);
+  
+  // Хук для управления drawer
+  const { isOpen, drawerValue, closeDrawer } = useDrawer({
+    paramName: 'preview',
+    onOpen: () => console.log('Drawer открыт'),
+    onClose: () => console.log('Drawer закрыт')
+  });
 
   if (!workspaceId) {
     return <div>Invalid workspace ID</div>;
@@ -38,14 +50,29 @@ const WorkspacePage: React.FC = () => {
             Рабочее пространство
           </h1>
           
-          {/* Settings Button */}
-          <Link
-            to={`/workspace/${workspaceId}/settings`}
-            className="btn-secondary flex items-center space-x-2"
-          >
-            <Cog6ToothIcon className="w-5 h-5" />
-            <span>Настройки</span>
-          </Link>
+          <div className="flex items-center space-x-3">
+            {/* Comments Button */}
+                                    <Tooltip content="Открыть панель комментариев">
+                          <button
+                            onClick={() => setIsCommentsOpen(true)}
+                            className="btn-secondary flex items-center space-x-2"
+                          >
+                            <ChatBubbleLeftRightIcon className="w-5 h-5" />
+                            <span>Комментарии</span>
+                          </button>
+                        </Tooltip>
+            
+            {/* Settings Button */}
+                                    <Tooltip content="Настройки рабочего пространства">
+                          <Link
+                            to={`/workspace/${workspaceId}/settings`}
+                            className="btn-secondary flex items-center space-x-2"
+                          >
+                            <Cog6ToothIcon className="w-5 h-5" />
+                            <span>Настройки</span>
+                          </Link>
+                        </Tooltip>
+          </div>
         </div>
 
         <Tab.Group selectedIndex={selectedTab} onChange={setSelectedTab}>
@@ -96,6 +123,23 @@ const WorkspacePage: React.FC = () => {
           </Tab.Panels>
         </Tab.Group>
       </div>
+      
+      {/* PagePreview Drawer */}
+      {drawerValue && (
+        <PagePreview
+          isOpen={isOpen}
+          onClose={closeDrawer}
+          page={null} // TODO: загрузить страницу по ID
+          workspaceId={workspaceId}
+        />
+      )}
+
+      {/* Comments Panel */}
+      <CommentsPanel
+        pageId={workspaceId}
+        isOpen={isCommentsOpen}
+        onClose={() => setIsCommentsOpen(false)}
+      />
     </div>
   );
 };
