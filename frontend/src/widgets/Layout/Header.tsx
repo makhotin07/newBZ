@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '../../app/providers/AuthProvider';
 import { useTheme } from '../../shared/ui/ThemeProvider';
-import { ThemeToggle } from '../../shared/ui/ThemeToggle';
+import ThemeToggle from '../../shared/ui/ThemeToggle';
 import GlobalSearch from '../../features/search/ui/search/GlobalSearch';
 import NotificationPanel from '../../features/notifications/ui/notifications/NotificationPanel';
 

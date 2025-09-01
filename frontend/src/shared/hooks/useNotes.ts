@@ -184,7 +184,10 @@ export const useDuplicatePage = () => {
 export const useTags = () => {
   return useQuery({
     queryKey: notesKeys.tags(),
-    queryFn: () => notesApi.getTags(),
+    queryFn: async () => {
+      const response = await notesApi.getTags();
+      return response.results || [];
+    },
     staleTime: 10 * 60 * 1000, // 10 minutes
   });
 };
