@@ -153,11 +153,10 @@ export interface TaskActivity {
 // Базовые типы для заметок
 
 export interface Tag {
-  id: string;
+  id: number;
   name: string;
-  color: string;
+  color?: string;
   created_at: string;
-  updated_at: string;
 }
 
 // Базовые типы для баз данных

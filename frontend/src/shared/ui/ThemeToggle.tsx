@@ -1,103 +1,30 @@
 import React from 'react';
-import { SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/react/24/outline';
 import { useTheme } from './ThemeProvider';
-import { Button } from './Button';
 
 export interface ThemeToggleProps {
-  /** Размер кнопки */
-  size?: 'sm' | 'md' | 'lg';
-  /** Показать текст */
-  showLabel?: boolean;
-  /** CSS классы */
   className?: string;
-  /** Компактный режим (только иконка) */
   compact?: boolean;
 }
 
-/**
- * Компонент переключателя темы
- * Поддерживает светлую, тёмную и системную темы
- */
-export const ThemeToggle: React.FC<ThemeToggleProps> = ({
-  size = 'md',
-  showLabel = true,
-  className = '',
-  compact = false
-}) => {
-  const { theme, setTheme, isDark, toggleTheme } = useTheme();
+const ThemeToggle: React.FC<ThemeToggleProps> = ({ className = '', compact = false }) => {
+  const { theme, toggleTheme } = useTheme();
 
-  // Получение иконки для текущей темы
-  const getThemeIcon = () => {
-    switch (theme) {
-      case 'light':
-        return <SunIcon className="w-5 h-5" />;
-      case 'dark':
-        return <MoonIcon className="w-5 h-5" />;
-      case 'system':
-        return <ComputerDesktopIcon className="w-5 h-5" />;
-      default:
-        return <SunIcon className="w-5 h-5" />;
-    }
-  };
-
-  // Получение названия темы
-  const getThemeName = () => {
-    switch (theme) {
-      case 'light':
-        return 'Светлая';
-      case 'dark':
-        return 'Тёмная';
-      case 'system':
-        return 'Системная';
-      default:
-        return 'Светлая';
-    }
-  };
-
-  // Обработчик клика
-  const handleClick = () => {
-    if (compact) {
-      toggleTheme();
-    } else {
-      // Циклическое переключение: light → dark → system → light
-      const themes: Array<'light' | 'dark' | 'system'> = ['light', 'dark', 'system'];
-      const currentIndex = themes.indexOf(theme);
-      const nextIndex = (currentIndex + 1) % themes.length;
-      setTheme(themes[nextIndex]);
-    }
-  };
-
-  // Компактный режим (только иконка)
-  if (compact) {
-    return (
-      <Button
-        variant="ghost"
-        size={size}
-        onClick={handleClick}
-        className={`p-2 ${className}`}
-        title={`Текущая тема: ${getThemeName()}. Клик для переключения.`}
-      >
-        {getThemeIcon()}
-      </Button>
-    );
-  }
-
-  // Полный режим (с текстом)
   return (
-    <Button
-      variant="ghost"
-      size={size}
-      onClick={handleClick}
-      className={`flex items-center space-x-2 ${className}`}
-      title={`Текущая тема: ${getThemeName()}. Клик для смены.`}
+    <button
+      onClick={toggleTheme}
+      className={`${compact ? 'p-1' : 'p-2'} rounded-md transition-colors ${className}`}
+      aria-label="Переключить тему"
     >
-      {getThemeIcon()}
-      {showLabel && (
-        <span className="hidden sm:inline">
-          {getThemeName()}
-        </span>
+      {theme === 'dark' ? (
+        <svg className={`${compact ? 'w-4 h-4' : 'w-5 h-5'}`} fill="currentColor" viewBox="0 0 20 20">
+          <path fillRule="evenodd" d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z" clipRule="evenodd" />
+        </svg>
+      ) : (
+        <svg className={`${compact ? 'w-4 h-4' : 'w-5 h-5'}`} fill="currentColor" viewBox="0 0 20 20">
+          <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+        </svg>
       )}
-    </Button>
+    </button>
   );
 };
 

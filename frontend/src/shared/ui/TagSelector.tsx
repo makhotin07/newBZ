@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useTags, useCreateTag } from '../../shared/hooks/useNotes';
-import { Tag } from '../../features/notes/api';
+import { Tag } from '../../shared/types';
 
 interface TagSelectorProps {
   selectedTags: Tag[];
