@@ -466,16 +466,16 @@ const TaskModal: React.FC<TaskModalProps> = ({ taskId, onClose }) => {
 
                       {/* Created By */}
                       <div>
-                                                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                            {ru.tasks.createdBy}
-                          </label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          {ru.tasks.createdBy}
+                        </label>
                         <div className="flex items-center space-x-2">
                           <div className="w-6 h-6 bg-gray-100 rounded-full flex items-center justify-center">
                             <span className="text-gray-600 text-xs font-medium">
-                              {task.created_by_name?.charAt(0)}
+                              ?
                             </span>
                           </div>
-                          <span className="text-sm text-gray-900">{task.created_by_name}</span>
+                          <span className="text-sm text-gray-900">Автор</span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">
                           {new Date(task.created_at).toLocaleString()}
