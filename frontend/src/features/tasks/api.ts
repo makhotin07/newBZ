@@ -27,12 +27,9 @@ export interface TaskBoard {
 export interface Task {
   id: string;
   title: string;
-  description: string;
+  description?: string;
   board: string;
-  board_title: string;
   column: string;
-  column_title: string;
-  position: number;
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'todo' | 'in_progress' | 'review' | 'done';
   assignees: Array<{
@@ -41,18 +38,10 @@ export interface Task {
     email: string;
     avatar?: string;
   }>;
-  assignee_ids?: number[];
-  created_by: string;
-  created_by_name: string;
+  tags: Tag[];
   due_date?: string;
   start_date?: string;
-  completed_at?: string;
   estimated_hours?: number;
-  tags: Tag[];
-  tag_ids?: string[];
-
-  attachments_count: number;
-  is_overdue: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -72,14 +61,13 @@ export interface CreateTaskData {
   title: string;
   description?: string;
   board: string;
-  column?: string;
+  column: string;
   priority?: 'low' | 'medium' | 'high' | 'urgent';
-  assignee_ids?: number[];
+  assignee_ids?: string[];
+  tag_ids?: number[];
   due_date?: string;
   start_date?: string;
   estimated_hours?: number;
-  tag_ids?: string[];
-  position?: number;
 }
 
 export interface UpdateTaskData {
@@ -88,12 +76,11 @@ export interface UpdateTaskData {
   column?: string;
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   status?: 'todo' | 'in_progress' | 'review' | 'done';
-  assignee_ids?: number[];
+  assignee_ids?: string[];
+  tag_ids?: number[];
   due_date?: string;
   start_date?: string;
   estimated_hours?: number;
-  tag_ids?: string[];
-  position?: number;
 }
 
 export interface CreateTaskColumnData {
