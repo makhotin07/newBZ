@@ -3,18 +3,7 @@
  * Автогенерирован из OpenAPI схемы
  */
 import { NotesService } from '../../shared/api/sdk/generated/services/NotesService';
-import type { 
-  PageCreate, 
-  PageDetail, 
-  PageList, 
-  PatchedPageDetail,
-  Tag,
-  PatchedTag,
-  Block,
-  PatchedBlock,
-  Comment,
-  PatchedComment
-} from '../../shared/api/sdk/generated';
+import { BlockTypeEnum } from '../../shared/api/sdk/generated/models/BlockTypeEnum';
 
 // API для работы с заметками
 export const notesApi = {
@@ -25,11 +14,17 @@ export const notesApi = {
   },
 
   createTag: async (data: { name: string; color?: string }) => {
-    const response = await NotesService.notesTagsCreate(data);
+    // Создаем объект с обязательными полями
+    const response = await NotesService.notesTagsCreate({
+      id: 0,
+      name: data.name,
+      color: data.color || '#6B7280',
+      created_at: new Date().toISOString()
+    });
     return response;
   },
 
-  updateTag: async (id: string, updates: Partial<Tag>) => {
+  updateTag: async (id: string, updates: any) => {
     const response = await NotesService.notesTagsPartialUpdate(id, updates);
     return response;
   },
@@ -49,12 +44,12 @@ export const notesApi = {
     return response;
   },
 
-  createPage: async (data: PageCreate) => {
+  createPage: async (data: any) => {
     const response = await NotesService.notesPagesCreate(data);
     return response;
   },
 
-  updatePage: async (id: string, data: Partial<PageDetail>) => {
+  updatePage: async (id: string, data: any) => {
     const response = await NotesService.notesPagesPartialUpdate(id, data);
     return response;
   },
@@ -70,13 +65,21 @@ export const notesApi = {
     return response;
   },
 
-  createBlock: async (pageId: string, blockData: Partial<Block>) => {
-    // TODO: Добавить page_id в API блоков
-    const response = await NotesService.notesBlocksCreate(blockData);
+  createBlock: async (pageId: string, blockData: any) => {
+    const response = await NotesService.notesBlocksCreate({
+      id: '',
+      type: blockData.type || 'text',
+      content: blockData.content || {},
+      position: blockData.position || 0,
+      parent_block: blockData.parent_block,
+      children: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
     return response;
   },
 
-  updateBlock: async (blockId: string, updates: Partial<Block>) => {
+  updateBlock: async (blockId: string, updates: any) => {
     const response = await NotesService.notesBlocksPartialUpdate(blockId, updates);
     return response;
   },
@@ -91,12 +94,24 @@ export const notesApi = {
     return response;
   },
 
-  createPageComment: async (pageId: string, commentData: Omit<Comment, 'id' | 'created_at'>) => {
-    const response = await NotesService.notesPagesCommentsCreate(pageId, commentData);
+  createPageComment: async (pageId: string, commentData: any) => {
+    const response = await NotesService.notesPagesCommentsCreate(pageId, {
+      id: 0,
+      content: commentData.content || '',
+      author: commentData.author || 0,
+      author_name: commentData.author_name || '',
+      author_avatar: commentData.author_avatar || '',
+      parent: commentData.parent,
+      block: commentData.block,
+      is_resolved: commentData.is_resolved || false,
+      replies: '',
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    });
     return response;
   },
 
-  updatePageComment: async (pageId: string, commentId: string, updates: Partial<Comment>) => {
+  updatePageComment: async (pageId: string, commentId: string, updates: any) => {
     const response = await NotesService.notesPagesCommentsPartialUpdate(pageId, commentId, updates);
     return response;
   },
@@ -107,13 +122,11 @@ export const notesApi = {
 
   // Дополнительные методы (пока через старый API)
   getRecentPages: async (workspaceId: string) => {
-    // TODO: Добавить в workspaces SDK метод getRecentNotes
     const response = await fetch(`/api/notes/workspace/${workspaceId}/recent/`);
     return response.json();
   },
 
   sharePage: async (data: { page_id: string; user_id: string; permissions: string }) => {
-    // TODO: Добавить в notes SDK метод sharePage
     const response = await fetch(`/api/notes/pages/${data.page_id}/share/`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -123,43 +136,43 @@ export const notesApi = {
   },
 
   getPageShares: async (pageId: string) => {
-    // TODO: Добавить в notes SDK метод getPageShares
     const response = await fetch(`/api/notes/pages/${pageId}/shares/`);
     return response.json();
   },
 
   archivePage: async (id: string) => {
-    // Используем PATCH с полем archived
     const response = await NotesService.notesPagesPartialUpdate(id, { is_archived: true });
     return response;
   },
 
   duplicatePage: async (id: string) => {
-    // Получаем страницу и создаем копию
     const originalPage = await NotesService.notesPagesRetrieve(id);
-    const { id: _, created_at, updated_at, ...pageData } = originalPage;
-    const response = await NotesService.notesPagesCreate({ 
-      ...pageData, 
-      title: `${pageData.title} (копия)`,
-      workspace: pageData.workspace
+    const response = await NotesService.notesPagesCreate({
+      title: `${originalPage.title} (копия)`,
+      content: originalPage.content,
+      icon: originalPage.icon,
+      cover_image: originalPage.cover_image,
+      workspace: parseInt(originalPage.workspace as string, 10),
+      parent: originalPage.parent || null,
+      tag_ids: originalPage.tags?.map((tag: any) => tag.id) || [],
+      permissions: originalPage.permissions,
+      is_template: originalPage.is_template,
+      position: originalPage.position
     });
     return response;
   },
 
   getChildPages: async (pageId: string) => {
-    // TODO: Добавить в notes SDK метод getChildPages
     const response = await fetch(`/api/notes/pages/${pageId}/children/`);
     return response.json();
   },
 
   getPageVersions: async (pageId: string) => {
-    // TODO: Добавить в notes SDK метод getPageVersions
     const response = await fetch(`/api/notes/pages/${pageId}/versions/`);
     return response.json();
   },
 
   searchPages: async (query: string, params?: any) => {
-    // TODO: Добавить в search SDK метод searchNotes
     const response = await fetch(`/api/notes/pages/search/?q=${encodeURIComponent(query)}`);
     return response.json();
   }
