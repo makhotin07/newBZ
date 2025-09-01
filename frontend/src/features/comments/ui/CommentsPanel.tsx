@@ -20,10 +20,12 @@ interface Comment {
 
 interface CommentsPanelProps {
   pageId: string;
-  comments: Comment[];
-  onAddComment: (content: string, parentId?: string) => void;
-  onResolveComment: (commentId: string) => void;
-  onDeleteComment: (commentId: string) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
+  comments?: Comment[];
+  onAddComment?: (content: string, parentId?: string) => void;
+  onResolveComment?: (commentId: string) => void;
+  onDeleteComment?: (commentId: string) => void;
 }
 
 /**
@@ -31,10 +33,12 @@ interface CommentsPanelProps {
  */
 const CommentsPanel: React.FC<CommentsPanelProps> = ({
   pageId,
-  comments,
-  onAddComment,
-  onResolveComment,
-  onDeleteComment
+  isOpen = true,
+  onClose,
+  comments = [],
+  onAddComment = () => {},
+  onResolveComment = () => {},
+  onDeleteComment = () => {}
 }) => {
   const [newComment, setNewComment] = useState('');
   const [replyingTo, setReplyingTo] = useState<string | null>(null);
@@ -72,14 +76,26 @@ const CommentsPanel: React.FC<CommentsPanelProps> = ({
     }
   };
 
+  if (!isOpen) return null;
+
   return (
     <div className="h-full flex flex-col">
       {/* Заголовок */}
       <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center space-x-2">
-          <ChatBubbleLeftIcon className="w-5 h-5 text-gray-500" />
-          <h3 className="text-lg font-medium text-gray-900">Комментарии</h3>
-          <span className="text-sm text-gray-500">({comments.length})</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <ChatBubbleLeftIcon className="w-5 h-5 text-gray-500" />
+            <h3 className="text-lg font-medium text-gray-900">Комментарии</h3>
+            <span className="text-sm text-gray-500">({comments.length})</span>
+          </div>
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-gray-600"
+            >
+              <EllipsisHorizontalIcon className="w-5 h-5" />
+            </button>
+          )}
         </div>
       </div>
 

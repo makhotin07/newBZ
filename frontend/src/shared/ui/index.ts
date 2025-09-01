@@ -5,6 +5,7 @@ export { default as Textarea } from './Textarea';
 export { default as Modal } from './Modal';
 export { default as Drawer } from './Drawer';
 export { default as SidePanel } from './SidePanel';
+export { default as PagePreview } from '../../features/notes/ui/pages/PagePreview';
 
 // Feedback Components
 export { default as LoadingSpinner } from './LoadingSpinner';

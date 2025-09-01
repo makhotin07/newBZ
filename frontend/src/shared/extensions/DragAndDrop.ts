@@ -4,16 +4,7 @@ import { DecorationSet } from '@tiptap/pm/view';
 
 export interface DragAndDropOptions {
   onBlockMove?: (fromIndex: number, toIndex: number) => void;
-  onBlockDrop?: (blockId: string, targetId: string, position: 'before' | 'after') => void;
-}
-
-declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    dragAndDrop: {
-      moveBlock: (fromIndex: number, toIndex: number) => ReturnType;
-      dropBlock: (blockId: string, targetId: string, position: 'before' | 'after') => ReturnType;
-    };
-  }
+  onBlockDrop?: (blockId: string, targetId: string, position: string) => void;
 }
 
 /**
@@ -32,7 +23,7 @@ export const DragAndDrop = Extension.create<DragAndDropOptions>({
 
   addCommands() {
     return {
-      moveBlock: (fromIndex: number, toIndex: number) => ({ dispatch, state }) => {
+      moveBlock: (fromIndex: number, toIndex: number) => ({ dispatch, state }: { dispatch: any; state: any }) => {
         if (dispatch) {
           const tr = state.tr;
           const blocks = state.doc.content.content;
@@ -62,7 +53,7 @@ export const DragAndDrop = Extension.create<DragAndDropOptions>({
         return false;
       },
 
-      dropBlock: (blockId: string, targetId: string, position: 'before' | 'after') => ({ dispatch, state }) => {
+      dropBlock: (blockId: string, targetId: string, position: 'before' | 'after') => ({ dispatch, state }: { dispatch: any; state: any }) => {
         if (dispatch) {
           // Вызываем callback для обработки drop
           if (this.options.onBlockDrop) {
@@ -187,5 +178,3 @@ export const DragAndDrop = Extension.create<DragAndDropOptions>({
     ];
   },
 });
-
-export default DragAndDrop;
