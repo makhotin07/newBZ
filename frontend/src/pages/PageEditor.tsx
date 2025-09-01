@@ -13,6 +13,7 @@ import SharePageModal from '../features/notes/ui/pages/SharePageModal';
 import RichTextEditor from '../features/notes/ui/editor/RichTextEditor';
 import AutoSaveIndicator from '../features/notes/ui/editor/AutoSaveIndicator';
 import toast from 'react-hot-toast';
+import { useSidePanel } from '../shared/hooks/useSidePanel';
 
 const PageEditor: React.FC = () => {
   const { pageId, workspaceId } = useParams<{ pageId: string; workspaceId: string }>();
@@ -32,6 +33,9 @@ const PageEditor: React.FC = () => {
 
   const { data: page, isLoading, error } = usePage(pageId || '');
   const updatePageMutation = useUpdatePage(pageId || '');
+  
+  // Side-panel управление
+  const { isOpen, type, data, openPanel, closePanel } = useSidePanel();
 
   useEffect(() => {
     if (page) {
