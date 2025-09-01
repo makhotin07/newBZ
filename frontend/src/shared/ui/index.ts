@@ -1,34 +1,31 @@
-export { default as Drawer } from './Drawer';
-export type { DrawerProps } from './Drawer';
-
-export { default as PagePreview } from '../../features/notes/ui/pages/PagePreview';
-// export type { PagePreviewProps } from '../../features/notes/ui/pages/PagePreview';
-
+// UI Components 2025
 export { default as Button } from './Button';
-export type { ButtonProps } from './Button';
-
 export { default as Input } from './Input';
-export type { InputProps } from './Input';
-
+export { default as Textarea } from './Textarea';
 export { default as Modal } from './Modal';
-export type { ModalProps } from './Modal';
+export { default as Drawer } from './Drawer';
+export { default as SidePanel } from './SidePanel';
 
+// Feedback Components
 export { default as LoadingSpinner } from './LoadingSpinner';
-
-export { default as EmptyState } from './EmptyState';
-export type { EmptyStateProps } from './EmptyState';
-
-export { default as ErrorState } from './ErrorState';
-export type { ErrorStateProps } from './ErrorState';
-
 export { default as LoadingSkeleton } from './LoadingSkeleton';
-export type { LoadingSkeletonProps } from './LoadingSkeleton';
+export { default as ErrorState } from './ErrorState';
+export { default as EmptyState } from './EmptyState';
+export { default as ErrorBoundary } from './ErrorBoundary';
 
+// Interactive Components
 export { default as Tooltip } from './Tooltip';
-export type { TooltipProps } from './Tooltip';
+export { default as ConfirmModal } from './ConfirmModal';
+export { default as TagSelector } from './TagSelector';
+export { default as EmojiPicker } from './EmojiPicker';
 
+// Theme
 export { default as ThemeProvider } from './ThemeProvider';
-export type { Theme, ThemeContextType } from './ThemeProvider';
-
 export { default as ThemeToggle } from './ThemeToggle';
-export type { ThemeToggleProps } from './ThemeToggle';
+
+// Types
+export type { ButtonProps } from './Button';
+export type { InputProps } from './Input';
+export type { TextareaProps } from './Textarea';
+export type { ModalProps } from './Modal';
+export type { DrawerProps } from './Drawer';
