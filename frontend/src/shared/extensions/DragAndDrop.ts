@@ -63,7 +63,7 @@ export const DragAndDrop = Extension.create<DragAndDropOptions>({
         }
         return false;
       },
-    };
+    } as any;
   },
 
   addProseMirrorPlugins() {

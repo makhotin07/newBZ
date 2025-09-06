@@ -129,7 +129,7 @@ export const mockTask = {
 };
 
 // Mock API responses
-export const mockApiResponse = <T>(data: T) => ({
+export const mockApiResponse = <T,>(data: T) => ({
   data,
   status: 200,
   statusText: 'OK',
@@ -137,7 +137,7 @@ export const mockApiResponse = <T>(data: T) => ({
   config: {}
 });
 
-export const mockPaginatedResponse = <T>(data: T[]) => ({
+export const mockPaginatedResponse = <T,>(data: T[]) => ({
   results: data,
   count: data.length,
   next: null,

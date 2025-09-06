@@ -379,7 +379,6 @@ export interface Task {
   is_overdue?: boolean;
   created_by_name?: string;
   position?: number;
-
   attachments_count?: number;
 }
 

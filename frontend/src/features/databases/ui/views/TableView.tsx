@@ -13,7 +13,7 @@ import type { DatabaseProperty, DatabaseRecord } from '../../types/database';
 import { TableViewConfig } from '../../types/views';
 import { EditableCell } from '../EditableCell';
 import { Button } from '../../../../shared/ui/Button';
-import { Input } from '../../../../shared/ui/Input';
+import Input from '../../../../shared/ui/Input';
 import { Modal } from '../../../../shared/ui/Modal';
 import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
 import { EmptyState, LoadingSkeleton, Tooltip } from '../../../../shared/ui';

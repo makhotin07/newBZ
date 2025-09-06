@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
-import { Fragment } from 'react';
 import { XMarkIcon, PlusIcon } from '@heroicons/react/24/outline';
 import { useCreateDatabaseProperty } from '../hooks/useDatabaseProperty';
 import toast from 'react-hot-toast';
@@ -274,7 +273,7 @@ const CreatePropertyModal: React.FC<CreatePropertyModalProps> = ({
                           placeholder="Например: prop('field1') * prop('field2')"
                         />
                         <p className="text-xs text-gray-500 mt-1">
-                          Используйте prop('название_поля') для ссылки на другие поля
+                          Используйте prop(&apos;название_поля&apos;) для ссылки на другие поля
                         </p>
                       </div>
                     )}

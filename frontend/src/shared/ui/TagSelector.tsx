@@ -33,19 +33,20 @@ const TagSelector: React.FC<TagSelectorProps> = ({
     '#EC4899', '#F43F5E', '#6B7280', '#374151', '#1F2937',
   ];
 
-  const selectedTagIds = selectedTags.map(tag => tag.id);
+  const selectedTagIds = selectedTags.map(tag => String(tag.id));
 
   const filteredTags = allTags.filter((tag: any) =>
     tag.name.toLowerCase().includes(searchQuery.toLowerCase()) &&
-    !selectedTagIds.includes(tag.id)
+    !selectedTagIds.includes(String(tag.id))
   );
 
   const handleToggleTag = (tag: Tag) => {
-    const isSelected = selectedTagIds.includes(tag.id);
+    const tagIdStr = String(tag.id);
+    const isSelected = selectedTagIds.includes(tagIdStr);
     if (isSelected) {
-      onChange(selectedTagIds.filter(id => id !== tag.id));
+      onChange(selectedTagIds.filter(id => id !== tagIdStr));
     } else {
-      onChange([...selectedTagIds, tag.id]);
+      onChange([...selectedTagIds, tagIdStr]);
     }
   };
 
@@ -101,7 +102,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
           >
             <span>{tag.name}</span>
             <button
-              onClick={() => handleRemoveTag(tag.id)}
+              onClick={() => handleRemoveTag(String(tag.id))}
               className="hover:bg-black hover:bg-opacity-10 rounded-full p-0.5"
             >
               <XMarkIcon className="w-3 h-3" />
@@ -171,7 +172,7 @@ const TagSelector: React.FC<TagSelectorProps> = ({
                   className="w-full flex items-center space-x-2 px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded transition-colors"
                 >
                   <PlusIcon className="w-4 h-4" />
-                  <span>Create "{searchQuery}"</span>
+                  <span>Create &quot;{searchQuery}&quot;</span>
                 </button>
               </div>
             )}

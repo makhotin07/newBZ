@@ -290,7 +290,7 @@ const KanbanBoard: React.FC<KanbanBoardProps> = ({ boardId, workspaceId }) => {
                       }`}
                     >
                       {(Array.isArray(tasksByColumn[column.id]) ? tasksByColumn[column.id] : [])
-                        .sort((a: Task, b: Task) => a.position - b.position)
+                        .sort((a: Task, b: Task) => (a.position || 0) - (b.position || 0))
                                                 .map((task: Task, index: number) => {
                           // Additional safety check for task object
                           if (!task || typeof task !== 'object' || !task.id) {

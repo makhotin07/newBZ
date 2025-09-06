@@ -22,7 +22,7 @@ export const DatabaseBlockExample: React.FC<DatabaseBlockExampleProps> = ({
   const handleInsertDatabase = async (databaseId: string, viewId?: string) => {
     try {
       // Создаем блок базы данных через API
-      const block = await notesApi.createDatabaseBlock(pageId, databaseId, viewId);
+      const block = await notesApi.createDatabaseBlock(pageId, databaseId, viewId || '');
       
       // Обновляем контент страницы
       const updatedContent = content + `

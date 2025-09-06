@@ -2,11 +2,16 @@ import '@testing-library/jest-dom';
 
 // Mock IntersectionObserver
 global.IntersectionObserver = class IntersectionObserver {
+  root = null;
+  rootMargin = '';
+  thresholds = [];
+  
   constructor() {}
   disconnect() {}
   observe() {}
   unobserve() {}
-};
+  takeRecords() { return []; }
+} as any;
 
 // Mock ResizeObserver
 global.ResizeObserver = class ResizeObserver {
@@ -70,16 +75,26 @@ global.fetch = jest.fn();
 
 // Mock WebSocket
 global.WebSocket = class WebSocket {
-  constructor(url: string) {
-    this.url = url;
+  constructor(url: string | URL, protocols?: string | string[]) {
+    this.url = url.toString();
   }
   
   url: string;
   readyState: number = 1;
-  CONNECTING: number = 0;
-  OPEN: number = 1;
-  CLOSING: number = 2;
-  CLOSED: number = 3;
+  binaryType: BinaryType = 'blob';
+  bufferedAmount: number = 0;
+  extensions: string = '';
+  protocol: string = '';
+  
+  static readonly CONNECTING = 0;
+  static readonly OPEN = 1;
+  static readonly CLOSING = 2;
+  static readonly CLOSED = 3;
+  
+  readonly CONNECTING = 0;
+  readonly OPEN = 1;
+  readonly CLOSING = 2;
+  readonly CLOSED = 3;
   
   onopen: ((event: Event) => void) | null = null;
   onclose: ((event: CloseEvent) => void) | null = null;

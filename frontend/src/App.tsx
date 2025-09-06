@@ -24,7 +24,7 @@ function App() {
 
   React.useEffect(() => {
     // Глобальный обработчик ошибок React
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    // eslint-disable-next-line no-unused-vars
     const handleError = (_error: Error, _errorInfo: React.ErrorInfo) => {
       // Обработчик ошибок React Error Boundary
     };

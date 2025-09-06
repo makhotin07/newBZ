@@ -312,7 +312,7 @@ const DatabasePage: React.FC = () => {
                         if (!datePropKey) {
                           return (
                             <div className="text-sm text-gray-600">
-                              Для календаря нужна колонка типа "date". Добавьте свойство даты в базу данных.
+                              Для календаря нужна колонка типа &quot;date&quot;. Добавьте свойство даты в базу данных.
                             </div>
                           );
                         }

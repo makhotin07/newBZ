@@ -317,7 +317,7 @@ const PageEditor: React.FC = () => {
                 <TagSelector
                   selectedTags={page.tags}
                   onChange={(tagIds) => {
-                    updatePageMutation.mutate({ tag_ids: tagIds });
+                    updatePageMutation.mutate({ tag_ids: tagIds.map(id => parseInt(id, 10)) });
                   }}
                 />
               </div>

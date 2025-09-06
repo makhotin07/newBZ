@@ -15,10 +15,9 @@ import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { usePages, useCreatePage, useArchivePage, useDuplicatePage, useDeletePage } from '../../../../shared/hooks/useNotes';
-import { Page } from '../../api';
+import { Page, notesApi } from '../../api';
 import LoadingSpinner from '../../../../shared/ui/LoadingSpinner';
 import EmptyState from '../../../../shared/ui/EmptyState';
-import { notesApi } from '../../api';
 import ConfirmModal from '../../../../shared/ui/ConfirmModal';
 
 
@@ -56,7 +55,7 @@ const PageList: React.FC<PageListProps> = ({
   const duplicatePageMutation = useDuplicatePage();
   const deletePageMutation = useDeletePage();
 
-  const filteredPages = pages?.filter((page: any) =>
+  const filteredPages = pages?.results?.filter((page: any) =>
     page.title.toLowerCase().includes(searchQuery.toLowerCase())
   ) || [];
 
@@ -115,31 +114,31 @@ const PageList: React.FC<PageListProps> = ({
 
     // Считаем новую позицию через соседние элементы
     const newIndex = destination.index;
-    const prevItem = ordered[newIndex - 1] && ordered[newIndex - 1].id !== moved.id
+    const prevItem = ordered[newIndex - 1] && (ordered[newIndex - 1] as any).id !== (moved as any).id
       ? ordered[newIndex - 1]
       : undefined;
-    const nextItem = ordered[newIndex] && ordered[newIndex].id !== moved.id
+    const nextItem = ordered[newIndex] && (ordered[newIndex] as any).id !== (moved as any).id
       ? ordered[newIndex]
       : ordered[newIndex + 1];
 
     let newPosition: number;
     if (!prevItem && nextItem) {
       // В начало списка
-      newPosition = (nextItem.position ?? 0) - 1;
+      newPosition = ((nextItem as any).position ?? 0) - 1;
     } else if (prevItem && !nextItem) {
       // В конец списка
-      newPosition = (prevItem.position ?? 0) + 1;
+      newPosition = ((prevItem as any).position ?? 0) + 1;
     } else if (prevItem && nextItem) {
       // Между
-      const prevPos = prevItem.position ?? 0;
-      const nextPos = nextItem.position ?? prevPos + 1;
+      const prevPos = (prevItem as any).position ?? 0;
+      const nextPos = (nextItem as any).position ?? prevPos + 1;
       newPosition = (prevPos + nextPos) / 2;
     } else {
       // Единственный элемент
-      newPosition = moved.position ?? 0;
+      newPosition = (moved as any).position ?? 0;
     }
 
-    reorderMutation.mutate({ id: moved.id, position: newPosition });
+    reorderMutation.mutate({ id: (moved as any).id, position: newPosition });
   };
 
   const handlePageClick = (page: Page) => {
@@ -360,7 +359,7 @@ const PageList: React.FC<PageListProps> = ({
     const { data: children, isLoading } = usePages({ workspace: workspaceId, parent: parentId });
     const createPageMutation = useCreatePage();
     if (isLoading) return null;
-    if (!children || children.length === 0) return (
+    if (!children || !Array.isArray(children) || children.length === 0) return (
       <div className="pl-6 py-2 text-xs text-gray-500 hover:text-gray-600 transition-colors">Нет дочерних страниц</div>
     );
     const ChildRow: React.FC<{ node: Page }> = ({ node }) => {
@@ -396,7 +395,7 @@ const PageList: React.FC<PageListProps> = ({
 
     return (
       <div className="space-y-1 hover:space-y-2 transition-all duration-200">
-        {children.map((child: any) => (
+        {Array.isArray(children) && children.map((child: any) => (
           <ChildRow key={child.id} node={child} />
         ))}
       </div>

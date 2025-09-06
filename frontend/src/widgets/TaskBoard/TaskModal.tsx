@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, Transition } from '@headlessui/react';
+import { Dialog, Transition, Tab } from '@headlessui/react';
 import { 
   XMarkIcon, 
   CalendarIcon, 
@@ -8,7 +8,6 @@ import {
   ClockIcon as ActivityIcon,
   TrashIcon
 } from '@heroicons/react/24/outline';
-import { Tab } from '@headlessui/react';
 
 import { useTask, useUpdateTask, useDeleteTask, useTaskActivity } from '../../shared/hooks/useTasks';
 import { useTags } from '../../shared/hooks/useNotes';

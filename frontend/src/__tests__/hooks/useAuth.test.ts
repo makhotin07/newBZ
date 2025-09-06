@@ -20,7 +20,7 @@ const createWrapper = () => {
 
   return ({ children }: { children: React.ReactNode }) => {
     return React.createElement(QueryClientProvider, { client: queryClient },
-      React.createElement(AuthProvider, {}, children)
+      React.createElement(AuthProvider, { children }, children)
     );
   };
 };

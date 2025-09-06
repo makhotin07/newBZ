@@ -9,3 +9,4 @@ export {
   LazyErrorBoundary,
 } from './LazyLoader';
 export type { LazyLoaderProps } from './LazyLoader';
+export { cn } from './cn';

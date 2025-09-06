@@ -132,7 +132,7 @@ const CreateTaskBoardModal: React.FC<CreateTaskBoardModalProps> = ({ workspaceId
                   {/* Info */}
                   <div className="mt-4 p-3 bg-blue-50 rounded-md">
                     <p className="text-sm text-blue-700">
-                      Новая доска будет создана с колонками по умолчанию: "К выполнению", "В работе", "На проверке" и "Готово".
+                      Новая доска будет создана с колонками по умолчанию: &quot;К выполнению&quot;, &quot;В работе&quot;, &quot;На проверке&quot; и &quot;Готово&quot;.
                       Эти колонки можно изменить после создания.
                     </p>
                   </div>

@@ -101,7 +101,7 @@ const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId, columnId, is
     }
   };
 
-  const selectedTags = tags.filter(tag => formData.tag_ids?.includes(tag.id));
+  const selectedTags = tags.filter((tag: any) => formData.tag_ids?.includes(tag.id));
 
   return (
     <Dialog as="div" className="relative z-50" onClose={handleClose} open={isOpen}>

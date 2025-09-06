@@ -136,7 +136,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({ workspaceId }) =>
       <div className="text-center py-8">
         <ExclamationTriangleIcon className="w-12 h-12 text-red-500 mx-auto mb-4" />
         <h2 className="text-lg font-semibold text-gray-900 mb-2">Access Denied</h2>
-        <p className="text-gray-500">You don't have permission to manage this workspace.</p>
+        <p className="text-gray-500">You don&apos;t have permission to manage this workspace.</p>
       </div>
     );
   }
@@ -391,7 +391,7 @@ const WorkspaceSettings: React.FC<WorkspaceSettingsProps> = ({ workspaceId }) =>
                     ) : (
                       <div className="space-y-3">
                         <p className="text-sm font-medium text-red-900">
-                          Введите "{workspace.name}" для подтверждения удаления:
+                          Введите &quot;{workspace.name}&quot; для подтверждения удаления:
                         </p>
                         <input
                           type="text"

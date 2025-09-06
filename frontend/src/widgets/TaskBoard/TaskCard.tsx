@@ -160,7 +160,7 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
         <div className="flex items-center space-x-3">
 
           
-          {task.attachments_count > 0 && (
+          {(task.attachments_count || 0) > 0 && (
             <div className="flex items-center space-x-1">
               <PaperClipIcon className="w-3 h-3" />
               <span>{task.attachments_count}</span>

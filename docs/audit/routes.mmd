@@ -1,0 +1,76 @@
+graph TD
+    A[App.tsx] --> B[AuthProvider]
+    A --> C[ThemeProvider]
+    A --> D[ErrorBoundary]
+    
+    B --> E[Routes]
+    
+    E --> F["/login<br/>LoginPage"]
+    E --> G["/register<br/>RegisterPage"]
+    E --> H["/ (ProtectedRoute)"]
+    E --> I["* → /<br/>Navigate"]
+    
+    H --> J[Layout]
+    J --> K["/ (index)<br/>DashboardPage"]
+    J --> L["/workspace/:workspaceId<br/>WorkspacePage"]
+    J --> M["/settings<br/>SettingsPage"]
+    
+    L --> N["/workspace/:workspaceId/settings<br/>WorkspaceSettingsPage"]
+    L --> O["/workspace/:workspaceId/page/:pageId<br/>PageEditor"]
+    L --> P["/workspace/:workspaceId/tasks/:boardId<br/>TaskBoardPage"]
+    L --> Q["/workspace/:workspaceId/database/:databaseId<br/>DatabasePage"]
+    
+    %% Sidebar Navigation Issues
+    R[Sidebar] --> S["/workspace/:workspaceId/databases<br/>❌ НЕ НАЙДЕНО в роутах"]
+    R --> T["/workspace/:workspaceId/tasks<br/>❌ НЕ НАЙДЕНО в роутах"]
+    
+    %% Page Components
+    F --> F1[Login Form]
+    F --> F2[Social Auth Buttons<br/>❌ НЕ РЕАЛИЗОВАНЫ]
+    F --> F3[Forgot Password Modal]
+    
+    G --> G1[Registration Form]
+    G --> G2[Password Validation]
+    
+    K --> K1[Quick Stats]
+    K --> K2[Quick Actions]
+    K --> K3[Recent Activity]
+    K --> K4[Upcoming Tasks<br/>❌ ЗАГЛУШКА]
+    
+    L --> L1[Pages Tab]
+    L --> L2[Databases Tab]
+    L --> L3[Tasks Tab]
+    L --> L4[Templates Tab]
+    L --> L5[Archive Tab]
+    L --> L6[Comments Panel]
+    
+    O --> O1[Rich Text Editor]
+    O --> O2[Auto Save]
+    O --> O3[Share Modal]
+    O --> O4[View/Edit Modes]
+    
+    P --> P1[KanbanBoard]
+    P --> P2[TaskBoardsList]
+    
+    Q --> Q1[Table View]
+    Q --> Q2[Grid View]
+    Q --> Q3[Calendar View]
+    Q --> Q4[Kanban View]
+    Q --> Q5[Gallery View]
+    Q --> Q6[Properties Management]
+    
+    M --> M1[Profile Tab]
+    M --> M2[Notifications Tab]
+    M --> M3[Security Tab]
+    M --> M4[Avatar Upload]
+    
+    %% Styling
+    classDef public fill:#e1f5fe
+    classDef protected fill:#f3e5f5
+    classDef error fill:#ffebee
+    classDef stub fill:#fff3e0
+    
+    class F,G public
+    class H,J,K,L,M,N,O,P,Q protected
+    class S,T,F2,K4 error
+    class F2,K4 stub

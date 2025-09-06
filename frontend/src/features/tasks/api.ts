@@ -44,6 +44,12 @@ export interface Task {
   estimated_hours?: number;
   created_at: string;
   updated_at: string;
+  position?: number;
+  is_overdue?: boolean;
+  attachments_count?: number;
+  created_by_name?: string;
+  board_title?: string;
+  column_title?: string;
 }
 
 export interface CreateTaskBoardData {
@@ -64,7 +70,7 @@ export interface CreateTaskData {
   column: string;
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   assignee_ids?: string[];
-  tag_ids?: number[];
+  tag_ids?: string[];
   due_date?: string;
   start_date?: string;
   estimated_hours?: number;
@@ -77,7 +83,7 @@ export interface UpdateTaskData {
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   status?: 'todo' | 'in_progress' | 'review' | 'done';
   assignee_ids?: string[];
-  tag_ids?: number[];
+  tag_ids?: string[];
   due_date?: string;
   start_date?: string;
   estimated_hours?: number;

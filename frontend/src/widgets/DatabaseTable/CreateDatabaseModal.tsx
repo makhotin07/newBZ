@@ -218,7 +218,7 @@ const CreateDatabaseModal: React.FC<CreateDatabaseModalProps> = ({ workspaceId, 
                   {/* Info */}
                   <div className="mt-4 p-3 bg-blue-50 rounded-md">
                     <p className="text-sm text-blue-700">
-                      Новая база будет создана со свойством "Title" по умолчанию.
+                      Новая база будет создана со свойством &quot;Title&quot; по умолчанию.
                       Вы сможете добавить свойства и настроить базу после создания.
                     </p>
                   </div>

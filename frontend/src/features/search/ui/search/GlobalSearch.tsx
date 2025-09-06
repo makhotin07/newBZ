@@ -224,7 +224,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ workspaceId }) => {
             className="block px-4 py-3 text-center text-blue-600 hover:bg-blue-50 border-t border-gray-200 font-medium"
             onClick={() => setIsOpen(false)}
           >
-            Show all results for "{query}" →
+            Show all results for &quot;{query}&quot; →
           </Link>
         )}
       </div>
