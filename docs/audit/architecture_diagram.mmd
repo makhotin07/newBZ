@@ -1,0 +1,69 @@
+graph TB
+    subgraph "Frontend (React + TypeScript)"
+        A[App.tsx] --> B[Layout]
+        B --> C[Sidebar]
+        B --> D[Header]
+        B --> E[Outlet]
+        
+        E --> F[DashboardPage]
+        E --> G[WorkspacePage]
+        E --> H[PageEditor]
+        E --> I[DatabasePage]
+        E --> J[TaskBoardPage]
+        E --> K[SettingsPage]
+        
+        subgraph "Features"
+            L[workspaces]
+            M[notes]
+            N[databases]
+            O[tasks]
+            P[search]
+            Q[comments]
+            R[notifications]
+        end
+        
+        subgraph "Shared"
+            S[UI Components]
+            T[Hooks]
+            U[API Client]
+            V[Types]
+        end
+        
+        subgraph "State Management"
+            W[React Query]
+            X[AuthProvider]
+            Y[ThemeProvider]
+        end
+    end
+    
+    subgraph "Backend (Django + DRF)"
+        Z[API Views] --> AA[ViewSets]
+        AA --> BB[Serializers]
+        BB --> CC[Models]
+        CC --> DD[Database]
+        
+        subgraph "Services"
+            EE[workspace_service]
+            FF[note_service]
+            GG[task_service]
+            HH[search_service]
+        end
+        
+        subgraph "WebSocket"
+            II[Collaboration Consumers]
+        end
+    end
+    
+    subgraph "Infrastructure"
+        JJ[PostgreSQL]
+        KK[Redis]
+        LL[Nginx]
+    end
+    
+    U --> Z
+    W --> U
+    II --> W
+    CC --> JJ
+    EE --> KK
+    LL --> A
+    LL --> Z

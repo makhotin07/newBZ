@@ -1,0 +1,58 @@
+graph LR
+    subgraph "Frontend Modules"
+        A[App] --> B[Layout]
+        B --> C[Sidebar]
+        B --> D[Header]
+        
+        A --> E[Pages]
+        E --> F[DashboardPage]
+        E --> G[WorkspacePage]
+        E --> H[PageEditor]
+        E --> I[DatabasePage]
+        E --> J[TaskBoardPage]
+        
+        A --> K[Features]
+        K --> L[workspaces]
+        K --> M[notes]
+        K --> N[databases]
+        K --> O[tasks]
+        K --> P[search]
+        K --> Q[comments]
+        K --> R[notifications]
+        
+        A --> S[Shared]
+        S --> T[UI Components]
+        S --> U[Hooks]
+        S --> V[API Client]
+        S --> W[Types]
+        
+        A --> X[Widgets]
+        X --> Y[DatabaseTable]
+        X --> Z[TaskBoard]
+        X --> AA[WorkspaceHeader]
+        
+        A --> BB[Providers]
+        BB --> CC[AuthProvider]
+        BB --> DD[ThemeProvider]
+        BB --> EE[QueryClient]
+    end
+    
+    subgraph "Backend Modules"
+        FF[API] --> GG[ViewSets]
+        GG --> HH[Serializers]
+        HH --> II[Models]
+        
+        FF --> JJ[Services]
+        JJ --> KK[workspace_service]
+        JJ --> LL[note_service]
+        JJ --> MM[task_service]
+        JJ --> NN[search_service]
+        
+        FF --> OO[WebSocket]
+        OO --> PP[Collaboration Consumers]
+    end
+    
+    V --> FF
+    U --> V
+    CC --> V
+    EE --> U
